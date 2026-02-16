@@ -10,6 +10,7 @@ import com.google.firebase.Timestamp
 //"start_date" timestamp DEFAULT CURRENT_TIMESTAMP,
 //"id_forum" UUID
 data class UserModel(
+    val id: String?,
     val firebase_uid: String, //token q se manda al backenc
     val username: String,
     val email: String,
@@ -19,6 +20,7 @@ data class UserModel(
 ) {
     fun toMap(): MutableMap<String, Any> {
         return mutableMapOf(
+            "id" to this.id,
             "firebase_uid" to this.firebase_uid,
             "username" to this.username,
             "email" to this.email,
@@ -26,6 +28,26 @@ data class UserModel(
             "start_date" to (this.start_date ?: Timestamp.now())
             // id_forum to aja
         )
-
+    }
+    companion object {
+        fun fromMap(map: Map<String, Any>): UserModel {
+            return UserModel(
+                id = map["id"] as? String ?: "",
+                firebase_uid = map["firebase_uid"] as? String ?: "",
+                username = map["username"] as? String ?: "",
+                email = map["email"] as? String ?: "",
+                birth_day = map["birth_day"] as? String ?: "",
+                start_date = map["start_date"] as? Timestamp
+            )
+        }
     }
 }
+
+//para api
+data class UserRequest(
+    val idToken: String,
+    val firebase_uid: String,
+    val username: String,
+    val email: String,
+    val birth_day: String
+)
