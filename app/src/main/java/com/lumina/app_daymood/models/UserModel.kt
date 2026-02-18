@@ -18,7 +18,7 @@ data class UserModel(
     val start_date: Timestamp? = null,
 //    val id_forum: String //  la logica de esto se pospone
 ) {
-    fun toMap(): MutableMap<String, Any> {
+    fun toMap(): MutableMap<String, out Comparable<Nothing>?> {
         return mutableMapOf(
             "id" to this.id,
             "firebase_uid" to this.firebase_uid,
