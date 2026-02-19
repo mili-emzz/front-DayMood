@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "441665669122-c202qfpiijt0tt39stmq5fk79rqc3801.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.lumina.app_daymood",
-            "certificate_hash": "92397acdf8a9ed1118b963cedf0270e70b87037a"
-          }
-        },
-        {
           "client_id": "441665669122-eiigtopne14ibau69iklfq3jjpk4h4q3.apps.googleusercontent.com",
           "client_type": 3
         }
