@@ -25,7 +25,7 @@ fun LoginImage(){
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(R.drawable.login_image_background),
+            painter = painterResource(R.drawable.loginrafiki_3),
             contentDescription = "Imagen login"
         )
     }

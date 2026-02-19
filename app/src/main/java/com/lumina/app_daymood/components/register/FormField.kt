@@ -45,7 +45,7 @@ fun FormTextField(
         },
         modifier = Modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(15.dp),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedBorderColor = MainColor,
             focusedBorderColor = MainColor,
