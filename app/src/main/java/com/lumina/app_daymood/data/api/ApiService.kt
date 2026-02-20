@@ -1,2 +1,5 @@
-package com.lumina.app_daymood.data.api 
+package com.lumina.app_daymood.data.api
 
+interface ApiService{
+    @
+}
