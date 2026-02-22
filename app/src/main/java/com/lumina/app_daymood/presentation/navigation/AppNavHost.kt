@@ -29,7 +29,7 @@ import com.lumina.app_daymood.presentation.views.record.RecordHabitView
 // import com.lumina.app_daymood.presentation.views.profile.ProfileAuthenticatedView
 
 @Composable
-fun AppNavigation(
+fun AppNavHost(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
