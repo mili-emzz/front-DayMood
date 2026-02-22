@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.components.register
+package com.lumina.app_daymood.presentation.components.register
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +27,7 @@ import com.lumina.app_daymood.ui.theme.MainColor
 fun ButtonContainers(
     text: String,
     isRegister: Boolean,
+    enabled: Boolean = true,
     onButtonClick: () -> Unit,
     onNavigateClick: () -> Unit
 ){
@@ -36,6 +37,7 @@ fun ButtonContainers(
     ) {
         Button(
             onClick = onButtonClick,
+            enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
