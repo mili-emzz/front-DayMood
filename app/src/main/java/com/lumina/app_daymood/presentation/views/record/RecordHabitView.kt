@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.views.calendar
+package com.lumina.app_daymood.presentation.views.record
 
 class RecordHabitView {
 }
