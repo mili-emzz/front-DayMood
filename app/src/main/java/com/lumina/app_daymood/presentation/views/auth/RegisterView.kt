@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.Views
+package com.lumina.app_daymood.presentation.views.auth
 
 
 import android.util.Log
@@ -16,20 +16,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lumina.app_daymood.components.register.ButtonContainers
-import com.lumina.app_daymood.components.register.DatePickerField
-import com.lumina.app_daymood.components.register.FormTextField
-import com.lumina.app_daymood.components.register.LoginImage
-import com.lumina.app_daymood.presentation.ViewModels.AuthViewModel
+import com.lumina.app_daymood.presentation.components.register.ButtonContainers
+import com.lumina.app_daymood.presentation.components.register.DatePickerField
+import com.lumina.app_daymood.presentation.components.register.FormTextField
+import com.lumina.app_daymood.presentation.components.register.LoginImage
+import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterView(
-    loginViewModel: AuthViewModel,
+    authViewModel: AuthViewModel,
     onNavigateToLogin: () -> Unit = {},
     onRegisterSuccess: () -> Unit = {}
 ) {
+
+    val uiState = authViewModel.uiState
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -88,20 +90,25 @@ fun RegisterView(
             )
         }
 
-        val allFieldsFilled =
-            birth_day.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
-
+        uiState.error?.let { error ->
+            Text(
+                text = error,
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
         ButtonContainers(
             text = "Registrarse",
             isRegister = true,
             onButtonClick = {
                 if (password == confirmPassword) {
                     passwordMismatch = false
-                    loginViewModel.createUser(
+                    authViewModel.register(
                         email = email,
                         password = password,
+                        birth_day = birth_day,
                         onSuccess = onRegisterSuccess,
-                        birth_day = birth_day
                     )
                 } else {
                     passwordMismatch = true
@@ -134,12 +141,6 @@ fun FormsView(
     ) {
 
         DatePickerField(
-            value = birth_day,
-            onValueChange = onBirthDayChange,
-            label = "Fecha de cumpleaños"
-        )
-
-        FormTextField(
             value = birth_day,
             onValueChange = onBirthDayChange,
             label = "Fecha de cumpleaños"

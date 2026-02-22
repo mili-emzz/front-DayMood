@@ -1,4 +1,6 @@
 package com.lumina.app_daymood.presentation.viewmodels
 
-class RecordViewModel {
+import androidx.lifecycle.ViewModel
+
+class RecordViewModel: ViewModel() {
 }
