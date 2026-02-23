@@ -87,7 +87,7 @@ class AuthRepositoryImpl(
         return firebaseAuthDataSource.isAuthenticated()
     }
 
-    override fun getCurrentUserId(): String? {
+    override fun getCurrentUser(): String? {
         return firebaseAuthDataSource.getCurrentUser()
     }
 

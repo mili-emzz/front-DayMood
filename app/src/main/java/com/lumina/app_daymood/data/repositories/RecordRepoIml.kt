@@ -7,7 +7,7 @@ import com.lumina.app_daymood.domain.repositories.IRepository
 import com.lumina.app_daymood.domain.models.EmotionModel as Emotion // mi mejor descubrimiento
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 
-class RecordRepoIml(
+class RecordRepositoryIml(
     private val apiService: ApiService,
     private val firebaseAuthDataSource: FirebaseAuthDataSource
 ) : IRepository {
@@ -124,7 +124,7 @@ class RecordRepoIml(
         }
     }
 
-    override suspend fun getRecordByDate(userId: String, date: String): Result<RecordModel?> {
+    override suspend fun getRecordByDate(userId: String?, date: String): Result<RecordModel?> {
         return try {
             // val token = firebaseAuthDataSource.getIdToken()
             // val response = apiService!!.getRecordByDate("Bearer $token", date)
@@ -138,7 +138,7 @@ class RecordRepoIml(
     }
 
     override suspend fun getRecordsByMonth(
-        userId: String,
+        userId: String?,
         year: Int,
         month: Int
     ): Result<List<RecordModel>> {
