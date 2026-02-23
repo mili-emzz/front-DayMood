@@ -1,6 +1,6 @@
 package com.lumina.app_daymood.domain.models
 
-data class CategoryReference(
+data class CategoryModel(
     val id: Int,
     val name: String
 )

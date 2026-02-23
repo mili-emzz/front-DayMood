@@ -1,6 +1,6 @@
 package com.lumina.app_daymood.domain.models
 
-class Habit(
+class HabitModel(
     val id: String,
     val name: String,
     val categoryId: Int

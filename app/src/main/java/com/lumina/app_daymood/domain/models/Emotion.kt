@@ -1,6 +1,6 @@
 package com.lumina.app_daymood.domain.models
 
-data class Emotion(
+data class EmotionModel(
     val id: String,
     val name: String,
     val imgUrl: String,
