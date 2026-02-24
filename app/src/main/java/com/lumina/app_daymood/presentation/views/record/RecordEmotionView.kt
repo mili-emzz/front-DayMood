@@ -52,7 +52,6 @@ fun RecordEmotionView(
         containerColor = BackgroundColor,
         content = { paddingValues ->
             Box(modifier = Modifier.fillMaxSize()) {
-
                 // Loading mientras cargan las emociones
                 if (uiState.loadingCatalogs) {
                     CircularProgressIndicator(
