@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.AddCircleOutline
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.StackedBarChart
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class Destination(
@@ -16,5 +17,6 @@ enum class Destination(
     CALENDAR("calendar", Icons.Filled.CalendarMonth),
     ADD("add", Icons.Outlined.AddCircleOutline),
     FAVORITES("favorites", Icons.Outlined.FavoriteBorder),
-    PROFILE("profile", Icons.Outlined.Person)
+    PROFILE("profile", Icons.Outlined.Person),
+    STADISTIC("stadisctics", Icons.Outlined.StackedBarChart)
 }
