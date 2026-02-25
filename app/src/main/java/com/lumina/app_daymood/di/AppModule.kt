@@ -35,7 +35,7 @@ object AppModule {
         AuthRepositoryImpl(
             firebaseAuthDataSource = firebaseAuthDataSource,
             firestoreDataSource = firestoreDataSource,
-            apiService = null  // Cambia a apiService cuando lo tengas
+            apiService = apiService
         )
     }
 
