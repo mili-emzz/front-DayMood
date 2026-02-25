@@ -32,35 +32,39 @@ fun AppNavHost(
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
+    val initialRoute = if (authViewModel.isAuthenticated()) {
+        Destination.CALENDAR.route
+    } else {
+        AuthRoutes.REGISTER
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Destination.CALENDAR.route,
+        startDestination = initialRoute,
         modifier = modifier.padding(innerPadding)
     ) {
-
-        val startDestination = if (authViewModel.isAuthenticated()){
-            Destination.CALENDAR.route
-        } else {
-            AuthRoutes.REGISTER
-        }
 
         // ===== CALENDARIO =====
         composable(Destination.CALENDAR.route) {
             CalendarView(
                 recordViewModel = recordViewModel,
-                onDayClick = { selectedDate ->
+                imageResId = R.drawable.info_content,
+                onNavigateToCreate = { selectedDate ->
                     Log.d("CalendarView", "Día seleccionado: $selectedDate")
 
                     if (authViewModel.isAuthenticated()) {
-                        navController.navigate(RecordRoutes.RECORD_EMOTION)
+                        navController.navigate("${RecordRoutes.RECORD_EMOTION}/$selectedDate")
                     } else {
                         navController.navigate(AuthRoutes.REGISTER)
                     }
                 },
-                imageResId = R.drawable.info_content,
+                onNavigateToDetail = { selectedDate ->
+                    // TODO: Implementar navegación a detalle cuando esté lista la vista
+                    Log.d("CalendarView", "Navigating to detail for: $selectedDate")
+                },
                 onDiaryClick = {
                     if (authViewModel.isAuthenticated()) {
-                        navController.navigate(RecordRoutes.RECORD_EMOTION)
+                        navController.navigate("${RecordRoutes.RECORD_EMOTION}/${LocalDate.now()}")
                     } else {
                         navController.navigate(AuthRoutes.REGISTER)
                     }
@@ -85,7 +89,7 @@ fun AppNavHost(
         composable(Destination.ADD.route) {
             if (authViewModel.isAuthenticated()) {
                 LaunchedEffect(Unit) {
-                    navController.navigate(RecordRoutes.RECORD_EMOTION) {
+                    navController.navigate("${RecordRoutes.RECORD_EMOTION}/${LocalDate.now()}") {
                         popUpTo(Destination.CALENDAR.route) { inclusive = false }
                     }
                 }
@@ -152,8 +156,9 @@ fun AppNavHost(
                 // Tu FavoritesView aquí cuando la implementes
                 CalendarView(
                     recordViewModel = recordViewModel,
-                    onDayClick = {},
                     imageResId = R.drawable.info_content,
+                    onNavigateToCreate = {},
+                    onNavigateToDetail = {},
                     onDiaryClick = {}
                 )
             } else {

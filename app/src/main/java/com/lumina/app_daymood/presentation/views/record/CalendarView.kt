@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.views
+package com.lumina.app_daymood.presentation.views.record
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
