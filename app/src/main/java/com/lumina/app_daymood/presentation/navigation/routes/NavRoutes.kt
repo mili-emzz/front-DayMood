@@ -9,7 +9,6 @@ object AuthRoutes {
 object RecordRoutes {
     const val RECORD_EMOTION = "record_emotion"
     const val RECORD_HABIT = "record_habit"
-    const val STADISTIC = "statistic"
 }
 
 // Helper para saber si una ruta debe ocultar el bottom nav
@@ -22,9 +21,6 @@ object NavigationHelper {
     )
 
     fun shouldHideBottomNav(route: String?): Boolean {
-        if (route == null) return false
-        return hiddenBottomNavRoutes.any { route.startsWith(it) }
-                || route.startsWith(AuthRoutes.LOGIN)
-                || route.startsWith(AuthRoutes.REGISTER)
+        return route in hiddenBottomNavRoutes
     }
 }
