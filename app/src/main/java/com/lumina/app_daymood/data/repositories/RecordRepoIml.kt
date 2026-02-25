@@ -3,21 +3,21 @@ package com.lumina.app_daymood.data.repositories
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.domain.models.RecordModel
-import com.lumina.app_daymood.domain.repositories.IRepository
+import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import com.lumina.app_daymood.domain.models.EmotionModel as Emotion // mi mejor descubrimiento
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 
 class RecordRepositoryIml(
     private val apiService: ApiService,
     private val firebaseAuthDataSource: FirebaseAuthDataSource
-) : IRepository {
+) : IRecordRepository {
     // hardcodeo de las categorias y emociones por mientras
 
     private val mockEmotions = listOf(
         Emotion(
             id = "em_happy",
             name = "Feliz",
-            imgUrl = "https://via.placeholder.com/64/FFD700",
+            imgUrl = "https://via.placeholder.com/64/FFD700", // ejemplos
             categoryId = 1
         ),
         Emotion(
@@ -107,7 +107,7 @@ class RecordRepositoryIml(
             val emotion = mockEmotions.find { it.id == emotionId }
                 ?: return Result.failure(Exception("Emoción no encontrada"))
             val habits = mockHabits.filter { it.id in habitIds }
-            val userId = firebaseAuthDataSource.getCurrentUserId() ?: "mock_user"
+            val userId = firebaseAuthDataSource.getCurrentUser() ?: "mock_user"
 
             val record = RecordModel(
                 id = "rec_${System.currentTimeMillis()}",
