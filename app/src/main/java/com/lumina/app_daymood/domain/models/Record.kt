@@ -1,8 +1,5 @@
 package com.lumina.app_daymood.domain.models
-
-import com.google.firebase.Timestamp
-
-class RecordModel(
+data class RecordModel(
     val id: String,
     val userId: String,
     val date: String,

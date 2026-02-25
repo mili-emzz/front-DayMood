@@ -10,7 +10,9 @@ import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.repositories.AuthRepositoryImpl
+import com.lumina.app_daymood.data.repositories.RecordRepositoryIml
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
+import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 
@@ -38,6 +40,12 @@ object AppModule {
             apiService = apiService
         )
     }
+    val recordRepository: IRecordRepository by lazy {
+        RecordRepositoryIml(
+            apiService = apiService,
+            firebaseAuthDataSource = firebaseAuthDataSource
+        )
+    }
 
     // ViewModel Factory
     fun provideAuthViewModel(): AuthViewModel {
@@ -45,7 +53,10 @@ object AppModule {
     }
 
     fun provideRecordViewModel(): RecordViewModel {
-        return RecordViewModel()
+        return RecordViewModel(
+            recordRepository = recordRepository,
+            authRepository = authRepository
+        )
     }
 
 }
