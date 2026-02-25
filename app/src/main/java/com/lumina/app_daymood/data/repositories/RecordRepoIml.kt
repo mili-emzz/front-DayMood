@@ -107,7 +107,7 @@ class RecordRepositoryIml(
             val emotion = mockEmotions.find { it.id == emotionId }
                 ?: return Result.failure(Exception("Emoción no encontrada"))
             val habits = mockHabits.filter { it.id in habitIds }
-            val userId = firebaseAuthDataSource.getCurrentUserId() ?: "mock_user"
+            val userId = firebaseAuthDataSource.getCurrentUser() ?: "mock_user"
 
             val record = RecordModel(
                 id = "rec_${System.currentTimeMillis()}",
