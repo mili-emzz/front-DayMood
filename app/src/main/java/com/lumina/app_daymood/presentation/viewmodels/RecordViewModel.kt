@@ -9,7 +9,7 @@ import com.lumina.app_daymood.domain.models.EmotionModel as Emotion
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.domain.models.RecordModel as Record
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
-import com.lumina.app_daymood.domain.repositories.IRepository
+import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -32,7 +32,7 @@ data class RecordUiState(
 )
 
 class RecordViewModel(
-    private val recordRepository: IRepository,
+    private val recordRepository: IRecordRepository,
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
