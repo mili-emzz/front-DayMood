@@ -170,7 +170,7 @@ fun RecordHabitView(
 
                 // Contador de caracteres
                 Text(
-                    text = "${note.length}/200",
+                    text = "${note.length}/500",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier
