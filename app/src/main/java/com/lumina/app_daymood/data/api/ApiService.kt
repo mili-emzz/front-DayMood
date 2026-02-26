@@ -19,8 +19,11 @@ import retrofit2.http.Query
 
 interface ApiService{
     // cambiar rutas cuando este la api lista
-    @POST  ("auth/register")
-    suspend fun registerUser(@Body request: UserRequest): UserResponse
+    @POST("auth/register")
+    suspend fun registerUser(
+        @Header("Authorization") token: String,
+        @Body request: UserRequest
+    ): UserResponse
 
     @POST  ("auth/login")
     suspend fun loginUser(@Body request: UserRequest): UserResponse
