@@ -1,0 +1,246 @@
+{
+  "proyecto": "DayMood - App de seguimiento de estado de ánimo",
+  "contexto": "Flujo completo del sistema de Records",
+  "arquitectura": "MVVM + Clean Architecture (Manual DI)",
+  "tecnologias": {
+    "ui": "Jetpack Compose",
+    "imagenes": "Coil 2.6.0 (AsyncImage) — URLs desde Firebase Storage",
+    "backend": "API REST + PostgreSQL (mockeado mientras no existe)",
+    "auth": "Firebase Auth — idToken como Bearer en cada request",
+    "encriptacion": "AES-256/GCM via Android Keystore"
+  },
+
+  "base_de_datos": {
+    "nota": "categoryId es INT (no UUID) en toda la BD",
+    "tablas_relevantes": {
+      "records": "id UUID, date date, note varchar(200), id_user UUID FK, id_emotion UUID FK",
+      "record_habits": "id_record UUID FK, id_habit UUID FK — tabla intermedia muchos-a-muchos",
+      "emotions": "id UUID, name varchar(30), img_url varchar(200), id_user UUID NULL, id_category INT FK",
+      "habits": "id UUID, name varchar(20), id_category INT FK",
+      "categories": "id INT GENERATED ALWAYS AS IDENTITY, name varchar(50)"
+    },
+    "notas_importantes": [
+      "records NO tiene createdAt ni updatedAt",
+      "emotions.id_user es NULL para emociones predefinidas, tiene valor para custom del usuario",
+      "habits.id_category e emotions.id_category son INT, no UUID"
+    ]
+  },
+
+  "domain_models": {
+    "Emotion": {
+      "archivo": "domain/models/Emotion.kt",
+      "campos": {
+        "id": "String — UUID de la emoción",
+        "name": "String — nombre (Feliz, Triste, etc)",
+        "imgUrl": "String — URL de Firebase Storage",
+        "categoryId": "Int — INT en BD (no UUID)",
+        "userId": "String? — null si es predefinida, valor si es custom"
+      },
+      "propiedad_derivada": "isCustom: Boolean = userId != null"
+    },
+    "Habit": {
+      "archivo": "domain/models/Habit.kt",
+      "campos": {
+        "id": "String — UUID del hábito",
+        "name": "String — nombre (Ejercicio, Meditar, etc)",
+        "categoryId": "Int — INT en BD (no UUID)"
+      }
+    },
+    "MoodRecord": {
+      "archivo": "domain/models/MoodRecord.kt",
+      "campos": {
+        "id": "String — UUID generado por PostgreSQL",
+        "userId": "String — UUID del usuario (viene de Firebase Auth)",
+        "date": "String — formato yyyy-MM-dd",
+        "note": "String? — opcional, máx 200 chars, se guarda ENCRIPTADA en BD",
+        "emotion": "Emotion — objeto completo de la emoción",
+        "habits": "List<Habit> — lista de hábitos del día"
+      }
+    }
+  },
+
+  "flujo_navegacion": {
+    "descripcion": "La fecha viaja en la ruta de navegación, no en el ViewModel",
+    "rutas": {
+      "calendar": "Destination.CALENDAR.route",
+      "record_emotion": "record_emotion/{date}",
+      "record_habit": "record_habit/{date}"
+    },
+    "flujo_crear_record": [
+      "1. CalendarView — usuario toca un día SIN record → onNavigateToCreate(date)",
+      "2. NavHost navega a record_emotion/{date}",
+      "3. RecordEmotionView — usuario elige emoción → saveEmotionSelection(emotionId, note=null)",
+      "4. Usuario toca Continuar → navega a record_habit/{date}",
+      "5. RecordHabitView — usuario selecciona hábitos + escribe nota opcional",
+      "6. Usuario toca Guardar → saveRecord(date, habitIds)",
+      "7. ViewModel llama moodRepository.createRecord()",
+      "8. Repository encripta la nota → manda a API",
+      "9. uiState.saveSuccess = true → LaunchedEffect navega de vuelta al calendario",
+      "10. CalendarView recarga el mes → muestra emoji de la emoción en ese día"
+    ],
+    "flujo_ver_detalle": [
+      "1. CalendarView — usuario toca un día CON record → onNavigateToDetail(date)",
+      "2. TODO: navegar a RecordDetailView (pendiente de implementar)"
+    ]
+  },
+
+  "vistas": {
+    "CalendarView": {
+      "archivo": "presentation/views/calendar/CalendarView.kt",
+      "proposito": "Calendario mensual con emojis de emociones por día",
+      "viewmodel_usado": "RecordViewModel",
+      "estado_que_consume": [
+        "uiState.monthRecords — lista de records del mes actual",
+        "recordViewModel.formatDate(date) — convierte LocalDate a String yyyy-MM-dd"
+      ],
+      "logica_clave": [
+        "LaunchedEffect(currentMonth, currentYear) → loadRecordsByMonth() al cambiar mes",
+        "recordsByDate = uiState.monthRecords.associateBy { it.date } — Map para acceso O(1)",
+        "Si día tiene record → AsyncImage con emotion.imgUrl",
+        "Si día no tiene record → número del día en texto",
+        "onClick día con record → onNavigateToDetail(date)",
+        "onClick día sin record → onNavigateToCreate(date)"
+      ],
+      "parametros": {
+        "recordViewModel": "RecordViewModel",
+        "imageResId": "Int — imagen decorativa del InfoContent",
+        "onNavigateToCreate": "(LocalDate) -> Unit — día sin record",
+        "onNavigateToDetail": "(LocalDate) -> Unit — día con record",
+        "onDiaryClick": "() -> Unit — botón Diario del InfoContent"
+      }
+    },
+    "RecordEmotionView": {
+      "archivo": "presentation/views/record/RecordEmotionView.kt",
+      "proposito": "Pantalla 1 del flujo — elegir emoción del día",
+      "viewmodel_usado": "RecordViewModel",
+      "estado_que_consume": [
+        "uiState.emotions — lista dinámica de emociones desde API/mock",
+        "uiState.selectedEmotionId — para saber cuál está seleccionada",
+        "uiState.loadingCatalogs — muestra spinner mientras cargan",
+        "uiState.error — muestra Snackbar si falló la carga"
+      ],
+      "logica_clave": [
+        "Las emociones se paginan en grupos de 8 con chunked(8)",
+        "EmotionCircle — componente que posiciona emociones en círculo con trigonometría",
+        "Imágenes cargadas con AsyncImage(model = emotion.imgUrl) — Coil desde Firebase Storage",
+        "onClick emoción → saveEmotionSelection(emotionId, note=null)",
+        "Botón Continuar habilitado solo si selectedEmotionId != null",
+        "La nota NO está aquí — va en RecordHabitView"
+      ],
+      "parametros": {
+        "recordViewModel": "RecordViewModel",
+        "date": "LocalDate — recibida desde la ruta de navegación",
+        "onContinueClick": "() -> Unit — navega a RecordHabitView"
+      },
+      "nota_importante": "NO tiene onBackClick — se maneja con popBackStack desde el NavHost"
+    },
+    "RecordHabitView": {
+      "archivo": "presentation/views/record/RecordHabitView.kt",
+      "proposito": "Pantalla 2 del flujo — elegir hábitos + escribir nota + guardar",
+      "viewmodel_usado": "RecordViewModel",
+      "estado_que_consume": [
+        "uiState.habits — lista dinámica de hábitos desde API/mock",
+        "uiState.selectedEmotionId — debe existir (viene de RecordEmotionView)",
+        "uiState.isLoading — deshabilita botón Guardar y muestra spinner",
+        "uiState.saveSuccess — LaunchedEffect detecta esto y navega al calendario",
+        "uiState.error — muestra mensaje inline si algo salió mal",
+        "uiState.loadingCatalogs — muestra spinner mientras cargan hábitos"
+      ],
+      "logica_clave": [
+        "selectedHabitIds: Set<String> — estado local de la vista, no del ViewModel",
+        "note: String — estado local de la vista, máx 200 chars con contador",
+        "HABIT_CATEGORIES — lista fija de categorías con sus categoryId de la BD",
+        "Los hábitos se filtran por categoryId para mostrarlos en la categoría correcta",
+        "HabitChip — componente chip toggleable por hábito",
+        "Al guardar: primero saveEmotionSelection() para actualizar la nota, luego saveRecord()",
+        "LaunchedEffect(uiState.saveSuccess) → clearSuccess() + onSaveSuccess()"
+      ],
+      "parametros": {
+        "recordViewModel": "RecordViewModel",
+        "date": "LocalDate — recibida desde la ruta de navegación",
+        "onBackClick": "() -> Unit — popBackStack a RecordEmotionView",
+        "onSaveSuccess": "() -> Unit — navega al calendario limpiando backstack"
+      },
+      "habit_categories_fijas": {
+        "descripcion": "Categorías hardcodeadas en la vista, los hábitos son dinámicos de la API",
+        "lista": [
+          {"categoryId": 3, "title": "Salud"},
+          {"categoryId": 4, "title": "Bienestar mental"},
+          {"categoryId": 5, "title": "Social"},
+          {"categoryId": 6, "title": "Productividad"}
+        ],
+        "nota": "Ajustar categoryId cuando estén definidos en la BD real"
+      }
+    }
+  },
+
+  "viewmodel": {
+    "archivo": "presentation/viewmodels/RecordViewModel.kt",
+    "RecordUiState": {
+      "emotions": "List<Emotion> — catálogo cargado al init",
+      "habits": "List<Habit> — catálogo cargado al init",
+      "loadingCatalogs": "Boolean — true mientras cargan emotions + habits",
+      "selectedEmotionId": "String? — selección temporal entre RecordEmotionView y RecordHabitView",
+      "selectedNote": "String? — nota temporal entre vistas",
+      "currentRecord": "MoodRecord? — record del día actual cargado",
+      "monthRecords": "List<MoodRecord> — records del mes para el calendario",
+      "isLoading": "Boolean — true durante operaciones de guardado",
+      "saveSuccess": "Boolean — flag que detectan las vistas para navegar",
+      "error": "String? — mensaje de error para mostrar en UI"
+    },
+    "metodos_publicos": {
+      "saveEmotionSelection(emotionId, note)": "Guarda selección temporal entre pantallas",
+      "saveRecord(date, habitIds)": "Crea el record — lee emotionId y note del uiState",
+      "loadRecordByDate(date)": "Carga record de una fecha para ver detalle",
+      "loadRecordsByMonth(year, month)": "Carga todos los records del mes para el calendario",
+      "updateRecord(recordId, habitIds)": "Actualiza record existente",
+      "deleteRecord(recordId)": "Elimina un record",
+      "clearSuccess()": "Limpia saveSuccess después de navegar",
+      "clearError()": "Limpia error después de mostrarlo",
+      "formatDate(date)": "Convierte LocalDate a String yyyy-MM-dd"
+    },
+    "metodo_privado": {
+      "loadCatalogs()": "Se llama en init — carga emotions y habits en paralelo"
+    }
+  },
+
+  "repository": {
+    "interfaz": "domain/repositories/IMoodRepository.kt",
+    "implementacion": "data/repositories/MoodRepositoryImpl.kt",
+    "dependencias": [
+      "ApiService? — null mientras no existe la API",
+      "FirebaseAuthDataSource — para obtener idToken y userId",
+      "NoteEncryptionManager — encripta notas antes de mandar, desencripta al recibir"
+    ],
+    "estado_actual": "MOCKEADO — todos los métodos usan datos hardcodeados en memoria",
+    "activar_api": "Descomentar los bloques TODO en cada método y borrar el bloque MOCK"
+  },
+
+  "encriptacion_notas": {
+    "archivo": "data/security/NoteEncryptionManager.kt",
+    "algoritmo": "AES-256/GCM/NoPadding",
+    "clave": "Generada y guardada en Android Keystore — nunca sale del dispositivo",
+    "flujo": {
+      "crear_actualizar": "note (texto plano) → encrypt() → String Base64 → API → BD",
+      "leer": "BD → API → String Base64 → decrypt() → note (texto plano) → ViewModel"
+    },
+    "transparencia": "ViewModel y Views NUNCA saben que existe encriptación — siempre ven texto plano",
+    "limitacion": "Si el usuario desinstala la app o cambia de dispositivo, pierde acceso a notas viejas"
+  },
+
+  "di_manual": {
+    "archivo": "di/AppModule.kt",
+    "inicializacion": "AppModule.init(context) en DayMoodApplication.onCreate()",
+    "instancias": {
+      "noteEncryptionManager": "NoteEncryptionManager(appContext) — necesita Context para Keystore",
+      "moodRepository": "MoodRepositoryImpl(apiService=null, firebaseAuthDataSource, encryption)",
+      "provideRecordViewModel()": "RecordViewModel(moodRepository, authRepository)"
+    }
+  },
+
+  "pendiente_implementar": {
+    "RecordDetailView": "Vista para ver detalle de un record existente (onNavigateToDetail en CalendarView)",
+    "activar_api": "Descomentar TODOs en MoodRepositoryImpl cuando exista el backend",
+    "categoryIds_reales": "Actualizar HABIT_CATEGORIES en RecordHabitView con los IDs reales de la BD"
+  }
+}
