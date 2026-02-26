@@ -22,12 +22,6 @@ import com.lumina.app_daymood.presentation.views.record.CalendarView
 import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
 import com.lumina.app_daymood.presentation.views.record.RecordHabitView
 
-// Importa tus otras vistas aquí:
-// import com.lumina.app_daymood.presentation.views.calendar.CalendarView
-// import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
-// import com.lumina.app_daymood.presentation.views.record.RecordHabitView
-// import com.lumina.app_daymood.presentation.views.profile.ProfileAuthenticatedView
-
 @Composable
 fun AppNavHost(
     navController: NavHostController,
