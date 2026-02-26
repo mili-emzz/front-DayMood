@@ -12,7 +12,12 @@
           "package_name": "com.lumina.app_daymood"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "441665669122-eiigtopne14ibau69iklfq3jjpk4h4q3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC4LSF38sMV_ldyb3EX9udi3-36txAsI4k"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "441665669122-eiigtopne14ibau69iklfq3jjpk4h4q3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

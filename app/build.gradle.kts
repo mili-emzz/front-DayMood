@@ -58,9 +58,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
     // dependencies
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
+      // firebase auth
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    val nav_version = "2.7.7"
+    implementation("androidx.navigation:navigation-compose:${nav_version}")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

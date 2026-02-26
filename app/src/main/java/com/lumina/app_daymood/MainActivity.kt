@@ -4,26 +4,44 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.lumina.app_daymood.di.AppModule
+import com.lumina.app_daymood.presentation.navigation.AppNavHost
+import com.lumina.app_daymood.presentation.navigation.BottomNav
+import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
+import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.ui.theme.App_daymoodTheme
+import com.lumina.app_daymood.ui.theme.BackgroundColor
 
 class MainActivity : ComponentActivity() {
+    private val authViewModel by lazy {
+        AppModule.provideAuthViewModel()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             App_daymoodTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = BackgroundColor
+                ) {
+                    MainScreen(authViewModel = authViewModel)
                 }
             }
         }
@@ -31,17 +49,23 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MainScreen(
+    authViewModel: AuthViewModel
+) {
+    val navController = rememberNavController()
+    val recordViewModel: RecordViewModel = viewModel()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    App_daymoodTheme {
-        Greeting("Android")
+    Scaffold(
+        containerColor = BackgroundColor,
+        bottomBar = {
+            BottomNav(navController = navController)
+        }
+    ) { innerPadding ->
+        AppNavHost(
+            navController = navController,
+            recordViewModel = recordViewModel,
+            innerPadding = innerPadding,
+            authViewModel = authViewModel
+        )
     }
 }
