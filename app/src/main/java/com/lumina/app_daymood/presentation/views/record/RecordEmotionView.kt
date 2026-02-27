@@ -181,7 +181,6 @@ fun RecordEmotionView(
                     }
                 }
 
-                // Error si falló la carga de emociones
                 uiState.error?.let { error ->
                     Snackbar(
                         modifier = Modifier

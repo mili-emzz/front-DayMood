@@ -103,7 +103,7 @@ fun CalendarView(
         Spacer(Modifier.height(12.dp))
 
         // Días de la semana
-        val daysOfWeek = listOf("D", "L", "M", "M", "J", "V", "S")
+        val daysOfWeek = listOf("Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "S")
         Row(
             modifier = Modifier
                 .fillMaxWidth()
