@@ -120,7 +120,7 @@ fun RecordEmotionView(
                                     enabled = currentPage > 0
                                 ) {
                                     Icon(
-                                        Icons.Default.ArrowBack,
+                                        Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Anterior",
                                         tint = if (currentPage > 0) Color(0xFF424242) else Color(0xFFCCCCCC)
                                     )
