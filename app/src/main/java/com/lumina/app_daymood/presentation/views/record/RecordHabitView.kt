@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -50,20 +51,49 @@ fun RecordHabitView(
 ) {
     val uiState = recordViewModel.uiState
 
+    val formattedDate = date.format(
+        DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", Locale("es", "ES"))
+    )
+
+    RecordHabitViewContent(
+        uiState = uiState,
+        formattedDate = formattedDate,
+        onBackClick = onBackClick,
+        onSaveSuccess = onSaveSuccess,
+        onClearSuccess = { recordViewModel.clearSuccess() },
+        onSaveClick = { note, selectedHabitIds ->
+            recordViewModel.saveEmotionSelection(
+                emotionId = uiState.selectedEmotionId ?: "",
+                note = note.ifBlank { null }
+            )
+            recordViewModel.saveRecord(
+                date = recordViewModel.formatDate(date),
+                habitIds = selectedHabitIds.toList()
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RecordHabitViewContent(
+    uiState: com.lumina.app_daymood.presentation.viewmodels.RecordUiState,
+    formattedDate: String,
+    onBackClick: () -> Unit,
+    onSaveSuccess: () -> Unit,
+    onClearSuccess: () -> Unit,
+    onSaveClick: (String, Set<String>) -> Unit
+) {
     // Hábitos seleccionados localmente (Set de IDs). Al final no se necesita category como un model XD
     var selectedHabitIds by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     // Nota vive aquí en RecordHabitView
     var note by remember { mutableStateOf("") }
 
-    val formattedDate = date.format(
-        DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", Locale("es", "ES"))
-    )
-
     // Navegar cuando el guardado fue exitoso
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) {
-            recordViewModel.clearSuccess()
+            onClearSuccess()
             onSaveSuccess()
         }
     }
@@ -74,8 +104,8 @@ fun RecordHabitView(
                 title = {
                     Text(
                         "¿Qué has estado haciendo hoy?",
-                        color = Color(0xFF8B4545),
-                        fontSize = 16.sp
+                        color = Color.Black,
+                        fontSize = 25.sp
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -102,12 +132,6 @@ fun RecordHabitView(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                Text(
-                    text = formattedDate,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF757575),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
 
                 if (uiState.loadingCatalogs) {
                     CircularProgressIndicator(
@@ -144,10 +168,10 @@ fun RecordHabitView(
                 // Nota acá
                 Text(
                     text = "Nota",
-                    color = Color(0xFF8B4545),
-                    fontSize = 16.sp,
+                    color = Color.Black,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    fontSize = 20.sp
                 )
 
                 TextField(
@@ -192,20 +216,12 @@ fun RecordHabitView(
 
                 Button(
                     onClick = {
-                        // Actualizamos la nota en el ViewModel justo antes de guardar
-                        recordViewModel.saveEmotionSelection(
-                            emotionId = uiState.selectedEmotionId ?: "",
-                            note = note.ifBlank { null }
-                        )
-                        recordViewModel.saveRecord(
-                            date = recordViewModel.formatDate(date),
-                            habitIds = selectedHabitIds.toList()
-                        )
+                        onSaveClick(note, selectedHabitIds)
                     },
                     enabled = !uiState.isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFF4C2C2),
-                        disabledContainerColor = Color(0xFFE0E0E0)
+                        disabledContainerColor = DisabledButton
                     ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
@@ -232,6 +248,19 @@ fun RecordHabitView(
             }
         }
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+fun RecordHabitViewPreview() {
+    RecordHabitViewContent(
+        uiState = com.lumina.app_daymood.presentation.viewmodels.RecordUiState(),
+        formattedDate = "Lunes, 1 de Enero",
+        onBackClick = {},
+        onSaveSuccess = {},
+        onClearSuccess = {},
+        onSaveClick = { _, _ -> }
+    )
 }
 
 // Sección de categoría con sus hábitos como chips toggleables
