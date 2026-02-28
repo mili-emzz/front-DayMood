@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
@@ -120,7 +121,7 @@ fun RecordEmotionView(
                                     enabled = currentPage > 0
                                 ) {
                                     Icon(
-                                        Icons.Default.ArrowBack,
+                                        Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Anterior",
                                         tint = if (currentPage > 0) Color(0xFF424242) else Color(0xFFCCCCCC)
                                     )
@@ -180,7 +181,6 @@ fun RecordEmotionView(
                     }
                 }
 
-                // Error si falló la carga de emociones
                 uiState.error?.let { error ->
                     Snackbar(
                         modifier = Modifier
