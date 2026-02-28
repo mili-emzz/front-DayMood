@@ -18,9 +18,11 @@ import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.auth.LoginView
 import com.lumina.app_daymood.presentation.views.auth.RegisterView
 import com.lumina.app_daymood.presentation.views.profile.ProfileView
-import com.lumina.app_daymood.presentation.views.record.CalendarView
 import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
 import com.lumina.app_daymood.presentation.views.record.RecordHabitView
+import java.time.LocalDate
+import com.lumina.app_daymood.presentation.views.record.CalendarView
+
 
 @Composable
 fun AppNavHost(
@@ -73,11 +75,12 @@ fun AppNavHost(
         // ===== HOME =====
         composable(Destination.HOME.route) {
             if (authViewModel.isAuthenticated()) {
-                // Tu HomeView aquí
                 // HomeView(authViewModel = authViewModel)
             } else {
                 LaunchedEffect(Unit) {
-                    navController.navigate(AuthRoutes.REGISTER)
+                    navController.navigate(AuthRoutes.REGISTER) {
+                        popUpTo(Destination.HOME.route) { inclusive = true }
+                    }
                 }
             }
         }
@@ -97,16 +100,17 @@ fun AppNavHost(
             }
         }
 
-        // ===== REGISTRO DE EMOCIÓN =====
-        composable(RecordRoutes.RECORD_EMOTION) {
+        // ===== REGISTRO DE EMOCIÓN — recibe la fecha por ruta =====
+        composable("${RecordRoutes.RECORD_EMOTION}/{date}") { backStackEntry ->
+            val dateStr = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+            val date = runCatching { LocalDate.parse(dateStr) }.getOrDefault(LocalDate.now())
+
             if (authViewModel.isAuthenticated()) {
                 RecordEmotionView(
                     recordViewModel = recordViewModel,
+                    date = date,
                     onContinueClick = {
-                        navController.navigate(RecordRoutes.RECORD_HABIT)
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
+                        navController.navigate("${RecordRoutes.RECORD_HABIT}/$dateStr")
                     }
                 )
             } else {
@@ -118,16 +122,21 @@ fun AppNavHost(
             }
         }
 
-        // ===== REGISTRO DE HÁBITOS =====
-        composable(RecordRoutes.RECORD_HABIT) {
+        // ===== REGISTRO DE HÁBITOS — recibe la fecha por ruta =====
+        composable("${RecordRoutes.RECORD_HABIT}/{date}") { backStackEntry ->
+            val dateStr = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+            val date = runCatching { LocalDate.parse(dateStr) }.getOrDefault(LocalDate.now())
+
             if (authViewModel.isAuthenticated()) {
                 RecordHabitView(
                     recordViewModel = recordViewModel,
+                    date = date,
                     onBackClick = {
                         navController.popBackStack()
                     },
                     onSaveSuccess = {
                         navController.navigate(Destination.CALENDAR.route) {
+                            // Limpiamos el backstack hasta el calendario
                             popUpTo(Destination.CALENDAR.route) { inclusive = true }
                         }
                     }
@@ -165,9 +174,8 @@ fun AppNavHost(
                 ProfileView(
                     authViewModel = authViewModel,
                     onLogout = {
-                        authViewModel.logout()
-                        navController.navigate(Destination.PROFILE.route) {
-                            popUpTo(Destination.PROFILE.route) { inclusive = true }
+                        navController.navigate(AuthRoutes.REGISTER) {
+                            popUpTo(0) { inclusive = true }
                         }
                     },
                     onNavigateToFav = {
@@ -176,18 +184,11 @@ fun AppNavHost(
                 )
             } else {
                 // Si no está autenticado, muestra RegisterView
-                RegisterView(
-                    authViewModel = authViewModel,
-                    onNavigateToLogin = {
-                        navController.navigate(AuthRoutes.LOGIN)
-                    },
-                    onRegisterSuccess = {
-                        recordViewModel.loadUserRecords()
-                        navController.navigate(Destination.PROFILE.route) {
-                            popUpTo(Destination.PROFILE.route) { inclusive = true }
-                        }
+                LaunchedEffect(Unit) {
+                    navController.navigate(AuthRoutes.REGISTER) {
+                        popUpTo(Destination.PROFILE.route) { inclusive = true }
                     }
-                )
+                }
             }
         }
 
@@ -201,8 +202,7 @@ fun AppNavHost(
                     }
                 },
                 onLoginSuccess = {
-                    recordViewModel.loadUserRecords()
-                    navController.navigate(Destination.PROFILE.route) {
+                    navController.navigate(Destination.CALENDAR.route) {
                         popUpTo(AuthRoutes.LOGIN) { inclusive = true }
                     }
                 }
@@ -219,7 +219,6 @@ fun AppNavHost(
                     }
                 },
                 onRegisterSuccess = {
-                    recordViewModel.loadUserRecords()
                     navController.navigate(Destination.PROFILE.route) {
                         popUpTo(AuthRoutes.REGISTER) { inclusive = true }
                     }

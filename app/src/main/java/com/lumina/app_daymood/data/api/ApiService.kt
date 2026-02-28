@@ -1,7 +1,12 @@
 package com.lumina.app_daymood.data.api
 
+import com.lumina.app_daymood.data.api.dto.CreateEmotionRequest
+import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
 import com.lumina.app_daymood.data.api.dto.EmotionsResponse
+import com.lumina.app_daymood.data.api.dto.FavoriteActionResponse
+import com.lumina.app_daymood.data.api.dto.FavoriteRequest
+import com.lumina.app_daymood.data.api.dto.FavoritesResponse
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.RecordsResponse
@@ -30,6 +35,12 @@ interface ApiService{
         @Header("Authorization") token: String
     ): EmotionsResponse
 
+    @POST("emotions")
+    suspend fun createEmotion(
+        @Header("Authorization") token: String,
+        @Body request: CreateEmotionRequest
+    ): CreateEmotionResponse
+
     @GET("habits")
     suspend fun getHabits(
         @Header ("Authorization") token: String
@@ -54,6 +65,17 @@ interface ApiService{
         @Path("recordId") recordId: String,
         @Body request: CreateRecordRequest
     ): RecordResponse
+
+    @GET("favorites")
+    suspend fun getFavorites(
+        @Header("Authorization") token: String
+    ): FavoritesResponse
+
+    @POST("favorites")
+    suspend fun addFavorite(
+        @Header("Authorization") token: String,
+        @Body request: FavoriteRequest
+    ): FavoriteActionResponse
 }
 
  object RetrofitClient {
