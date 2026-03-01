@@ -1,7 +1,7 @@
 package com.lumina.app_daymood.data.repositories
 
 import android.net.Uri
-//import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.FirebaseStorage
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CreateEmotionRequest
 import com.lumina.app_daymood.domain.models.EmotionModel
@@ -11,7 +11,7 @@ import java.util.UUID
 
 class EmotionRepositoryIml(
     private val apiService: ApiService,
-//    private val storage: FirebaseStorage queda en pausa
+    private val storage: FirebaseStorage
 ) : IEmotionRepository {
 
     override suspend fun uploadEmotionImage(userId: String, imageUri: Uri): Result<String> {
@@ -30,7 +30,8 @@ class EmotionRepositoryIml(
         token: String,
         name: String,
         categoryId: Int,
-        imgUrl: String
+        imgUrl: String,
+        saveToFavorites: Boolean
     ): Result<EmotionModel> {
         return try {
             val response = apiService.createEmotion(
@@ -38,7 +39,8 @@ class EmotionRepositoryIml(
                 request = CreateEmotionRequest(
                     name = name,
                     imgUrl = imgUrl,
-                    categoryId = categoryId
+                    categoryId = categoryId,
+                    saveToFavorites = saveToFavorites
                 )
             )
             if (!response.success) throw Exception(response.message ?: "Error al crear emoción")

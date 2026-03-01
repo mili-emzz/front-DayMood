@@ -8,18 +8,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
 import com.lumina.app_daymood.domain.repositories.IEmotionRepository
-import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.presentation.views.add_emotion.UploadState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AddEmotionViewModel(
     private val emotionRepository: IEmotionRepository,
-    private val favoritesRepository: IFavoritesRepository,
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    // ===== Estados de UI =====
+    // Estados de UI
     var uploadState by mutableStateOf<UploadState>(UploadState.ImageNotSelected)
         private set
 
@@ -38,7 +36,7 @@ class AddEmotionViewModel(
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    // ===== Imagen =====
+    // Imagen
 
     fun onImageSelected(uri: Uri?) {
         if (uri == null) return
@@ -46,7 +44,6 @@ class AddEmotionViewModel(
         simulateImageLoad()
     }
 
-    /** Simula el "cargando imagen" durante 2 segundos antes de pasar a UploadCompleted */
     private fun simulateImageLoad() {
         viewModelScope.launch {
             uploadState = UploadState.UploadingImage(0f)
@@ -63,8 +60,6 @@ class AddEmotionViewModel(
         emotionName = ""
         uploadState = UploadState.ImageNotSelected
     }
-
-    // ===== Submit =====
 
     fun submitEmotion(onSuccess: () -> Unit) {
         val uri = imageUri ?: run {
@@ -96,29 +91,18 @@ class AddEmotionViewModel(
             }
             val imgUrl = uploadResult.getOrThrow()
 
-            // Paso 2: Crear emoción en el backend
+            // Paso 2: Crear emoción en el backend (el backend manejará favoritos si saveToFavorites es true)
             val createResult = emotionRepository.createEmotion(
                 token = token,
                 name = emotionName.trim(),
                 categoryId = selectedCategoryId,
-                imgUrl = imgUrl
+                imgUrl = imgUrl,
+                saveToFavorites = saveToFavorites
             )
             if (createResult.isFailure) {
                 errorMessage = "Error al crear emoción: ${createResult.exceptionOrNull()?.message}"
                 isSubmitting = false
                 return@launch
-            }
-            val createdEmotion = createResult.getOrThrow()
-
-            // Paso 3 (opcional): Agregar a favoritos si el switch está activo
-            if (saveToFavorites) {
-                val favResult = favoritesRepository.addFavorite(token, createdEmotion.id)
-                if (favResult.isFailure) {
-                    // No bloqueamos el flujo, solo notificamos
-                    errorMessage = "Emoción creada pero no se pudo guardar en favoritos"
-                    isSubmitting = false
-                    return@launch
-                }
             }
 
             isSubmitting = false
