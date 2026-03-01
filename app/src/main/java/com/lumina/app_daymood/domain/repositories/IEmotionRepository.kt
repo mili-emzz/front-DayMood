@@ -9,6 +9,7 @@ interface IEmotionRepository {
         token: String,
         name: String,
         categoryId: Int,
-        imgUrl: String
+        imgUrl: String,
+        saveToFavorites: Boolean
     ): Result<EmotionModel>
 }

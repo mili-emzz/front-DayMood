@@ -28,7 +28,8 @@ data class EmotionsResponse(
 data class CreateEmotionRequest(
     @SerializedName("name")        val name: String,
     @SerializedName("img_url")     val imgUrl: String,
-    @SerializedName("id_category") val categoryId: Int
+    @SerializedName("id_category") val categoryId: Int,
+    @SerializedName("save_to_favorites") val saveToFavorites: Boolean
 )
 
 data class CreateEmotionResponse(
