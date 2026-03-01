@@ -9,6 +9,7 @@ import com.lumina.app_daymood.domain.models.EmotionModel as Emotion
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.domain.models.RecordModel as Record
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
+import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -33,6 +34,7 @@ data class RecordUiState(
 
 class RecordViewModel(
     private val recordRepository: IRecordRepository,
+    private val favoritesRepository: IFavoritesRepository,
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
@@ -44,17 +46,32 @@ class RecordViewModel(
         loadCatalogs()
     }
     private fun loadCatalogs() {
+        val userId = authRepository.getCurrentUser()
+        val token = "mock_token" // usar token real cuando se integre
+
         viewModelScope.launch {
             uiState = uiState.copy(loadingCatalogs = true)
 
+            // Cargar emociones default
             val emotionsResult = recordRepository.getEmotions()
+            val defaultEmotions = emotionsResult.getOrDefault(emptyList())
+
+            // Cargar emociones favoritas del usuario
+            val favoritesResult = favoritesRepository.getFavorites(token)
+            val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
+
+            // Combinar listas: defaults + favoritas
+            val combinedEmotions = defaultEmotions + favoriteEmotions
+
+            // Cargar hábitos
             val habitsResult = recordRepository.getHabits()
 
             uiState = uiState.copy(
-                emotions = emotionsResult.getOrDefault(emptyList()),
+                emotions = combinedEmotions,
                 habits = habitsResult.getOrDefault(emptyList()),
                 loadingCatalogs = false,
                 error = emotionsResult.exceptionOrNull()?.message
+                    ?: favoritesResult.exceptionOrNull()?.message
                     ?: habitsResult.exceptionOrNull()?.message
             )
         }
