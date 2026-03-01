@@ -6,7 +6,6 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.storage
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -21,6 +20,7 @@ import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
+import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 
 object AppModule {
@@ -78,13 +78,21 @@ object AppModule {
     fun provideRecordViewModel(): RecordViewModel {
         return RecordViewModel(
             recordRepository = recordRepository,
-            authRepository = authRepository
+            authRepository = authRepository,
+            favoritesRepository = favoritesRepository
         )
     }
 
     fun provideAddEmotionViewModel(): AddEmotionViewModel {
         return AddEmotionViewModel(
             emotionRepository = emotionRepository,
+            authRepository = authRepository
+        )
+    }
+
+    fun provideFavoritesViewModel(): FavoritesViewModel {
+        return FavoritesViewModel(
+            favoritesRepository = favoritesRepository,
             authRepository = authRepository
         )
     }
