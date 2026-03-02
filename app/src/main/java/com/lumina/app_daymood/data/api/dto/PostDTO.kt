@@ -11,7 +11,7 @@ data class PostDTO(
     @SerializedName("content") val content: String,
     @SerializedName("comments") val comments: List<CommentDTO>
 ) {
-    fun toDomain(userId: String): PostModel = PostModel(
+    fun toDomain(): PostModel = PostModel(
         id = id,
         id_user = id_user,
         id_forum = id_forum,

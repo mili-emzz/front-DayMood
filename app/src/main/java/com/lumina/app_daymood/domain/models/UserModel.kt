@@ -7,5 +7,6 @@ data class UserModel(
     val email: String,
     val birth_day: String,
     val start_date: Long,
-//  val id_forum: String //  la logica de esto se pospone
-)
+){
+    
+}

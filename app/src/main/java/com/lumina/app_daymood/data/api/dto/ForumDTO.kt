@@ -12,13 +12,13 @@ data class ForumDTO(
     @SerializedName("users")       val users: List<UserData>,
     @SerializedName("posts")       val posts: List<PostDTO>
 ) {
-    fun toDomain(userId: String): ForumModel = ForumModel(
+    fun toDomain(): ForumModel = ForumModel(
         id = id,
         min_age = min_age,
         max_age = max_age,
         id_category = category_id,
-        users = TODO(),
-        posts = TODO(),
+        users = users.map { it.toDomain() },
+        posts = posts.map { it.toDomain() }
     )
 }
 
