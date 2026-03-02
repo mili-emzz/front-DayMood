@@ -2,6 +2,7 @@ package com.lumina.app_daymood.data.repositories
 
 import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
+import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.domain.models.UserModel
@@ -12,7 +13,7 @@ import kotlinx.coroutines.withContext
 class AuthRepositoryImpl(
     private val firebaseAuthDataSource: FirebaseAuthDataSource,
     private val firestoreDataSource: FireStoreDataSource,
-    private val apiService: ApiService? = null  // cuando haya api
+    private val apiService: ApiService // cuando haya api
 ) : IAuthRepository {
 
     override suspend fun register(
@@ -66,7 +67,7 @@ class AuthRepositoryImpl(
         password: String
     ): Result<UserModel> = withContext(Dispatchers.IO) {
         try {
-            val firebaseUser = firebaseAuthDataSource.createUser(email, password)
+            val firebaseUser = firebaseAuthDataSource.signInUser(email, password)
 
             val user = firestoreDataSource.getUser(firebaseUser.uid)
 
@@ -106,18 +107,16 @@ class AuthRepositoryImpl(
         email: String,
         birthDay: String
     ) {
-        // Descomentar cuando esté API lista
-        /*
         try {
             val request = UserRequest(
-                idToken = token,
                 firebase_uid = firebaseUid,
                 username = username,
                 email = email,
                 birth_day = birthDay
             )
 
-            val response = apiService?.registerUser(request)
+            // El token va como "Bearer <token>" en el header
+            val response = apiService?.registerUser("Bearer $token", request)
 
             if (response?.success == true) {
                 Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
@@ -128,8 +127,9 @@ class AuthRepositoryImpl(
             Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
             throw e
         }
-        */
+
         Log.d("AuthRepository", "Token obtenido para API: ${token}...")
+        Log.d("TOKEN_FIREBASE", token)
         Log.d("AuthRepository", "Datos listos para enviar a API cuando esté disponible")
     }
 }

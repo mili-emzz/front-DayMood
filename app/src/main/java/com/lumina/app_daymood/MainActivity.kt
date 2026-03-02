@@ -32,6 +32,11 @@ class MainActivity : ComponentActivity() {
     private val authViewModel by lazy {
         AppModule.provideAuthViewModel()
     }
+    private val recordViewModel by lazy {
+        AppModule.provideRecordViewModel()
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -41,7 +46,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = BackgroundColor
                 ) {
-                    MainScreen(authViewModel = authViewModel)
+                    MainScreen(authViewModel = authViewModel,
+                        recordViewModel = recordViewModel
+                    )
                 }
             }
         }
@@ -50,10 +57,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen(
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    recordViewModel: RecordViewModel
 ) {
     val navController = rememberNavController()
-    val recordViewModel: RecordViewModel = viewModel()
+
 
     Scaffold(
         containerColor = BackgroundColor,
