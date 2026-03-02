@@ -72,6 +72,7 @@ dependencies {
 
     // storage
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.firebaseui:firebase-ui-storage:9.0.0") // Asegúrate de usar la última versión estable
 
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:${nav_version}")
