@@ -59,7 +59,6 @@ fun AppNavHost(
                     }
                 },
                 onNavigateToDetail = { selectedDate ->
-                    // TODO: Implementar navegación a detalle cuando esté lista la vista
                     Log.d("CalendarView", "Navigating to detail for: $selectedDate")
                 },
                 onDiaryClick = {
