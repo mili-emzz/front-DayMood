@@ -2,9 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // firebas
+    // firebase
     id("com.google.gms.google-services")
-
 }
 
 android {
@@ -59,15 +58,19 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     // dependencies
-    implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
-    implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
+    implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
+    implementation(platform("com.google.firebase:firebase-bom:34.10.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
-      // firebase auth
+    // firebase auth
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+
+    // storage
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-storage")
 
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:${nav_version}")

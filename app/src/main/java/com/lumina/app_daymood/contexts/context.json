@@ -463,19 +463,6 @@
     ]
   },
 
-  "comandos_git_recomendados": {
-    "estructura": [
-      "git add domain/",
-      "git commit -m 'feat: Add domain layer with User model and IAuthRepository'",
-      "git add data/",
-      "git commit -m 'feat: Add data layer with Firebase and API integration'",
-      "git add presentation/",
-      "git commit -m 'feat: Add presentation layer with AuthViewModel and views'",
-      "git add di/",
-      "git commit -m 'feat: Add manual dependency injection with AppModule'"
-    ]
-  },
-
   "archivos_importantes": {
     "configuracion": [
       "build.gradle (app) - Dependencias de Firebase, Compose, Navigation",
@@ -507,76 +494,3 @@
     "errores": "Se convierten automáticamente a mensajes amigables"
   }
 }
-```
-
----
-
-## 📊 Diagrama visual del flujo (bonus):
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     PRESENTATION LAYER                       │
-│                                                              │
-│  ┌──────────────┐         ┌───────────────┐                │
-│  │ RegisterView │ ◄─────► │ AuthViewModel │                │
-│  │  LoginView   │         │               │                │
-│  └──────────────┘         └───────┬───────┘                │
-│                                    │                         │
-└────────────────────────────────────┼─────────────────────────┘
-                                     │ usa
-                                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                       DOMAIN LAYER                           │
-│                                                              │
-│            ┌───────────────────────────┐                    │
-│            │   IAuthRepository         │ (Interfaz)         │
-│            │   - register()            │                    │
-│            │   - login()               │                    │
-│            │   - logout()              │                    │
-│            └───────────────────────────┘                    │
-│                                                              │
-│            ┌───────────────────────────┐                    │
-│            │   User                    │ (Model)            │
-│            └───────────────────────────┘                    │
-└─────────────────────────────────────────────────────────────┘
-                                     │ implementa
-                                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                        DATA LAYER                            │
-│                                                              │
-│  ┌────────────────────────────────────────────────┐         │
-│  │  AuthRepositoryImpl (coordina todo)            │         │
-│  │                                                 │         │
-│  │  ┌──────────────────────────────────────────┐ │         │
-│  │  │ FirebaseAuthDataSource                   │ │         │
-│  │  │  - createUser()                          │ │         │
-│  │  │  - signIn()                              │ │         │
-│  │  │  - getIdToken()                          │ │         │
-│  │  └──────────────────────────────────────────┘ │         │
-│  │                                                 │         │
-│  │  ┌──────────────────────────────────────────┐ │         │
-│  │  │ FirestoreDataSource                      │ │         │
-│  │  │  - saveUser()                            │ │         │
-│  │  │  - getUser()                             │ │         │
-│  │  └──────────────────────────────────────────┘ │         │
-│  │                                                 │         │
-│  │  ┌──────────────────────────────────────────┐ │         │
-│  │  │ ApiService (preparado)                   │ │         │
-│  │  │  - registerUser()                        │ │         │
-│  │  └──────────────────────────────────────────┘ │         │
-│  └────────────────────────────────────────────────┘         │
-└─────────────────────────────────────────────────────────────┘
-                                     │
-                                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    EXTERNAL SERVICES                         │
-│                                                              │
-│    ┌─────────────┐      ┌──────────────┐                   │
-│    │ Firebase    │      │  Tu API      │                    │
-│    │ Auth        │      │  (futuro)    │                    │
-│    │ Firestore   │      │              │                    │
-│    └─────────────┘      └──────────────┘                   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-¿Necesitas que profundice en alguna parte específica o que agregue algo más al JSON? 🔥

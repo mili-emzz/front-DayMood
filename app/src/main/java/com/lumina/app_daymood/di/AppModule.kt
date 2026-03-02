@@ -6,6 +6,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.storage
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1052095591181",
+    "project_id": "daymood-prod-a60e1",
+    "storage_bucket": "daymood-prod-a60e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052095591181:android:f0a838b11fa276c2c7b644",
+        "android_client_info": {
+          "package_name": "com.lumina.app_daymood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXNXxzk8eOzES3bwfbtEqMZOCtmUeu5c8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
