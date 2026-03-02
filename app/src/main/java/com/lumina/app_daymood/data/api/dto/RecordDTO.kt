@@ -32,12 +32,6 @@ data class RecordsResponse(
     @SerializedName("data")    val data: List<RecordDTO> = emptyList()
 )
 
-// Respuesta genérica (delete)
-data class BaseResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("message") val message: String = ""
-)
-
 data class CreateRecordRequest(
     @SerializedName("date")       val date: String,
     @SerializedName("note")       val note: String?,
