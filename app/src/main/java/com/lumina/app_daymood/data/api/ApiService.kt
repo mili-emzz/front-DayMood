@@ -12,6 +12,7 @@ import com.lumina.app_daymood.data.api.dto.FavoritesResponse
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
 import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.PostResponse
+import com.lumina.app_daymood.data.api.dto.PostsResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.RecordsResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
@@ -93,7 +94,7 @@ interface ApiService{
     @GET("posts")
     suspend fun getAllPosts(
         @Header("Authorization") token: String
-    ): PostResponse
+    ): PostsResponse
 
     @GET ("posts/{postId}")
     suspend fun getPost(
@@ -107,7 +108,7 @@ interface ApiService{
         @Body request: CommentRequest
     ): CommentsResponse
 
-    @GET ("/post/comments")
+    @GET("posts/comments")
     suspend fun getComments(
         @Header("Authorization") token: String,
         @Query("postId") postId: String

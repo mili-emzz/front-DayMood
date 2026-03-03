@@ -21,24 +21,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
+import com.lumina.app_daymood.presentation.viewmodels.categoryMap
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostView(
+    forumId: String,
+    viewModel: ForumViewModel,
     onDismiss: () -> Unit = {},
-    onPublish: (title: String, content: String, tag: String) -> Unit = { _, _, _ -> }
+    onPublishSuccess: () -> Unit = {}
 ) {
+    val createState by viewModel.createPostState.collectAsState()
+
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
-    var selectedTag by remember { mutableStateOf("") }
+    var selectedCategoryName by remember { mutableStateOf("") }
 
-    val tags = listOf("Ansiedad", "Hábitos", "Reflexión", "Motivación", "Otros")
+    // Category names from the central map
+    val categoryNames = categoryMap.values.toList()
 
-    val canPublish = title.isNotBlank() && content.isNotBlank() && selectedTag.isNotEmpty()
+    val canPublish = title.isNotBlank() && content.isNotBlank() &&
+            selectedCategoryName.isNotEmpty() && !createState.isLoading
+
+    LaunchedEffect(createState.success) {
+        if (createState.success) {
+            viewModel.resetCreatePostState()
+            onPublishSuccess()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -54,11 +68,7 @@ fun CreatePostView(
                 .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             IconButton(onClick = onDismiss) {
-                Icon(
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "Cerrar",
-                    tint = Color(0xFF3D3D3D)
-                )
+                Icon(Icons.Filled.Close, contentDescription = "Cerrar", tint = Color(0xFF3D3D3D))
             }
             Text(
                 text = "Publicación",
@@ -75,18 +85,17 @@ fun CreatePostView(
                     .background(if (canPublish) MainColor else DisabledButton),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(
-                    onClick = {
-                        if (canPublish) onPublish(title, content, selectedTag)
-                    },
-                    enabled = canPublish
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Publicar",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
+                if (createState.isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                } else {
+                    IconButton(
+                        onClick = {
+                            if (canPublish) viewModel.createPost(forumId, selectedCategoryName, title, content)
+                        },
+                        enabled = canPublish
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Publicar", tint = Color.White, modifier = Modifier.size(20.dp))
+                    }
                 }
             }
         }
@@ -100,7 +109,7 @@ fun CreatePostView(
         ) {
             Spacer(Modifier.height(20.dp))
 
-            // ── Campo Título ──
+            // ── Title field ──
             Text("Título", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF3D3D3D))
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
@@ -115,21 +124,20 @@ fun CreatePostView(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White
                 ),
-                singleLine = true
+                singleLine = true,
+                enabled = !createState.isLoading
             )
 
             Spacer(Modifier.height(20.dp))
 
-            // ── Campo Contenido ──
+            // ── Content field ──
             Text("Contenido", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF3D3D3D))
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
                 value = content,
                 onValueChange = { content = it },
                 placeholder = { Text("Escribe algo...", color = Color(0xFFBBBBBB), fontSize = 14.sp) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp),
+                modifier = Modifier.fillMaxWidth().height(160.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MainColor,
@@ -137,24 +145,24 @@ fun CreatePostView(
                     focusedContainerColor = Color.White,
                     unfocusedContainerColor = Color.White
                 ),
-                maxLines = 6
+                maxLines = 6,
+                enabled = !createState.isLoading
             )
 
             Spacer(Modifier.height(24.dp))
 
-            // ── Selector de Tag ──
+            // ── Category selector (2-column grid) ──
             Text("Categoría", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF3D3D3D))
             Spacer(Modifier.height(10.dp))
 
-            // Grid 2 columnas
-            val rows = tags.chunked(2)
-            rows.forEach { rowTags ->
+            val rows = categoryNames.chunked(2)
+            rows.forEach { rowCats ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    rowTags.forEach { tag ->
-                        val isSelected = tag == selectedTag
+                    rowCats.forEach { catName ->
+                        val isSelected = catName == selectedCategoryName
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -165,35 +173,42 @@ fun CreatePostView(
                                     color = if (isSelected) MainColor else Color(0xFFE0C5C0),
                                     shape = RoundedCornerShape(12.dp)
                                 )
-                                .clickable { selectedTag = tag }
+                                .clickable(enabled = !createState.isLoading) { selectedCategoryName = catName }
                                 .padding(vertical = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = tag,
+                                text = catName,
                                 fontSize = 13.sp,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (isSelected) Color.White else Color(0xFF888888)
                             )
                         }
                     }
-                    // Si la fila tiene un solo elemento, llenamos el espacio
-                    if (rowTags.size == 1) {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
+                    if (rowCats.size == 1) Spacer(modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(10.dp))
             }
 
             Spacer(Modifier.height(8.dp))
 
-            // ── Botón Publicar (secundario al ícono del header) ──
+            // ── Error message ──
+            createState.error?.let { error ->
+                Text(
+                    text = error,
+                    color = Color(0xFFB07068),
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            // ── Publish button ──
             Button(
-                onClick = { if (canPublish) onPublish(title, content, selectedTag) },
+                onClick = {
+                    if (canPublish) viewModel.createPost(forumId, selectedCategoryName, title, content)
+                },
                 enabled = canPublish,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MainColor,
@@ -202,7 +217,11 @@ fun CreatePostView(
                     disabledContentColor = Color.White
                 )
             ) {
-                Text("Publicar", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                if (createState.isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("Publicar", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                }
             }
 
             Spacer(Modifier.height(32.dp))
@@ -213,5 +232,6 @@ fun CreatePostView(
 @Preview(showBackground = true)
 @Composable
 fun CreatePostViewPreview() {
-    CreatePostView()
+    Text("[ Preview - CreatePostView necesita ForumViewModel ]",
+        modifier = Modifier.padding(16.dp), color = Color(0xFFBBBBBB))
 }

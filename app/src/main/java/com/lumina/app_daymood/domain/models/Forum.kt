@@ -13,6 +13,7 @@ data class PostModel(
     val id: String,
     val id_user: String,
     val id_forum: String,
+    val id_category: Int,
     val title: String,
     val content: String,
     val comments: List<CommentModel>

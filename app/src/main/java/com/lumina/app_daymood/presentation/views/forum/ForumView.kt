@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,33 +22,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lumina.app_daymood.domain.models.PostModel
+import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
+import com.lumina.app_daymood.presentation.viewmodels.categoryMap
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 
-data class ForoPost(
-    val id: String,
-    val username: String,
-    val title: String,
-    val content: String,
-    val tag: String,
-    val commentCount: Int
-)
-
-val samplePosts = listOf(
-    ForoPost("1", "user48865", "¿Cómo manejan la ansiedad?", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Ansiedad", 3),
-    ForoPost("2", "user746985", "Rutinas de la mañana 🌅", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Hábitos", 7),
-    ForoPost("3", "user463203", "Diario de emociones", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "Reflexión", 1),
-)
+fun categoryName(id: Int): String = categoryMap[id] ?: "Otros"
 
 @Composable
 fun ForoView(
-    onPostClick: (ForoPost) -> Unit = {},
+    viewModel: ForumViewModel,
+    onPostClick: (PostModel) -> Unit = {},
     onCreatePost: () -> Unit = {}
 ) {
-    val posts = remember { samplePosts }
-    var selectedTag by remember { mutableStateOf("Todos") }
-    val tags = listOf("Todos", "Ansiedad", "Hábitos", "Reflexión", "Otros")
+    val uiState by viewModel.forumState.collectAsState()
+
+    // Category chips: "Todos" + categorias
+    val tags = listOf("Todos") + categoryMap.values.toList()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadPosts()
+    }
 
     Box(
         modifier = Modifier
@@ -56,7 +53,6 @@ fun ForoView(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // ── Header ──
             Text(
                 text = "Descubre más",
                 fontSize = 20.sp,
@@ -65,8 +61,7 @@ fun ForoView(
                 modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
             )
 
-            // ── Tags chip row ──
-            androidx.compose.foundation.lazy.LazyRow(
+            LazyRow(
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -74,29 +69,56 @@ fun ForoView(
                 items(tags) { tag ->
                     TagChip(
                         label = tag,
-                        selected = tag == selectedTag,
-                        onClick = { selectedTag = tag }
+                        selected = tag == uiState.selectedCategory,
+                        onClick = { viewModel.selectCategory(tag) }
                     )
                 }
             }
 
-            // ── Lista de posts ──
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                val filtered = if (selectedTag == "Todos") posts else posts.filter { it.tag == selectedTag }
-                items(filtered) { post ->
-                    ForoPostItem(
-                        post = post,
-                        onPostClick = { onPostClick(post) }
-                    )
-                    Divider(color = Color(0xFFE8C9C3), thickness = 0.8.dp)
+            // ── Content ──
+            when {
+                uiState.isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = MainColor)
+                    }
+                }
+                uiState.error != null -> {
+                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = uiState.error ?: "Error desconocido",
+                            color = Color(0xFFB07068),
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+                    }
+                }
+                uiState.posts.isEmpty() -> {
+                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "Aún no hay publicaciones aquí.",
+                            color = Color(0xFFBBBBBB),
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        items(uiState.posts, key = { it.id }) { post ->
+                            ForoPostItem(
+                                post = post,
+                                onPostClick = { onPostClick(post) }
+                            )
+                            HorizontalDivider(color = Color(0xFFE8C9C3), thickness = 0.8.dp)
+                        }
+                    }
                 }
             }
         }
 
-        // ── FAB ──
         FloatingActionButton(
             onClick = onCreatePost,
             containerColor = MainColor,
@@ -130,28 +152,27 @@ fun TagChip(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-fun ForoPostItem(post: ForoPost, onPostClick: () -> Unit) {
+fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onPostClick() }
             .padding(vertical = 16.dp)
     ) {
-        // Tag badge
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(DisabledButton)
                 .padding(horizontal = 10.dp, vertical = 3.dp)
         ) {
-            Text(text = post.tag, fontSize = 11.sp, color = Color(0xFFB07068))
+            Text(text = categoryName(post.id_category), fontSize = 11.sp, color = Color(0xFFB07068))
         }
 
         Spacer(Modifier.height(6.dp))
 
         // Username
         Text(
-            text = post.username,
+            text = post.username.ifBlank { "usuario" },
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp,
             color = Color(0xFF3D3D3D)
@@ -180,7 +201,7 @@ fun ForoPostItem(post: ForoPost, onPostClick: () -> Unit) {
 
         Spacer(Modifier.height(10.dp))
 
-        // Footer: comentarios
+        // Footer: comments count
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Outlined.ChatBubbleOutline,
@@ -197,7 +218,7 @@ fun ForoPostItem(post: ForoPost, onPostClick: () -> Unit) {
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                text = "${post.commentCount} comentarios",
+                text = "${post.comments.size} comentarios",
                 fontSize = 12.sp,
                 color = Color(0xFFBBBBBB)
             )
@@ -205,8 +226,29 @@ fun ForoPostItem(post: ForoPost, onPostClick: () -> Unit) {
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun ForoViewPreview() {
-    ForoView()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackgroundColor)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text(
+                text = "Descubre más",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF3D3D3D),
+                modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
+            )
+            Text(
+                "[ Preview - conectado a ForumViewModel en app ]",
+                fontSize = 13.sp,
+                color = Color(0xFFBBBBBB),
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+        }
+    }
 }

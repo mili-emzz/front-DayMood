@@ -14,17 +14,15 @@ import com.lumina.app_daymood.di.AppModule
 import com.lumina.app_daymood.presentation.navigation.AppNavHost
 import com.lumina.app_daymood.presentation.navigation.BottomNav
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
+import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.ui.theme.App_daymoodTheme
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 
 class MainActivity : ComponentActivity() {
-    private val authViewModel by lazy {
-        AppModule.provideAuthViewModel()
-    }
-    private val recordViewModel by lazy {
-        AppModule.provideRecordViewModel()
-    }
+    private val authViewModel by lazy { AppModule.provideAuthViewModel() }
+    private val recordViewModel by lazy { AppModule.provideRecordViewModel() }
+    private val forumViewModel by lazy { AppModule.provideForumViewModel() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,8 +34,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = BackgroundColor
                 ) {
-                    MainScreen(authViewModel = authViewModel,
-                        recordViewModel = recordViewModel
+                    MainScreen(
+                        authViewModel = authViewModel,
+                        recordViewModel = recordViewModel,
+                        forumViewModel = forumViewModel
                     )
                 }
             }
@@ -48,10 +48,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     authViewModel: AuthViewModel,
-    recordViewModel: RecordViewModel
+    recordViewModel: RecordViewModel,
+    forumViewModel: ForumViewModel
 ) {
     val navController = rememberNavController()
-
 
     Scaffold(
         containerColor = BackgroundColor,
@@ -62,6 +62,7 @@ fun MainScreen(
         AppNavHost(
             navController = navController,
             recordViewModel = recordViewModel,
+            forumViewModel = forumViewModel,
             innerPadding = innerPadding,
             authViewModel = authViewModel
         )

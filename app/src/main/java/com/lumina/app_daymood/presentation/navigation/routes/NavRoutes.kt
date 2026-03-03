@@ -11,16 +11,25 @@ object RecordRoutes {
     const val RECORD_HABIT = "record_habit"
 }
 
+object ForumRoutes {
+    const val FORUM_HOME = "forum_home"
+    const val CREATE_POST = "create_post"
+    const val POST_DETAILS = "post_details" // post_details/{postId}
+}
+
 // Helper para saber si una ruta debe ocultar el bottom nav
 object NavigationHelper {
     val hiddenBottomNavRoutes = listOf(
         RecordRoutes.RECORD_EMOTION,
         RecordRoutes.RECORD_HABIT,
         AuthRoutes.LOGIN,
-        AuthRoutes.REGISTER
+        AuthRoutes.REGISTER,
+        ForumRoutes.CREATE_POST,
+        ForumRoutes.POST_DETAILS
     )
 
     fun shouldHideBottomNav(route: String?): Boolean {
-        return route in hiddenBottomNavRoutes
+        if (route == null) return false
+        return hiddenBottomNavRoutes.any { route.startsWith(it) }
     }
 }
