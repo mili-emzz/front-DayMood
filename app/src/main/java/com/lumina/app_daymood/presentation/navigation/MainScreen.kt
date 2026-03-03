@@ -10,17 +10,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.emiliagomez.vanamiapp.navigation.Destination
 import com.lumina.app_daymood.presentation.navigation.routes.AuthRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.NavigationHelper
-import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
-import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
-import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
-import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.MainColor
 import com.lumina.app_daymood.ui.theme.navBarColor
 

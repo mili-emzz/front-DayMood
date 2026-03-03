@@ -36,10 +36,6 @@ class AuthViewModel(
         }
     }
 
-    fun clearError() {
-        uiState = uiState.copy(error = null)
-    }
-
     fun register(
         email: String,
         birth_day: String,
