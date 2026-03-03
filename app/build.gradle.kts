@@ -69,7 +69,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
 
     // storage
-    implementation("com.google.firebase:firebase-storage-ktx")
     implementation("com.google.firebase:firebase-storage")
 
     val nav_version = "2.7.7"
