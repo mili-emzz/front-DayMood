@@ -16,10 +16,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lumina.app_daymood.presentation.components.register.ButtonContainers
-import com.lumina.app_daymood.presentation.components.register.DatePickerField
-import com.lumina.app_daymood.presentation.components.register.FormTextField
-import com.lumina.app_daymood.presentation.components.register.LoginImage
+import com.lumina.app_daymood.presentation.views.auth.components.ButtonContainers
+import com.lumina.app_daymood.presentation.views.auth.components.DatePickerField
+import com.lumina.app_daymood.presentation.views.auth.components.FormTextField
+import com.lumina.app_daymood.presentation.views.auth.components.LoginImage
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 

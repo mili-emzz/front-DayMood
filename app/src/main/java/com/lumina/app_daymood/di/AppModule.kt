@@ -57,7 +57,8 @@ object AppModule {
     val recordRepository: IRecordRepository by lazy {
         RecordRepositoryIml(
             apiService = apiService,
-            firebaseAuthDataSource = firebaseAuthDataSource
+            firebaseAuthDataSource = firebaseAuthDataSource,
+            storage = firebaseStorage
         )
     }
 

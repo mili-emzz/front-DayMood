@@ -225,30 +225,3 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
         }
     }
 }
-
-
-@Preview(showBackground = true)
-@Composable
-fun ForoViewPreview() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundColor)
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Descubre más",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF3D3D3D),
-                modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
-            )
-            Text(
-                "[ Preview - conectado a ForumViewModel en app ]",
-                fontSize = 13.sp,
-                color = Color(0xFFBBBBBB),
-                modifier = Modifier.padding(horizontal = 20.dp)
-            )
-        }
-    }
-}

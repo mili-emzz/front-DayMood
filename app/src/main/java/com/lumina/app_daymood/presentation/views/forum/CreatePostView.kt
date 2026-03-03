@@ -228,10 +228,3 @@ fun CreatePostView(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun CreatePostViewPreview() {
-    Text("[ Preview - CreatePostView necesita ForumViewModel ]",
-        modifier = Modifier.padding(16.dp), color = Color(0xFFBBBBBB))
-}

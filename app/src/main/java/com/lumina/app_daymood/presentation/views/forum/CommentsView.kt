@@ -204,10 +204,3 @@ fun CommentItem(comment: CommentModel) {
         Text(comment.content, fontSize = 13.sp, color = Color(0xFF888888))
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun CommentsViewPreview() {
-    Text("[ Preview - CommentsView necesita un PostModel y ForumViewModel ]",
-        modifier = Modifier.padding(16.dp), color = Color(0xFFBBBBBB))
-}

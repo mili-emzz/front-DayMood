@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.components.register
+package com.lumina.app_daymood.presentation.views.auth.components
 
 
 import androidx.compose.foundation.layout.Arrangement
