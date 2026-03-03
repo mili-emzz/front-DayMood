@@ -12,10 +12,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.views.auth.components.ButtonContainers
 import com.lumina.app_daymood.presentation.views.auth.components.FormTextField
 import com.lumina.app_daymood.presentation.views.auth.components.LoginImage
-import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
