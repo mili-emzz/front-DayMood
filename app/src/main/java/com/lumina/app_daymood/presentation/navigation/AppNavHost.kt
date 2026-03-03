@@ -15,6 +15,7 @@ import com.lumina.app_daymood.presentation.navigation.routes.AuthRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.ForumRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
+import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.auth.LoginView
@@ -22,6 +23,7 @@ import com.lumina.app_daymood.presentation.views.auth.RegisterView
 import com.lumina.app_daymood.presentation.views.forum.CommentsView
 import com.lumina.app_daymood.presentation.views.forum.CreatePostView
 import com.lumina.app_daymood.presentation.views.forum.ForoView
+import com.lumina.app_daymood.presentation.views.home.HomeView
 import com.lumina.app_daymood.presentation.views.profile.ProfileView
 import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
 import com.lumina.app_daymood.presentation.views.record.RecordHabitView
@@ -34,6 +36,7 @@ fun AppNavHost(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
+    favoritesViewModel: FavoritesViewModel,
     forumViewModel: ForumViewModel,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -77,16 +80,14 @@ fun AppNavHost(
             )
         }
 
-        // ===== HOME → Forum (temporal hasta que la Home esté lista) =====
+        // ===== HOME → HomeView (emociones custom del usuario) =====
         composable(Destination.HOME.route) {
             if (authViewModel.isAuthenticated()) {
-                ForoView(
-                    viewModel = forumViewModel,
-                    onPostClick = { post ->
-                        navController.navigate("${ForumRoutes.POST_DETAILS}/${post.id}")
-                    },
-                    onCreatePost = {
-                        navController.navigate(ForumRoutes.CREATE_POST)
+                HomeView(
+                    recordViewModel = recordViewModel,
+                    favoritesViewModel = favoritesViewModel,
+                    onForumClick = {
+                        navController.navigate(ForumRoutes.FORUM_HOME)
                     }
                 )
             } else {
@@ -216,23 +217,7 @@ fun AppNavHost(
             }
         }
 
-        // ===== FAVORITES =====
-        composable(Destination.FAVORITES.route) {
-            if (authViewModel.isAuthenticated()) {
-                // Tu FavoritesView aquí cuando la implementes
-                CalendarView(
-                    recordViewModel = recordViewModel,
-                    imageResId = R.drawable.info_content,
-                    onNavigateToCreate = {},
-                    onNavigateToDetail = {},
-                    onDiaryClick = {}
-                )
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(AuthRoutes.REGISTER)
-                }
-            }
-        }
+
 
         // ===== PROFILE =====
         composable(Destination.PROFILE.route) {
