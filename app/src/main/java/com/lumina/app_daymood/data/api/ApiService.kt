@@ -24,8 +24,11 @@ import retrofit2.http.Query
 
 interface ApiService{
     // cambiar rutas cuando este la api lista
-    @POST  ("auth/register")
-    suspend fun registerUser(@Body request: UserRequest): UserResponse
+    @POST("auth/register")
+    suspend fun registerUser(
+        @Header("Authorization") token: String,
+        @Body request: UserRequest
+    ): UserResponse
 
     @POST  ("auth/login")
     suspend fun loginUser(@Body request: UserRequest): UserResponse
@@ -79,7 +82,7 @@ interface ApiService{
 }
 
  object RetrofitClient {
-     private const val BASE_URL = "https://tu-api.com/" // cambiar esto cuando haya api
+     private const val BASE_URL = "http://10.0.2.2:3000/"
      val instance: ApiService by lazy {
          Retrofit.Builder()
              .baseUrl(BASE_URL)

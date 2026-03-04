@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.data.repositories
 
+import com.google.firebase.storage.FirebaseStorage
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.domain.models.RecordModel
@@ -9,9 +10,9 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 
 class RecordRepositoryIml(
     private val apiService: ApiService,
-    private val firebaseAuthDataSource: FirebaseAuthDataSource
+    private val firebaseAuthDataSource: FirebaseAuthDataSource,
+    private val storage: FirebaseStorage
 ) : IRecordRepository {
-    // hardcodeo de las categorias y emociones por mientras
 
     private val mockEmotions = listOf(
         Emotion(

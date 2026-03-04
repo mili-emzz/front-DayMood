@@ -20,6 +20,17 @@ class FirebaseAuthDataSource(
             Log.e("FirebaseAuthDataSource", "Error al crear usuario: ${e.message}")
             throw e
         }
+
+    }
+
+    suspend fun signInUser(email: String, password: String): FirebaseUser {
+        return try {
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            result.user ?: throw Exception("Usuario no encontrado")
+        } catch (e: Exception) {
+            Log.e("FirebaseAuthDataSource", "Error al iniciar sesión: ${e.message}")
+            throw e
+        }
     }
 
     suspend fun updateProfile(email: String, password: String): FirebaseUser {
