@@ -12,6 +12,7 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 class RecordRepositoryIml(
     private val apiService: ApiService,
     private val firebaseAuthDataSource: FirebaseAuthDataSource,
+    storage: FirebaseStorage,
 ) : IRecordRepository {
 
     override suspend fun getEmotions(): Result<List<Emotion>> {
