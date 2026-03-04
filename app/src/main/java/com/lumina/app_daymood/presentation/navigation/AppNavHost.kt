@@ -14,10 +14,12 @@ import com.lumina.app_daymood.R
 import com.lumina.app_daymood.presentation.navigation.routes.AuthRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.ForumRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
+import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.presentation.views.add_emotion.AddEmotionScreen
 import com.lumina.app_daymood.presentation.views.auth.LoginView
 import com.lumina.app_daymood.presentation.views.auth.RegisterView
 import com.lumina.app_daymood.presentation.views.forum.CommentsView
@@ -37,8 +39,8 @@ fun AppNavHost(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
-    favoritesViewModel: FavoritesViewModel,
     forumViewModel: ForumViewModel,
+    addEmotionViewModel: AddEmotionViewModel,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -68,7 +70,7 @@ fun AppNavHost(
                         navController.navigate(AuthRoutes.REGISTER)
                     }
                 },
-                onNavigateToDetail = { selectedDate ->
+                 onNavigateToDetail = { selectedDate ->
                     Log.d("CalendarView", "Navigating to detail for: $selectedDate")
                 },
                 onDiaryClick = {
@@ -153,11 +155,11 @@ fun AppNavHost(
             }
         }
 
-        // ===== ADD (acceso rápido a registro) =====
+        // ===== ADD (acceso rápido a crear emoción personalizada) =====
         composable(Destination.ADD.route) {
             if (authViewModel.isAuthenticated()) {
                 LaunchedEffect(Unit) {
-                    navController.navigate("${RecordRoutes.RECORD_EMOTION}/${LocalDate.now()}") {
+                    navController.navigate(RecordRoutes.ADD_EMOTION) {
                         popUpTo(Destination.CALENDAR.route) { inclusive = false }
                     }
                 }
@@ -168,25 +170,15 @@ fun AppNavHost(
             }
         }
 
-        // ===== REGISTRO DE EMOCIÓN — recibe la fecha por ruta =====
-        composable("${RecordRoutes.RECORD_EMOTION}/{date}") { backStackEntry ->
-            val dateStr = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
-            val date = runCatching { LocalDate.parse(dateStr) }.getOrDefault(LocalDate.now())
-
+        // ===== PANTALLA DE CREAR EMOCIÓN PERSONALIZADA =====
+        composable(RecordRoutes.ADD_EMOTION) {
             if (authViewModel.isAuthenticated()) {
-                RecordEmotionView(
-                    recordViewModel = recordViewModel,
-                    date = date,
-                    onContinueClick = {
-                        navController.navigate("${RecordRoutes.RECORD_HABIT}/$dateStr")
-                    }
+                AddEmotionScreen(
+                    viewModel = addEmotionViewModel,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(AuthRoutes.REGISTER) {
-                        popUpTo(Destination.CALENDAR.route) { inclusive = false }
-                    }
-                }
+                LaunchedEffect(Unit) { navController.navigate(AuthRoutes.REGISTER) }
             }
         }
 

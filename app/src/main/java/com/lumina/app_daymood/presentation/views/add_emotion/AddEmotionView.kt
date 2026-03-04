@@ -322,9 +322,14 @@ fun UploadCompletedContent(
 ) {
     // Categorías placeholder — se reemplazarán con los datos de la API cuando se integre
     val categories = listOf(
-        Pair(1, "Alegría / Positividad"),
-        Pair(2, "Tristeza / Negatividad"),
-        Pair(3, "Enojo / Frustración")
+        Pair(8, "Alegría"),
+        Pair(9, "Tristeza"),
+        Pair(10, "Ira"),
+        Pair(11, "Miedo"),
+        Pair(12, "Amor"),
+        Pair(13, "Desagrado"),
+        Pair(14, "Vergüenza"),
+        Pair(15, "Culpa")
     )
     var expanded by remember { mutableStateOf(false) }
 

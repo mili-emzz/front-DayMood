@@ -9,6 +9,7 @@ object AuthRoutes {
 object RecordRoutes {
     const val RECORD_EMOTION = "record_emotion"
     const val RECORD_HABIT = "record_habit"
+    const val ADD_EMOTION = "add_emotion"
 }
 
 object ForumRoutes {
@@ -22,6 +23,7 @@ object NavigationHelper {
     val hiddenBottomNavRoutes = listOf(
         RecordRoutes.RECORD_EMOTION,
         RecordRoutes.RECORD_HABIT,
+        RecordRoutes.ADD_EMOTION,
         AuthRoutes.LOGIN,
         AuthRoutes.REGISTER,
         ForumRoutes.CREATE_POST,

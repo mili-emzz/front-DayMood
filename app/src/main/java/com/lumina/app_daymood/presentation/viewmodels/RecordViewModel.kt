@@ -60,8 +60,8 @@ class RecordViewModel(
             val favoritesResult = favoritesRepository.getFavorites(token)
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
 
-            // Combinar listas: defaults + favoritas
-            val combinedEmotions = defaultEmotions + favoriteEmotions
+            // Combinar listas y evitar duplicados
+            val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
 
             // Cargar hábitos
             val habitsResult = recordRepository.getHabits()
