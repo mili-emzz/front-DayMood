@@ -1,5 +1,7 @@
 package com.lumina.app_daymood.data.api
 
+import com.lumina.app_daymood.data.api.dto.CommentRequest
+import com.lumina.app_daymood.data.api.dto.CommentsResponse
 import com.lumina.app_daymood.data.api.dto.CreateEmotionRequest
 import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
@@ -8,6 +10,9 @@ import com.lumina.app_daymood.data.api.dto.FavoriteActionResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.data.api.dto.FavoritesResponse
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
+import com.lumina.app_daymood.data.api.dto.PostRequest
+import com.lumina.app_daymood.data.api.dto.PostResponse
+import com.lumina.app_daymood.data.api.dto.PostsResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.RecordsResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
@@ -79,6 +84,35 @@ interface ApiService{
         @Header("Authorization") token: String,
         @Body request: FavoriteRequest
     ): FavoriteActionResponse
+
+    @POST("posts")
+    suspend fun createPost(
+        @Header("Authorization") token: String,
+        @Body request: PostRequest
+    ): PostResponse
+
+    @GET("posts")
+    suspend fun getAllPosts(
+        @Header("Authorization") token: String
+    ): PostsResponse
+
+    @GET ("posts/{postId}")
+    suspend fun getPost(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: String
+    ): PostResponse
+
+    @POST("/posts/comments")
+    suspend fun addComment(
+        @Header("Authorization") token: String,
+        @Body request: CommentRequest
+    ): CommentsResponse
+
+    @GET("posts/comments")
+    suspend fun getComments(
+        @Header("Authorization") token: String,
+        @Query("postId") postId: String
+    ): CommentsResponse
 }
 
  object RetrofitClient {
