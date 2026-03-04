@@ -12,7 +12,6 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 class RecordRepositoryIml(
     private val apiService: ApiService,
     private val firebaseAuthDataSource: FirebaseAuthDataSource,
-    private val storage: FirebaseStorage
 ) : IRecordRepository {
 
     override suspend fun getEmotions(): Result<List<Emotion>> {
@@ -46,7 +45,7 @@ class RecordRepositoryIml(
             val request = CreateRecordRequest(date, note, emotionId, habitIds)
             val response = apiService.createRecord("Bearer $token", request)
             if (!response.success) throw Exception(response.message)
-            val userId = firebaseAuthDataSource.getCurrentUserId() ?: throw Exception("Usuario no autenticado")
+            val userId = firebaseAuthDataSource.getCurrentUser() ?: throw Exception("Usuario no autenticado")
             val record = response.data?.toDomain(userId) ?: throw Exception("No data en respuesta")
             Result.success(record)
         } catch (e: Exception) {
@@ -58,7 +57,7 @@ class RecordRepositoryIml(
         return try {
             val token = firebaseAuthDataSource.getIdToken()
             val response = apiService.getRecordByDate("Bearer $token", date)
-            val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUserId() ?: ""
+            val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUser() ?: ""
             val record = response.data?.toDomain(currentUserId)
             Result.success(record)
         } catch (e: Exception) {
@@ -74,7 +73,7 @@ class RecordRepositoryIml(
         return try {
             val token = firebaseAuthDataSource.getIdToken()
             val response = apiService.getRecordsByMonth("Bearer $token", year, month)
-            val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUserId() ?: ""
+            val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUser() ?: ""
             Result.success(response.data.map { it.toDomain(currentUserId) })
         } catch (e: Exception) {
             Result.failure(e)
@@ -97,7 +96,7 @@ class RecordRepositoryIml(
             )
             val response = apiService.updateRecord("Bearer $token", recordId, request)
             if (!response.success) throw Exception(response.message)
-            val currentUserId = firebaseAuthDataSource.getCurrentUserId() ?: throw Exception("Usuario no autenticado")
+            val currentUserId = firebaseAuthDataSource.getCurrentUser() ?: throw Exception("Usuario no autenticado")
             val record = response.data?.toDomain(currentUserId) ?: throw Exception("No data en respuesta")
             Result.success(record)
         } catch (e: Exception) {
