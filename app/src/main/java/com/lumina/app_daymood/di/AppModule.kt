@@ -21,11 +21,11 @@ import com.lumina.app_daymood.domain.repositories.IEmotionRepository
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IForumRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
-import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
-import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
+import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 
 object AppModule {
     private val firebaseAuth: FirebaseAuth by lazy {
@@ -107,7 +107,6 @@ object AppModule {
             authRepository = authRepository
         )
     }
-
     fun provideForumViewModel(): ForumViewModel {
         return ForumViewModel(
             forumRepository = forumRepository,

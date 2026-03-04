@@ -44,7 +44,7 @@ fun EmotionCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(0.85f)

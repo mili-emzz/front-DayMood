@@ -29,6 +29,7 @@ import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
 import com.lumina.app_daymood.presentation.views.record.RecordHabitView
 import java.time.LocalDate
 import com.lumina.app_daymood.presentation.views.record.CalendarView
+import androidx.compose.runtime.collectAsState
 
 
 @Composable
@@ -140,7 +141,7 @@ fun AppNavHost(
         composable("${ForumRoutes.POST_DETAILS}/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId") ?: ""
             // Find the post from the already-loaded list in the ViewModel
-            val post = forumViewModel.forumState.value.posts.find { it.id == postId }
+            val post = forumViewModel.forumState.collectAsState().value.posts.find { it.id == postId }
             if (authViewModel.isAuthenticated() && post != null) {
                 CommentsView(
                     post = post,
@@ -216,8 +217,6 @@ fun AppNavHost(
                 }
             }
         }
-
-
 
         // ===== PROFILE =====
         composable(Destination.PROFILE.route) {

@@ -132,8 +132,6 @@ fun HomeView(
     }
 }
 
-// ── Preview ────────────────────────────────────────────────────────────────────
-
 @Preview(showBackground = true, backgroundColor = 0xFFFAE8E5)
 @Composable
 fun HomeViewPreview() {
