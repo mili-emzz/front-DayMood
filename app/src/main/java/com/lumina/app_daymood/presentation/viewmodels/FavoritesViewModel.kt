@@ -29,7 +29,7 @@ class FavoritesViewModel(
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            val token = "mock_token" // TODO: obtener el token real del authRepository
+            val token = authRepository.getCurrentUser() ?: return@launch
 
             val result = favoritesRepository.getFavorites(token)
             isLoading = false
@@ -46,11 +46,16 @@ class FavoritesViewModel(
 
     fun addFavorite(emotionId: String) {
         viewModelScope.launch {
-            val token = "mock_token" // TODO: token real
+            val token = authRepository.getCurrentUser() ?: return@launch
             val result = favoritesRepository.addFavorite(token, emotionId)
-            result.onFailure { e ->
-                errorMessage = "Error al agregar favorito: ${e.message}"
-            }
+            result
+                .onSuccess {
+                    // Refrescamos la lista de favoritos
+                    loadFavorites()
+                }
+                .onFailure { e ->
+                    errorMessage = "Error al agregar favorito: ${e.message}"
+                }
         }
     }
 

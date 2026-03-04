@@ -1,6 +1,5 @@
 package com.lumina.app_daymood.presentation.views.auth
 
-
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -38,7 +37,6 @@ fun RegisterView(
     var birth_day by remember { mutableStateOf("") }
 
     var passwordMismatch by remember { mutableStateOf(false) }
-
 
     Column(
         modifier = Modifier
