@@ -20,4 +20,5 @@ interface IAuthRepository{
     fun logout()
     fun isAuthenticated(): Boolean
     fun getCurrentUser(): String?
+    suspend fun getIdToken(): String?
 }

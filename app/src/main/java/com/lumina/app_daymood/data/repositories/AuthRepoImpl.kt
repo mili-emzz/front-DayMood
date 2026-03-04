@@ -92,6 +92,15 @@ class AuthRepositoryImpl(
         return firebaseAuthDataSource.getCurrentUser()
     }
 
+    override suspend fun getIdToken(): String? {
+        return try {
+            firebaseAuthDataSource.getIdToken()
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error obteniendo token: ${e.message}")
+            null
+        }
+    }
+
     private fun generateRandomUsername(): String {
         val chars = "abcdefghijklmnopqrstuvxyz1234567890"
         val randomString = (1..8)

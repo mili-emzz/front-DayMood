@@ -67,6 +67,12 @@ interface ApiService{
         @Query("month") month: Int
     ): RecordsResponse
 
+    @GET("records/date")
+    suspend fun getRecordByDate(
+        @Header("Authorization") token: String,
+        @Query("date") date: String
+    ): RecordResponse
+
     @PUT("records/{recordId}")
     suspend fun updateRecord(
         @Header("Authorization") token: String,

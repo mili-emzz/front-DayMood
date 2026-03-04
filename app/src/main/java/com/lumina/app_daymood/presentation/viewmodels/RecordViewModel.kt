@@ -47,9 +47,9 @@ class RecordViewModel(
     }
     private fun loadCatalogs() {
         val userId = authRepository.getCurrentUser()
-        val token = "mock_token" // usar token real cuando se integre
 
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: ""
             uiState = uiState.copy(loadingCatalogs = true)
 
             // Cargar emociones default
