@@ -39,6 +39,7 @@ fun AppNavHost(
     navController: NavHostController,
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
+    favoritesViewModel: FavoritesViewModel,
     forumViewModel: ForumViewModel,
     addEmotionViewModel: AddEmotionViewModel,
     innerPadding: PaddingValues,
@@ -179,6 +180,28 @@ fun AppNavHost(
                 )
             } else {
                 LaunchedEffect(Unit) { navController.navigate(AuthRoutes.REGISTER) }
+            }
+        }
+
+        // ===== REGISTRO DE EMOCIÓN — recibe la fecha por ruta =====
+        composable("${RecordRoutes.RECORD_EMOTION}/{date}") { backStackEntry ->
+            val dateStr = backStackEntry.arguments?.getString("date") ?: LocalDate.now().toString()
+            val date = runCatching { LocalDate.parse(dateStr) }.getOrDefault(LocalDate.now())
+
+            if (authViewModel.isAuthenticated()) {
+                RecordEmotionView(
+                    recordViewModel = recordViewModel,
+                    date = date,
+                    onContinueClick = {
+                        navController.navigate("${RecordRoutes.RECORD_HABIT}/$dateStr")
+                    }
+                )
+            } else {
+                LaunchedEffect(Unit) {
+                    navController.navigate(AuthRoutes.REGISTER) {
+                        popUpTo(Destination.CALENDAR.route) { inclusive = false }
+                    }
+                }
             }
         }
 

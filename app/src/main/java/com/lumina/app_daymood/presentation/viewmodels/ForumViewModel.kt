@@ -14,6 +14,16 @@ import kotlinx.coroutines.launch
 
 // De numeros de categorias a texto
 val categoryMap = mapOf(
+    // Emociones
+    8 to "Alegría",
+    9 to "Tristeza",
+    10 to "Ira",
+    11 to "Miedo",
+    12 to "Amor",
+    13 to "Desagrado",
+    14 to "Vergüenza",
+    15 to "Culpa",
+    // Foro
     16 to "Bienestar emocional",
     17 to "Estudios, trabajo y presión",
     18 to "Relaciones y vínculos",
