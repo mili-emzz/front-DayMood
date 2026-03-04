@@ -67,6 +67,12 @@ interface ApiService{
         @Query("month") month: Int
     ): RecordsResponse
 
+    @GET("records/date")
+    suspend fun getRecordByDate(
+        @Header("Authorization") token: String,
+        @Query("date") date: String
+    ): RecordResponse
+
     @PUT("records/{recordId}")
     suspend fun updateRecord(
         @Header("Authorization") token: String,
@@ -115,13 +121,13 @@ interface ApiService{
     ): CommentsResponse
 }
 
- object RetrofitClient {
-     private const val BASE_URL = "http://10.0.2.2:3000/"
-     val instance: ApiService by lazy {
-         Retrofit.Builder()
-             .baseUrl(BASE_URL)
-             .addConverterFactory(GsonConverterFactory.create())
-             .build()
-             .create(ApiService::class.java)
-     }
- }
+object RetrofitClient {
+    private const val BASE_URL = "http://10.0.2.2:3000/"
+    val instance: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
