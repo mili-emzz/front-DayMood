@@ -1,29 +1,27 @@
 package com.lumina.app_daymood.presentation.views.record
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lumina.app_daymood.presentation.viewmodels.RecordUiState
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.presentation.views.record.components.HabitChip
+import com.lumina.app_daymood.presentation.views.record.components.habitIconRes
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
+import com.lumina.app_daymood.ui.theme.borderLines
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -77,7 +75,7 @@ fun RecordHabitView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordHabitViewContent(
-    uiState: com.lumina.app_daymood.presentation.viewmodels.RecordUiState,
+    uiState: RecordUiState,
     formattedDate: String,
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit,
@@ -105,7 +103,7 @@ fun RecordHabitViewContent(
                     Text(
                         "¿Qué has estado haciendo hoy?",
                         color = Color.Black,
-                        fontSize = 25.sp
+                        fontSize = 22.sp
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -183,8 +181,8 @@ fun RecordHabitViewContent(
                         unfocusedContainerColor = Color.White,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
-                        focusedTextColor = Color(0xFF8B4545),
-                        unfocusedTextColor = Color(0xFF8B4545)
+                        focusedTextColor = MainColor,
+                        unfocusedTextColor = DisabledButton
                     ),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
@@ -204,7 +202,6 @@ fun RecordHabitViewContent(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Error si algo salió mal
                 uiState.error?.let {
                     Text(
                         text = it,
@@ -254,7 +251,7 @@ fun RecordHabitViewContent(
 @Composable
 fun RecordHabitViewPreview() {
     RecordHabitViewContent(
-        uiState = com.lumina.app_daymood.presentation.viewmodels.RecordUiState(),
+        uiState = RecordUiState(),
         formattedDate = "Lunes, 1 de Enero",
         onBackClick = {},
         onSaveSuccess = {},
@@ -263,7 +260,6 @@ fun RecordHabitViewPreview() {
     )
 }
 
-// Sección de categoría con sus hábitos como chips toggleables
 @Composable
 private fun HabitCategorySection(
     title: String,
@@ -274,63 +270,30 @@ private fun HabitCategorySection(
     Column {
         Text(
             text = title,
-            color = Color(0xFF8B4545),
+            color = borderLines,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Chips en filas wrap manual con chunked
         habits.chunked(3).forEach { rowHabits ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 rowHabits.forEach { habit ->
-                    val isSelected = habit.id in selectedHabitIds
                     HabitChip(
                         label = habit.name,
-                        isSelected = isSelected,
+                        isSelected = habit.id in selectedHabitIds,
                         onClick = { onHabitToggle(habit.id) },
+                        iconRes = habitIconRes(habit.name),   // ← nuevo
                         modifier = Modifier.weight(1f)
                     )
                 }
-                // Rellenar espacios vacíos si la fila no está completa
                 repeat(3 - rowHabits.size) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
-    }
-}
-
-// Chip individual de hábito
-@Composable
-private fun HabitChip(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(if (isSelected) Color(0xFFF4C2C2) else Color.White)
-            .border(
-                width = 1.dp,
-                color = if (isSelected) Color(0xFFF4C2C2) else Color(0xFFE0E0E0),
-                shape = RoundedCornerShape(12.dp)
-            )
-            .clickable { onClick() }
-            .padding(vertical = 10.dp, horizontal = 8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = label,
-            fontSize = 13.sp,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = if (isSelected) Color.White else Color(0xFF8B4545),
-            maxLines = 1
-        )
     }
 }

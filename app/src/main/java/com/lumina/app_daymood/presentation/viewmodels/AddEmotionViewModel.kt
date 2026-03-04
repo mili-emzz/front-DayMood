@@ -81,7 +81,7 @@ class AddEmotionViewModel(
 
             // Paso 1: Subir imagen a Firebase Storage
             val userId = authRepository.getCurrentUser() ?: "mock_user"
-            val token  = "mock_token" // TODO: obtener el token real del authRepository
+            val token = authRepository.getIdToken() ?: ""
 
             val uploadResult = emotionRepository.uploadEmotionImage(userId, uri)
             if (uploadResult.isFailure) {
