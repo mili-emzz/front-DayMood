@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName
 import com.lumina.app_daymood.domain.models.RecordModel
 
 data class RecordDTO(
-    @SerializedName("id") val id: String,
-    @SerializedName("date") val date: String,
-    @SerializedName("note") val note: String? = null,
-    @SerializedName("emotion") val emotion: EmotionDTO,
-    @SerializedName("habits") val habits: List<HabitDTO> = emptyList()
+    @SerializedName("id")      val id: String,
+    @SerializedName("date")    val date: String,
+    @SerializedName("note")    val note: String? = null,
+    @SerializedName("emotions") val emotion: EmotionDTO,   // La API devuelve "emotions" (con s)
+    @SerializedName("habits")  val habits: List<HabitDTO> = emptyList()
 ) {
     fun toDomain(userId: String): RecordModel = RecordModel(
         id = id,
@@ -34,8 +34,8 @@ data class RecordsResponse(
 )
 
 data class CreateRecordRequest(
-    @SerializedName("date") val date: String,
-    @SerializedName("note") val note: String?,
+    @SerializedName("date")    val date: String,
+    @SerializedName("note")    val note: String?,
     @SerializedName("id_emotion") val emotionId: String,
-    @SerializedName("id_habit") val habitIds: List<String>
+    @SerializedName("habits")  val habitIds: List<String>  // La API espera "habits", no "id_habit"
 )
