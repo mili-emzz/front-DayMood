@@ -100,6 +100,20 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun loadCurrentUser(): Result<UserModel> = withContext(Dispatchers.IO) {
+        try {
+            val uid = firebaseAuthDataSource.getCurrentUser()
+                ?: return@withContext Result.failure(Exception("No hay sesión activa"))
+            val user = firestoreDataSource.getUser(uid)
+                ?: return@withContext Result.failure(Exception("Usuario no encontrado en Firestore"))
+            Log.d("AuthRepository", "Usuario cargado: ${user.username}")
+            Result.success(user)
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error cargando usuario actual: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
     private fun generateRandomUsername(): String {
         val chars = "abcdefghijklmnopqrstuvxyz1234567890"
         val randomString = (1..8)
@@ -124,9 +138,9 @@ class AuthRepositoryImpl(
             )
 
             // El token va como "Bearer <token>" en el header
-            val response = apiService?.registerUser("Bearer $token", request)
+            val response = apiService.registerUser("Bearer $token", request)
 
-            if (response?.success == true) {
+            if (response.success) {
                 Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
             } else {
                 Log.e("AuthRepository", "Error de API: ${response?.message}")

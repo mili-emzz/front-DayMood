@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
@@ -59,9 +60,11 @@ fun AddEmotionScreen(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             }
+
             is UploadState.UploadingImage -> {
                 // Do nothing while uploading
             }
+
             is UploadState.UploadCompleted -> {
                 viewModel.submitEmotion(onSuccess = onNavigateBack)
             }
@@ -130,6 +133,8 @@ fun AddEmotionContent(
             Text(
                 text = "Publica más emociones",
                 style = MaterialTheme.typography.headlineSmall,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
             Text(
@@ -150,9 +155,15 @@ fun AddEmotionContent(
                     is UploadState.ImageNotSelected -> {
                         ImageNotSelectedContent(saveToFavorites, onFavoritesChange)
                     }
+
                     is UploadState.UploadingImage -> {
-                        UploadingImageContent(uploadState.progress, saveToFavorites, onFavoritesChange)
+                        UploadingImageContent(
+                            uploadState.progress,
+                            saveToFavorites,
+                            onFavoritesChange
+                        )
                     }
+
                     is UploadState.UploadCompleted -> {
                         UploadCompletedContent(
                             emotionName = emotionName,
@@ -188,6 +199,7 @@ fun AddEmotionContent(
                         )
                     }
                 }
+
                 is UploadState.UploadingImage -> {
                     OutlinedButton(
                         onClick = {},
@@ -209,6 +221,7 @@ fun AddEmotionContent(
                         )
                     }
                 }
+
                 is UploadState.UploadCompleted -> {
                     Button(
                         onClick = onButtonClick,
@@ -271,7 +284,11 @@ fun ImageNotSelectedContent(saveToFavorites: Boolean, onFavoritesChange: (Boolea
 }
 
 @Composable
-fun UploadingImageContent(progress: Float, saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Unit) {
+fun UploadingImageContent(
+    progress: Float,
+    saveToFavorites: Boolean,
+    onFavoritesChange: (Boolean) -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -414,7 +431,8 @@ fun UploadCompletedContent(
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value = categories.find { it.first == selectedCategoryId }?.second ?: "Selecciona Categoría",
+                value = categories.find { it.first == selectedCategoryId }?.second
+                    ?: "Selecciona Categoría",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Categoría") },

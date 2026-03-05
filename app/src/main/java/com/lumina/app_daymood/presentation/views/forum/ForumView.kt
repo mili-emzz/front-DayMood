@@ -50,14 +50,18 @@ fun ForoView(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
 
             Text(
                 text = "Descubre más",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF3D3D3D),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
                 modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
             )
 
@@ -75,15 +79,25 @@ fun ForoView(
                 }
             }
 
-            // ── Content ──
             when {
                 uiState.isLoading -> {
-                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = MainColor)
                     }
                 }
+
                 uiState.error != null -> {
-                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
                             text = uiState.error ?: "Error desconocido",
                             color = Color(0xFFB07068),
@@ -92,8 +106,14 @@ fun ForoView(
                         )
                     }
                 }
+
                 uiState.posts.isEmpty() -> {
-                    Box(modifier = Modifier.fillMaxSize().weight(1f), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(
                             text = "Aún no hay publicaciones aquí.",
                             color = Color(0xFFBBBBBB),
@@ -101,6 +121,7 @@ fun ForoView(
                         )
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier.weight(1f),

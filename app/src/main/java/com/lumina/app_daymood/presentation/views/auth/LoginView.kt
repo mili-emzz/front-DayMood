@@ -35,7 +35,8 @@ fun LoginView(
             .verticalScroll(rememberScrollState())
             .imePadding()
             .padding(horizontal = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -73,7 +74,7 @@ fun LoginView(
             )
         }
 
-        Spacer(modifier = Modifier.height(72.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         ButtonContainers(
             text = "Iniciar Sesión",
