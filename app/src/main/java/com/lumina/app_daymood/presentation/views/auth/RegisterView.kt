@@ -43,9 +43,9 @@ fun RegisterView(
             .fillMaxSize()
             .background(BackgroundColor)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 40.dp)
-            .imePadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -53,18 +53,18 @@ fun RegisterView(
         Text(
             "Únete a la comunidad",
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             color = Color.Black,
-            modifier = Modifier
-                .padding(bottom = 12.dp),
+            modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Box(modifier = Modifier.size(140.dp)) {
+        Box(modifier = Modifier.size(160.dp)) {
             LoginImage()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         FormsView(
             email = email,

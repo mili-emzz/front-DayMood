@@ -24,20 +24,11 @@ import com.lumina.app_daymood.presentation.viewmodels.categoryMap
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.MainColor
 
-/**
- * HomeView — muestra las emociones personalizadas del usuario en un grid 2 columnas.
- *
- * @param recordViewModel    Provee la lista de emociones (cargadas en el init del VM).
- * @param favoritesViewModel Maneja el estado de favoritos y la acción addFavorite.
- * @param onForumClick       Navega al foro al presionar el ícono de arriba a la derecha.
- */
 @Composable
 fun HomeView(
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
-    onForumClick: () -> Unit = {}
 ) {
-    // Solo emociones custom (las que subió el usuario con createEmotion)
     val customEmotions = recordViewModel.uiState.emotions.filter { it.isCustom }
     val isLoading = recordViewModel.uiState.loadingCatalogs
     val favorites = favoritesViewModel.favorites
@@ -50,8 +41,9 @@ fun HomeView(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // ── Header ──────────────────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,13 +53,11 @@ fun HomeView(
         ) {
             Text(
                 text = "Descubre más",
-                fontSize = 22.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D2D2D)
+                color = Color.Black
             )
         }
-
-        // ── Content ──────────────────────────────────────────────────────────
         when {
             isLoading -> {
                 Box(
@@ -128,11 +118,11 @@ fun HomeView(
 fun HomeViewPreview() {
     val sampleEmotions = listOf(
         EmotionModel("1", "Emperrada", "", 16, userId = "u1"),
-        EmotionModel("2", "Feliz",     "", 17, userId = "u1"),
+        EmotionModel("2", "Feliz", "", 17, userId = "u1"),
         EmotionModel("3", "Fracasada", "", 18, userId = "u1"),
-        EmotionModel("4", "Tristona",  "", 19, userId = "u1"),
+        EmotionModel("4", "Tristona", "", 19, userId = "u1"),
         EmotionModel("5", "Tranquila", "", 17, userId = "u1"),
-        EmotionModel("6", "Despechada","", 19, userId = "u1"),
+        EmotionModel("6", "Despechada", "", 19, userId = "u1"),
     )
 
     Column(

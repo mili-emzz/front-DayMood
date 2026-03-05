@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.R
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
@@ -52,14 +53,16 @@ fun CalendarView(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
-            .padding(horizontal = 12.dp, vertical = 16.dp),
+            .padding(horizontal = 32.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Buen día",
             style = MaterialTheme.typography.headlineSmall,
-            color = Color(0xFF2C2C2C),
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 10.dp)

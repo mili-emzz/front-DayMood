@@ -138,9 +138,9 @@ class AuthRepositoryImpl(
             )
 
             // El token va como "Bearer <token>" en el header
-            val response = apiService?.registerUser("Bearer $token", request)
+            val response = apiService.registerUser("Bearer $token", request)
 
-            if (response?.success == true) {
+            if (response.success) {
                 Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
             } else {
                 Log.e("AuthRepository", "Error de API: ${response?.message}")
