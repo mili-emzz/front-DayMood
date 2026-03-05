@@ -12,7 +12,6 @@ object RecordRoutes {
 }
 
 object ForumRoutes {
-    const val FORUM_HOME = "forum_home"
     const val CREATE_POST = "create_post"
     const val POST_DETAILS = "post_details"
 }

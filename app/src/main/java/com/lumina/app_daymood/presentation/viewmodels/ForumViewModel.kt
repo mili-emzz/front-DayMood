@@ -14,15 +14,6 @@ import kotlinx.coroutines.launch
 
 // De numeros de categorias a texto
 val categoryMap = mapOf(
-    // Emociones
-    8 to "Alegría",
-    9 to "Tristeza",
-    10 to "Ira",
-    11 to "Miedo",
-    12 to "Amor",
-    13 to "Desagrado",
-    14 to "Vergüenza",
-    15 to "Culpa",
     // Foro
     16 to "Bienestar emocional",
     17 to "Estudios, trabajo y presión",
@@ -52,16 +43,13 @@ data class CommentsUiState(
 )
 
 data class CreatePostUiState(
-    val isLoading: Boolean = false,
-    val success: Boolean = false,
-    val error: String? = null
+    val isLoading: Boolean = false, val success: Boolean = false, val error: String? = null
 )
 
 //  ViewModel 
 
 class ForumViewModel(
-    private val forumRepository: IForumRepository,
-    private val authRepository: IAuthRepository
+    private val forumRepository: IForumRepository, private val authRepository: IAuthRepository
 ) : ViewModel() {
 
     private val _forumState = MutableStateFlow(ForumUiState())
@@ -82,27 +70,23 @@ class ForumViewModel(
         val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
             _forumState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.getPosts(token)
-                .onSuccess { posts ->
-                    allPosts = posts
-                    _forumState.update { state ->
-                        state.copy(
-                            isLoading = false,
-                            posts = filterPosts(posts, state.selectedCategory)
-                        )
-                    }
+            forumRepository.getPosts(token).onSuccess { posts ->
+                allPosts = posts
+                _forumState.update { state ->
+                    state.copy(
+                        isLoading = false, posts = filterPosts(posts, state.selectedCategory)
+                    )
                 }
-                .onFailure { error ->
-                    _forumState.update { it.copy(isLoading = false, error = error.message) }
-                }
+            }.onFailure { error ->
+                _forumState.update { it.copy(isLoading = false, error = error.message) }
+            }
         }
     }
 
     fun selectCategory(category: String) {
         _forumState.update { state ->
             state.copy(
-                selectedCategory = category,
-                posts = filterPosts(allPosts, category)
+                selectedCategory = category, posts = filterPosts(allPosts, category)
             )
         }
     }
@@ -116,10 +100,7 @@ class ForumViewModel(
     //  Crear Post 
 
     fun createPost(
-        forumId: String,
-        categoryName: String,
-        title: String,
-        content: String
+        forumId: String, categoryName: String, title: String, content: String
     ) {
         val token = authRepository.getCurrentUser() ?: return
         val userId = token // ajustar si se almacena el id de usuario por separado
@@ -137,17 +118,15 @@ class ForumViewModel(
                 categoryId = categoryId,
                 title = title,
                 content = content
-            )
-                .onSuccess { newPost ->
-                    allPosts = listOf(newPost) + allPosts
-                    _forumState.update { state ->
-                        state.copy(posts = filterPosts(allPosts, state.selectedCategory))
-                    }
-                    _createPostState.update { it.copy(isLoading = false, success = true) }
+            ).onSuccess { newPost ->
+                allPosts = listOf(newPost) + allPosts
+                _forumState.update { state ->
+                    state.copy(posts = filterPosts(allPosts, state.selectedCategory))
                 }
-                .onFailure { error ->
-                    _createPostState.update { it.copy(isLoading = false, error = error.message) }
-                }
+                _createPostState.update { it.copy(isLoading = false, success = true) }
+            }.onFailure { error ->
+                _createPostState.update { it.copy(isLoading = false, error = error.message) }
+            }
         }
     }
 
@@ -161,13 +140,11 @@ class ForumViewModel(
         val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
             _commentsState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.getComments(token, postId)
-                .onSuccess { comments ->
-                    _commentsState.update { it.copy(isLoading = false, comments = comments) }
-                }
-                .onFailure { error ->
-                    _commentsState.update { it.copy(isLoading = false, error = error.message) }
-                }
+            forumRepository.getComments(token, postId).onSuccess { comments ->
+                _commentsState.update { it.copy(isLoading = false, comments = comments) }
+            }.onFailure { error ->
+                _commentsState.update { it.copy(isLoading = false, error = error.message) }
+            }
         }
     }
 
@@ -181,8 +158,7 @@ class ForumViewModel(
                     _commentsState.update {
                         it.copy(isSending = false, comments = updatedComments)
                     }
-                }
-                .onFailure { error ->
+                }.onFailure { error ->
                     _commentsState.update { it.copy(isSending = false, error = error.message) }
                 }
         }

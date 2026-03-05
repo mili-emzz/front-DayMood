@@ -84,15 +84,12 @@ fun AppNavHost(
             )
         }
 
-        // ===== HOME → HomeView (emociones custom del usuario) =====
+        // ===== HOME (emociones custom del usuario) =====
         composable(Destination.HOME.route) {
             if (authViewModel.isAuthenticated()) {
                 HomeView(
                     recordViewModel = recordViewModel,
-                    favoritesViewModel = favoritesViewModel,
-                    onForumClick = {
-                        navController.navigate(ForumRoutes.FORUM_HOME)
-                    }
+                    favoritesViewModel = favoritesViewModel
                 )
             } else {
                 LaunchedEffect(Unit) {
@@ -104,7 +101,7 @@ fun AppNavHost(
         }
 
         // ===== FORUM HOME (ruta directa) =====
-        composable(ForumRoutes.FORUM_HOME) {
+        composable(Destination.FORUM.route) {
             if (authViewModel.isAuthenticated()) {
                 ForoView(
                     viewModel = forumViewModel,
@@ -123,14 +120,14 @@ fun AppNavHost(
         // ===== CREATE POST =====
         composable(ForumRoutes.CREATE_POST) {
             if (authViewModel.isAuthenticated()) {
-                // TODO: replace "" with the real forumId once it's available from login/session
+                // replace "" with the real forumId once it's available from login/session
                 val forumId = authViewModel.uiState.user?.id ?: ""
                 CreatePostView(
                     forumId = forumId,
                     viewModel = forumViewModel,
                     onDismiss = { navController.popBackStack() },
                     onPublishSuccess = {
-                        navController.navigate(ForumRoutes.FORUM_HOME) {
+                        navController.navigate(Destination.FORUM.route) {
                             popUpTo(ForumRoutes.CREATE_POST) { inclusive = true }
                         }
                     }

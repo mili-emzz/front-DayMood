@@ -16,6 +16,6 @@ enum class Destination(
     HOME("home", Icons.Outlined.Home),
     CALENDAR("calendar", Icons.Filled.CalendarMonth),
     ADD("add", Icons.Outlined.AddCircleOutline),
-    FORUM("forum", Icons.Outlined.Forum),
+    FORUM("forum_home", Icons.Outlined.Forum),
     PROFILE("profile", Icons.Outlined.Person)
 }
