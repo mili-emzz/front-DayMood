@@ -14,10 +14,12 @@ import com.lumina.app_daymood.R
 import com.lumina.app_daymood.presentation.navigation.routes.AuthRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.ForumRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
+import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.presentation.views.add_emotion.AddEmotionScreen
 import com.lumina.app_daymood.presentation.views.auth.LoginView
 import com.lumina.app_daymood.presentation.views.auth.RegisterView
 import com.lumina.app_daymood.presentation.views.forum.CommentsView
@@ -39,6 +41,7 @@ fun AppNavHost(
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
     forumViewModel: ForumViewModel,
+    addEmotionViewModel: AddEmotionViewModel,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -68,7 +71,7 @@ fun AppNavHost(
                         navController.navigate(AuthRoutes.REGISTER)
                     }
                 },
-                onNavigateToDetail = { selectedDate ->
+                 onNavigateToDetail = { selectedDate ->
                     Log.d("CalendarView", "Navigating to detail for: $selectedDate")
                 },
                 onDiaryClick = {
@@ -81,15 +84,12 @@ fun AppNavHost(
             )
         }
 
-        // ===== HOME → HomeView (emociones custom del usuario) =====
+        // ===== HOME (emociones custom del usuario) =====
         composable(Destination.HOME.route) {
             if (authViewModel.isAuthenticated()) {
                 HomeView(
                     recordViewModel = recordViewModel,
-                    favoritesViewModel = favoritesViewModel,
-                    onForumClick = {
-                        navController.navigate(ForumRoutes.FORUM_HOME)
-                    }
+                    favoritesViewModel = favoritesViewModel
                 )
             } else {
                 LaunchedEffect(Unit) {
@@ -101,7 +101,7 @@ fun AppNavHost(
         }
 
         // ===== FORUM HOME (ruta directa) =====
-        composable(ForumRoutes.FORUM_HOME) {
+        composable(Destination.FORUM.route) {
             if (authViewModel.isAuthenticated()) {
                 ForoView(
                     viewModel = forumViewModel,
@@ -120,14 +120,14 @@ fun AppNavHost(
         // ===== CREATE POST =====
         composable(ForumRoutes.CREATE_POST) {
             if (authViewModel.isAuthenticated()) {
-                // TODO: replace "" with the real forumId once it's available from login/session
+                // replace "" with the real forumId once it's available from login/session
                 val forumId = authViewModel.uiState.user?.id ?: ""
                 CreatePostView(
                     forumId = forumId,
                     viewModel = forumViewModel,
                     onDismiss = { navController.popBackStack() },
                     onPublishSuccess = {
-                        navController.navigate(ForumRoutes.FORUM_HOME) {
+                        navController.navigate(Destination.FORUM.route) {
                             popUpTo(ForumRoutes.CREATE_POST) { inclusive = true }
                         }
                     }
@@ -153,18 +153,15 @@ fun AppNavHost(
             }
         }
 
-        // ===== ADD (acceso rápido a registro) =====
+        // ===== ADD (acceso rápido a crear emoción personalizada) =====
         composable(Destination.ADD.route) {
             if (authViewModel.isAuthenticated()) {
-                LaunchedEffect(Unit) {
-                    navController.navigate("${RecordRoutes.RECORD_EMOTION}/${LocalDate.now()}") {
-                        popUpTo(Destination.CALENDAR.route) { inclusive = false }
-                    }
-                }
+                AddEmotionScreen(
+                    viewModel = addEmotionViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(AuthRoutes.REGISTER)
-                }
+                LaunchedEffect(Unit) { navController.navigate(AuthRoutes.REGISTER) }
             }
         }
 
@@ -227,9 +224,6 @@ fun AppNavHost(
                         navController.navigate(AuthRoutes.REGISTER) {
                             popUpTo(0) { inclusive = true }
                         }
-                    },
-                    onNavigateToFav = {
-                        navController.navigate(Destination.FAVORITES.route)
                     }
                 )
             } else {
