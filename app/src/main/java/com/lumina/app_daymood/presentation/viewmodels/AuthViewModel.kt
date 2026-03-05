@@ -21,6 +21,27 @@ class AuthViewModel(
     var uiState by mutableStateOf(AuthUiState())
         private set
 
+    init {
+        // Si ya hay sesión activa al abrir la app, cargamos los datos del usuario
+        if (authRepository.isAuthenticated()) {
+            loadCurrentUser()
+        }
+    }
+
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
+            authRepository.loadCurrentUser()
+                .onSuccess { user ->
+                    uiState = uiState.copy(isLoading = false, user = user, isAuthenticated = true)
+                }
+                .onFailure { error ->
+                    Log.e("AuthViewModel", "Error cargando usuario: ${error.message}")
+                    uiState = uiState.copy(isLoading = false)
+                }
+        }
+    }
+
     private fun getErrorMessage(error: Throwable): String {
         return when {
             error.message?.contains("password") == true ->
