@@ -2,7 +2,6 @@ package com.lumina.app_daymood.data.api
 
 import com.lumina.app_daymood.data.api.dto.CommentRequest
 import com.lumina.app_daymood.data.api.dto.CommentsResponse
-import com.lumina.app_daymood.data.api.dto.CreateEmotionRequest
 import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
 import com.lumina.app_daymood.data.api.dto.EmotionsResponse
@@ -17,46 +16,91 @@ import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.RecordsResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface ApiService{
-    // cambiar rutas cuando este la api lista
+interface ApiService {
+
     @POST("auth/register")
     suspend fun registerUser(
         @Header("Authorization") token: String,
         @Body request: UserRequest
     ): UserResponse
 
-    @POST  ("auth/login")
+    @POST("auth/login")
     suspend fun loginUser(@Body request: UserRequest): UserResponse
 
-    @GET("emotions")
+
+    @GET("api/emotions")
     suspend fun getEmotions(
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    @POST("emotions")
+    @GET("api/emotions/explore")
+    suspend fun getEmotionsExplore(
+        @Header("Authorization") token: String
+    ): EmotionsResponse
+
+    /**
+     * POST /api/emotions - crear emoción personalizada.
+     * Se envía como multipart/form-data:
+     *   name, id_category, save_to_favorites (RequestBody de texto) + image (MultipartBody.Part)
+     */
+    @Multipart
+    @POST("api/emotions")
     suspend fun createEmotion(
         @Header("Authorization") token: String,
-        @Body request: CreateEmotionRequest
+        @Part("name") name: RequestBody,
+        @Part("id_category") categoryId: RequestBody,
+        @Part("save_to_favorites") saveToFavorites: RequestBody,
+        @Part image: MultipartBody.Part
     ): CreateEmotionResponse
+
+    @DELETE("api/emotions/{id}")
+    suspend fun deleteEmotion(
+        @Header("Authorization") token: String,
+        @Path("id") emotionId: String
+    ): FavoriteActionResponse
+
+    @GET("api/emotions/favorites")
+    suspend fun getFavorites(
+        @Header("Authorization") token: String
+    ): FavoritesResponse
+
+    @POST("emotions/favorites/")
+    suspend fun addFavorite(
+        @Header("Authorization") token: String,
+        @Body request: FavoriteRequest
+    ): FavoriteActionResponse
+
+    @DELETE("api/emotions/{id}")
+    suspend fun deleteFavorite(
+        @Header("Authorization") token: String,
+        @Path("id") emotionId: String
+    ): FavoriteActionResponse
+
 
     @GET("habits")
     suspend fun getHabits(
-        @Header ("Authorization") token: String
+        @Header("Authorization") token: String
     ): HabitsResponse
 
-    @POST ("records")
+
+    @POST("api/records")
     suspend fun createRecord(
-        @Header ("Authorization") token: String,
+        @Header("Authorization") token: String,
         @Body request: CreateRecordRequest
     ): RecordResponse
 
@@ -67,7 +111,7 @@ interface ApiService{
         @Query("month") month: Int
     ): RecordsResponse
 
-    @GET("records/date")
+    @GET("records/day")
     suspend fun getRecordByDate(
         @Header("Authorization") token: String,
         @Query("date") date: String
@@ -80,16 +124,6 @@ interface ApiService{
         @Body request: CreateRecordRequest
     ): RecordResponse
 
-    @GET("favorites")
-    suspend fun getFavorites(
-        @Header("Authorization") token: String
-    ): FavoritesResponse
-
-    @POST("favorites")
-    suspend fun addFavorite(
-        @Header("Authorization") token: String,
-        @Body request: FavoriteRequest
-    ): FavoriteActionResponse
 
     @POST("posts")
     suspend fun createPost(
@@ -102,7 +136,7 @@ interface ApiService{
         @Header("Authorization") token: String
     ): PostsResponse
 
-    @GET ("posts/{postId}")
+    @GET("posts/{postId}")
     suspend fun getPost(
         @Header("Authorization") token: String,
         @Path("postId") postId: String

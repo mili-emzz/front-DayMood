@@ -13,7 +13,8 @@ class FavoritesRepositoryIml(
         return try {
             val response = apiService.getFavorites("Bearer $token")
             if (!response.success) throw Exception(response.message ?: "Error al obtener favoritos")
-            Result.success(response.data.map { it.toDomain() })
+            // La API devuelve una lista de FavoriteItemDTO con { id_emotion, id_user, emotions: {...} }
+            Result.success(response.data.map { it.emotion.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
         }

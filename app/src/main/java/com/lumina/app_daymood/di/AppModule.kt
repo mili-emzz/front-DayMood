@@ -5,8 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.storage
+import android.content.Context
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -28,14 +27,18 @@ import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 
 object AppModule {
+    // Context se inicializa una sola vez desde MainActivity
+    private lateinit var appContext: Context
+
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
+
     private val firebaseAuth: FirebaseAuth by lazy {
         Firebase.auth
     }
     private val firestore: FirebaseFirestore by lazy {
         Firebase.firestore
-    }
-    private val firebaseStorage: FirebaseStorage by lazy {
-        Firebase.storage
     }
     private val firebaseAuthDataSource: FirebaseAuthDataSource by lazy {
         FirebaseAuthDataSource(firebaseAuth)
@@ -57,15 +60,14 @@ object AppModule {
     val recordRepository: IRecordRepository by lazy {
         RecordRepositoryIml(
             apiService = apiService,
-            firebaseAuthDataSource = firebaseAuthDataSource,
-            storage = firebaseStorage
+            firebaseAuthDataSource = firebaseAuthDataSource
         )
     }
 
     val emotionRepository: IEmotionRepository by lazy {
         EmotionRepositoryIml(
             apiService = apiService,
-            storage = firebaseStorage
+            context = appContext          // para leer el Uri de la imagen seleccionada
         )
     }
 
