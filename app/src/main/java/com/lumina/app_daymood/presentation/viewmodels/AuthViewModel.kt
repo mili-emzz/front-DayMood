@@ -96,4 +96,11 @@ class AuthViewModel(
         return authRepository.isAuthenticated()
     }
 
+    fun getUserdata(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true, error = null)
+            authRepository.getCurrentUser()
+        }
+    }
+
 }
