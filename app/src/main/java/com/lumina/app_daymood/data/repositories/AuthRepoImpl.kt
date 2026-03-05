@@ -24,7 +24,6 @@ class AuthRepositoryImpl(
         try {
             val firebaseUser = firebaseAuthDataSource.createUser(email, password)
             val uid = firebaseUser.uid
-
             val username = generateRandomUsername()
 
             firebaseAuthDataSource.updateProfile(email, password)

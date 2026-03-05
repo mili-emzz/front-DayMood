@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -59,11 +61,17 @@ fun BottomNav(navController: NavHostController) {
                     Icon(
                         imageVector = destination.icon,
                         contentDescription = destination.route,
-                        tint = if (isSelected) MainColor else navBarColor,
                         modifier = Modifier.size(34.dp)
                     )
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = navBarColor,
+                    indicatorColor = MainColor,
+                    unselectedIconColor = MainColor,
+                )
+
             )
         }
     }
 }
+

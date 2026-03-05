@@ -65,15 +65,6 @@ fun HomeView(
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2D2D2D)
             )
-            // Forum access button
-            IconButton(onClick = onForumClick) {
-                Icon(
-                    imageVector = Icons.Outlined.Forum,
-                    contentDescription = "Ir al foro",
-                    tint = MainColor,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
         }
 
         // ── Content ──────────────────────────────────────────────────────────

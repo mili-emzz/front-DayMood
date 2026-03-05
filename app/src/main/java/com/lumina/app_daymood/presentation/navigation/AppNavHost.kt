@@ -159,21 +159,6 @@ fun AppNavHost(
         // ===== ADD (acceso rápido a crear emoción personalizada) =====
         composable(Destination.ADD.route) {
             if (authViewModel.isAuthenticated()) {
-                LaunchedEffect(Unit) {
-                    navController.navigate(RecordRoutes.ADD_EMOTION) {
-                        popUpTo(Destination.CALENDAR.route) { inclusive = false }
-                    }
-                }
-            } else {
-                LaunchedEffect(Unit) {
-                    navController.navigate(AuthRoutes.REGISTER)
-                }
-            }
-        }
-
-        // ===== PANTALLA DE CREAR EMOCIÓN PERSONALIZADA =====
-        composable(RecordRoutes.ADD_EMOTION) {
-            if (authViewModel.isAuthenticated()) {
                 AddEmotionScreen(
                     viewModel = addEmotionViewModel,
                     onNavigateBack = { navController.popBackStack() }
@@ -242,9 +227,6 @@ fun AppNavHost(
                         navController.navigate(AuthRoutes.REGISTER) {
                             popUpTo(0) { inclusive = true }
                         }
-                    },
-                    onNavigateToFav = {
-                        navController.navigate(Destination.FAVORITES.route)
                     }
                 )
             } else {
