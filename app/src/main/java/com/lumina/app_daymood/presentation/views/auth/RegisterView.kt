@@ -31,6 +31,11 @@ fun RegisterView(
 ) {
 
     val uiState = authViewModel.uiState
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            onRegisterSuccess()
+        }
+    }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
