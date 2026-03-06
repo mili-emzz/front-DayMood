@@ -19,7 +19,7 @@ interface IRecordRepository {
 
     suspend fun getRecordsByMonth(
         userId: String?,
-        year: Int,
+        year: String,
         month: Int
     ): Result<List<RecordModel>>
 

@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
 import android.content.Context
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.RetrofitClient
@@ -58,7 +59,7 @@ object AppModule {
         )
     }
     val recordRepository: IRecordRepository by lazy {
-        val storage = com.google.firebase.ktx.Firebase.storage
+        val storage = Firebase.storage
         RecordRepositoryIml(
             apiService = apiService,
             firebaseAuthDataSource = firebaseAuthDataSource,

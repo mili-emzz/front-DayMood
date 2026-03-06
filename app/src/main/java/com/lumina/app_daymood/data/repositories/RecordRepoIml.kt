@@ -70,7 +70,7 @@ class RecordRepositoryIml(
 
     override suspend fun getRecordsByMonth(
         userId: String?,
-        year: Int,
+        year: String,
         month: Int
     ): Result<List<RecordModel>> {
         return try {

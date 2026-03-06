@@ -135,7 +135,7 @@ class RecordViewModel(
         }
     }
 
-    fun loadRecordsByMonth(year: Int, month: Int) {
+    fun loadRecordsByMonth(year: String, month: Int) {
         val userId = authRepository.getCurrentUser()
 
         viewModelScope.launch {
