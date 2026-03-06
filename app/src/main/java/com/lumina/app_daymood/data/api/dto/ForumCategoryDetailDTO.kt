@@ -12,7 +12,3 @@ data class ForumCategoryDetailDTO(
     @SerializedName("posts") val posts: List<PostDTO>? = emptyList()
 )
 
-data class ForumCategoryResponse(
-    // La API directamente devuelve un array de objetos. 
-    // Usaremos List<ForumCategoryDetailDTO> de retorno en el ApiService en lugar del objeto Response genérico si la API no envuelve en { "data": [] }
-)
