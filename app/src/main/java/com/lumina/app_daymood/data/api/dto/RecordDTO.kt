@@ -7,7 +7,7 @@ data class RecordDTO(
     @SerializedName("id")      val id: String,
     @SerializedName("date")    val date: String,
     @SerializedName("note")    val note: String? = null,
-    @SerializedName("emotions") val emotion: EmotionDTO,   // La API devuelve "emotions" (con s)
+    @SerializedName("id_emotion") val emotion: EmotionDTO,   // La API devuelve "emotions" (con s)
     @SerializedName("habits")  val habits: List<HabitDTO> = emptyList()
 ) {
     fun toDomain(userId: String): RecordModel = RecordModel(
@@ -28,7 +28,7 @@ data class RecordResponse(
 )
 
 // Respuesta para lista de records (getByMonth)
-data class RecordsResponse(
+data class RecordMonthResponse(
     @SerializedName("success") val success: Boolean,
     @SerializedName("data") val data: List<RecordDTO> = emptyList()
 )

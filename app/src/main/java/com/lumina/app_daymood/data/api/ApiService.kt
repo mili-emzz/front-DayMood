@@ -13,7 +13,7 @@ import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.PostResponse
 import com.lumina.app_daymood.data.api.dto.PostsResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
-import com.lumina.app_daymood.data.api.dto.RecordsResponse
+import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
 import okhttp3.MultipartBody
@@ -33,33 +33,33 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    @POST("auth/register")
+    @POST("users/register")
     suspend fun registerUser(
         @Header("Authorization") token: String,
         @Body request: UserRequest
     ): UserResponse
 
-    @POST("auth/login")
-    suspend fun loginUser(@Body request: UserRequest): UserResponse
+    @POST("users/login")
+    suspend fun loginUser(
+        @Header("Authorization") token: String,
+        @Body request: UserRequest
+    ): UserResponse
 
-
-    @GET("api/emotions")
+    // ========== EMOTIONS / FAVORITES ====================
+    // -- EMOTIONS
+    @GET("emotions")
     suspend fun getEmotions(
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    @GET("api/emotions/explore")
-    suspend fun getEmotionsExplore(
+    // -- EMOCIONES SUBIDAS POR OTROS USUARIOS
+    @GET("emotions/explore")
+    suspend fun getUploadedEmotions(
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    /**
-     * POST /api/emotions - crear emoción personalizada.
-     * Se envía como multipart/form-data:
-     *   name, id_category, save_to_favorites (RequestBody de texto) + image (MultipartBody.Part)
-     */
     @Multipart
-    @POST("api/emotions")
+    @POST("emotions")
     suspend fun createEmotion(
         @Header("Authorization") token: String,
         @Part("name") name: RequestBody,
@@ -68,63 +68,41 @@ interface ApiService {
         @Part image: MultipartBody.Part
     ): CreateEmotionResponse
 
-    @DELETE("api/emotions/{id}")
-    suspend fun deleteEmotion(
-        @Header("Authorization") token: String,
-        @Path("id") emotionId: String
-    ): FavoriteActionResponse
-
-    @GET("api/emotions/favorites")
+    // -- EMOTIONs FAVORITES
+    @GET("emotions/favorites")
     suspend fun getFavorites(
         @Header("Authorization") token: String
     ): FavoritesResponse
 
-    @POST("emotions/favorites/")
+    @POST("emotions")
     suspend fun addFavorite(
         @Header("Authorization") token: String,
         @Body request: FavoriteRequest
     ): FavoriteActionResponse
 
-    @DELETE("api/emotions/{id}")
-    suspend fun deleteFavorite(
-        @Header("Authorization") token: String,
-        @Path("id") emotionId: String
-    ): FavoriteActionResponse
-
-
-    @GET("habits")
-    suspend fun getHabits(
-        @Header("Authorization") token: String
-    ): HabitsResponse
-
-
-    @POST("api/records")
+    // ========== RECORD ====================
+    @POST("records")
     suspend fun createRecord(
         @Header("Authorization") token: String,
         @Body request: CreateRecordRequest
     ): RecordResponse
 
-    @GET("records")
+    // --RECORD BY MONTH
+    @GET("records/month")
     suspend fun getRecordsByMonth(
         @Header("Authorization") token: String,
-        @Query("year") year: Int,
+        @Query("year") year: String,
         @Query("month") month: Int
-    ): RecordsResponse
+    ): RecordMonthResponse
 
+    // -- RECORD BY DATE
     @GET("records/day")
     suspend fun getRecordByDate(
         @Header("Authorization") token: String,
         @Query("date") date: String
     ): RecordResponse
 
-    @PUT("records/{recordId}")
-    suspend fun updateRecord(
-        @Header("Authorization") token: String,
-        @Path("recordId") recordId: String,
-        @Body request: CreateRecordRequest
-    ): RecordResponse
-
-
+    // ========== POSTS ====================
     @POST("posts")
     suspend fun createPost(
         @Header("Authorization") token: String,
@@ -156,7 +134,7 @@ interface ApiService {
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:3000/"
+    private const val BASE_URL = "http://10.0.2.2:3000/api/"
     val instance: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
