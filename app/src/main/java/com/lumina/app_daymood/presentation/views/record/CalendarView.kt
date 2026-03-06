@@ -39,7 +39,7 @@ fun CalendarView(
 
     // Cargar records del mes cuando cambia el mes o año
     LaunchedEffect(currentMonth, currentYear) {
-        recordViewModel.loadRecordsByMonth(currentYear, currentMonth)
+        recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
     }
 
     // Map de fechapara record para acceso O(1) en el grid
