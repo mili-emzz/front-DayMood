@@ -17,6 +17,7 @@ import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
+import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.add_emotion.AddEmotionScreen
@@ -42,6 +43,7 @@ fun AppNavHost(
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
+    formViewModel: FormViewModel,
     forumViewModel: ForumViewModel,
     addEmotionViewModel: AddEmotionViewModel,
     innerPadding: PaddingValues,
@@ -258,10 +260,11 @@ fun AppNavHost(
         // ===== FORM TEST (TMMS-24) =====
         composable(AuthRoutes.FORM_TEST) {
             TmmsTestView(
-                onSubmit = { _ ->
-                    // Por ahora solo navega al calendario sin llamar API
-                    navController.navigate(Destination.CALENDAR.route) {
-                        popUpTo(AuthRoutes.FORM_TEST) { inclusive = true }
+                onSubmit = { answers ->
+                    formViewModel.submitForm(answers) {
+                        navController.navigate(Destination.CALENDAR.route) {
+                            popUpTo(AuthRoutes.FORM_TEST) { inclusive = true }
+                        }
                     }
                 }
             )
@@ -277,7 +280,7 @@ fun AppNavHost(
                     }
                 },
                 onRegisterSuccess = {
-                    navController.navigate(Destination.CALENDAR.route) {
+                    navController.navigate(AuthRoutes.FORM_TEST) {
                         popUpTo(AuthRoutes.REGISTER) { inclusive = true }
                     }
                 }

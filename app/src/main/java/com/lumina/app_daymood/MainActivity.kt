@@ -4,6 +4,7 @@ import com.lumina.app_daymood.presentation.navigation.AppNavHost
 import com.lumina.app_daymood.presentation.navigation.BottomNav
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
+import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
     private val authViewModel by lazy { AppModule.provideAuthViewModel() }
     private val recordViewModel by lazy { AppModule.provideRecordViewModel() }
     private val favoritesViewModel by lazy { AppModule.provideFavoritesViewModel() }
+    private val formViewModel by lazy { AppModule.provideFormViewModel() }
     private val forumViewModel by lazy { AppModule.provideForumViewModel() }
     private val addEmotionViewModel by lazy { AppModule.provideAddEmotionViewModel() }
 
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         recordViewModel = recordViewModel,
                         favoritesViewModel = favoritesViewModel,
+                        formViewModel = formViewModel,
                         forumViewModel = forumViewModel,
                         addEmotionViewModel = addEmotionViewModel
                     )
@@ -57,6 +60,7 @@ fun MainScreen(
     authViewModel: AuthViewModel,
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
+    formViewModel: FormViewModel,
     forumViewModel: ForumViewModel,
     addEmotionViewModel: AddEmotionViewModel
 ) {
@@ -72,6 +76,7 @@ fun MainScreen(
             navController = navController,
             recordViewModel = recordViewModel,
             favoritesViewModel = favoritesViewModel,
+            formViewModel = formViewModel,
             forumViewModel = forumViewModel,
             addEmotionViewModel = addEmotionViewModel,
             innerPadding = innerPadding,

@@ -14,16 +14,19 @@ import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.repositories.AuthRepositoryImpl
 import com.lumina.app_daymood.data.repositories.EmotionRepositoryIml
 import com.lumina.app_daymood.data.repositories.FavoritesRepositoryIml
+import com.lumina.app_daymood.data.repositories.FormRepositoryImpl
 import com.lumina.app_daymood.data.repositories.ForumRepositoryImpl
 import com.lumina.app_daymood.data.repositories.RecordRepositoryIml
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
 import com.lumina.app_daymood.domain.repositories.IEmotionRepository
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
+import com.lumina.app_daymood.domain.repositories.IFormRepository
 import com.lumina.app_daymood.domain.repositories.IForumRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
+import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 
@@ -80,6 +83,12 @@ object AppModule {
         )
     }
 
+    val formRepository: IFormRepository by lazy {
+        FormRepositoryImpl(
+            apiService = apiService
+        )
+    }
+
     val forumRepository: IForumRepository by lazy {
         ForumRepositoryImpl(
             apiService = apiService
@@ -112,6 +121,13 @@ object AppModule {
             authRepository = authRepository
         )
     }
+    fun provideFormViewModel(): FormViewModel {
+        return FormViewModel(
+            formRepository = formRepository,
+            authRepository = authRepository
+        )
+    }
+
     fun provideForumViewModel(): ForumViewModel {
         return ForumViewModel(
             forumRepository = forumRepository,
