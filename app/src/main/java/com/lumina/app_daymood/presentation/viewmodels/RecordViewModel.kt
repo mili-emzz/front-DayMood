@@ -120,7 +120,6 @@ class RecordViewModel(
         }
     }
 
-
     fun loadRecordByDate(date: String) {
         val userId = authRepository.getCurrentUser()
 
@@ -135,7 +134,7 @@ class RecordViewModel(
         }
     }
 
-    fun loadRecordsByMonth(year: Int, month: Int) {
+    fun loadRecordsByMonth(year: String, month: Int) {
         val userId = authRepository.getCurrentUser()
 
         viewModelScope.launch {
@@ -146,33 +145,6 @@ class RecordViewModel(
                 .onFailure { error ->
                     uiState = uiState.copy(error = error.message)
                 }
-        }
-    }
-
-    fun updateRecord(recordId: String, habitIds: List<String>) {
-        val emotionId = uiState.selectedEmotionId
-            ?: uiState.currentRecord?.emotion?.id
-            ?: return
-
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
-
-            recordRepository.updateRecord(
-                recordId = recordId,
-                emotionId = emotionId,
-                habitIds = habitIds,
-                note = uiState.selectedNote ?: uiState.currentRecord?.note
-            ).onSuccess { record ->
-                uiState = uiState.copy(
-                    isLoading = false,
-                    saveSuccess = true,
-                    currentRecord = record,
-                    selectedEmotionId = null,
-                    selectedNote = null
-                )
-            }.onFailure { error ->
-                uiState = uiState.copy(isLoading = false, error = error.message)
-            }
         }
     }
 

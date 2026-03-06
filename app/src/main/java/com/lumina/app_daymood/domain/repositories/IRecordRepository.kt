@@ -1,6 +1,5 @@
 package com.lumina.app_daymood.domain.repositories
 
-
 import com.lumina.app_daymood.domain.models.RecordModel
 import com.lumina.app_daymood.domain.models.EmotionModel as Emotion
 import com.lumina.app_daymood.domain.models.HabitModel as Habit
@@ -19,14 +18,8 @@ interface IRecordRepository {
 
     suspend fun getRecordsByMonth(
         userId: String?,
-        year: Int,
+        year: String,
         month: Int
     ): Result<List<RecordModel>>
 
-    suspend fun updateRecord(
-        recordId: String,
-        emotionId: String,
-        habitIds: List<String>,
-        note: String?
-    ): Result<Record>
 }
