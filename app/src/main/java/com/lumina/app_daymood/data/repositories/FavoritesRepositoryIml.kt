@@ -27,6 +27,7 @@ class FavoritesRepositoryIml(
         return try{
             val response = apiService.addFavorite(
                 token ="Bearer $token",
+                emotionId = emotionId,
                 request = FavoriteRequest(emotionId = emotionId)
             )
             if (!response.success) throw Exception(response.message ?: "Error al agregar a favoritos")

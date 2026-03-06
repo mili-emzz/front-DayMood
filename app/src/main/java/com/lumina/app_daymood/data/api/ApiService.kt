@@ -74,9 +74,10 @@ interface ApiService {
         @Header("Authorization") token: String
     ): FavoritesResponse
 
-    @POST("emotions")
+    @POST("emotions/favorites/{id}")
     suspend fun addFavorite(
         @Header("Authorization") token: String,
+        @Path("id") emotionId: String,
         @Body request: FavoriteRequest
     ): FavoriteActionResponse
 
