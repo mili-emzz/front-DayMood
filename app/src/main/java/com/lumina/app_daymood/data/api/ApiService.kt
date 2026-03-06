@@ -112,7 +112,7 @@ interface ApiService {
     ): RecordResponse
 
     // ========== FORMS ====================
-    @POST("forms")
+    @POST("forms/submit")
     suspend fun submitForm(
         @Header("Authorization") token: String,
         @Body request: FormRequest

@@ -2,7 +2,6 @@ package com.lumina.app_daymood.data.api.dto
 
 import com.google.gson.annotations.SerializedName
 
-// ─── Request para POST /api/forms ──────────────────────────────────────────────
 
 data class FormRequest(
     @SerializedName("answers")      val answers: Map<String, Int>,
@@ -15,7 +14,6 @@ data class FullAnswerDTO(
     @SerializedName("respuesta") val respuesta: Int
 )
 
-// ─── Response del servidor ─────────────────────────────────────────────────────
 
 data class FormResponse(
     @SerializedName("id")            val id: String,
