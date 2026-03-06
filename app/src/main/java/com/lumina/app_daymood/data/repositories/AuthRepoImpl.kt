@@ -141,9 +141,9 @@ class AuthRepositoryImpl(
             val response = apiService.registerUser("Bearer $token", request)
 
             if (response.success) {
-                Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
+                Log.d("AuthRepository", "Usuario registrado en API")
             } else {
-                Log.e("AuthRepository", "Error de API: ${response?.message}")
+                Log.e("AuthRepository", "Error de API")
             }
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
