@@ -9,6 +9,8 @@ import com.lumina.app_daymood.data.api.dto.EmotionsResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteActionResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.data.api.dto.FavoritesResponse
+import com.lumina.app_daymood.data.api.dto.FormRequest
+import com.lumina.app_daymood.data.api.dto.FormResponse
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
 import com.lumina.app_daymood.data.api.dto.MessageResponse
 import com.lumina.app_daymood.data.api.dto.PostRequest
@@ -108,6 +110,13 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("date") date: String
     ): RecordResponse
+
+    // ========== FORMS ====================
+    @POST("forms")
+    suspend fun submitForm(
+        @Header("Authorization") token: String,
+        @Body request: FormRequest
+    ): FormResponse
 
     // ========== FORUMS ===================
     // ========== POSTS ====================

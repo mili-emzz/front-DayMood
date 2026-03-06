@@ -25,6 +25,7 @@ import com.lumina.app_daymood.presentation.views.auth.RegisterView
 import com.lumina.app_daymood.presentation.views.forum.CommentsView
 import com.lumina.app_daymood.presentation.views.forum.CreatePostView
 import com.lumina.app_daymood.presentation.views.forum.ForoView
+import com.lumina.app_daymood.presentation.views.forms.TmmsTestView
 import com.lumina.app_daymood.presentation.views.home.HomeView
 import com.lumina.app_daymood.presentation.views.profile.ProfileView
 import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
@@ -247,8 +248,20 @@ fun AppNavHost(
                     }
                 },
                 onLoginSuccess = {
-                    navController.navigate(Destination.CALENDAR.route) {
+                    navController.navigate(AuthRoutes.FORM_TEST) {
                         popUpTo(AuthRoutes.LOGIN) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // ===== FORM TEST (TMMS-24) =====
+        composable(AuthRoutes.FORM_TEST) {
+            TmmsTestView(
+                onSubmit = { _ ->
+                    // Por ahora solo navega al calendario sin llamar API
+                    navController.navigate(Destination.CALENDAR.route) {
+                        popUpTo(AuthRoutes.FORM_TEST) { inclusive = true }
                     }
                 }
             )
