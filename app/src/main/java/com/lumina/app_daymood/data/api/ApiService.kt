@@ -131,12 +131,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): PostsResponse
 
-    @GET("posts/{postId}")
-    suspend fun getPost(
-        @Header("Authorization") token: String,
-        @Path("postId") postId: String
-    ): PostDTO
-
     @PATCH("posts/{postId}")
     suspend fun updatePost(
         @Header("Authorization") token: String,
@@ -155,12 +149,6 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: CommentRequest
     ): CommentDTO
-
-    @GET("posts/comments")
-    suspend fun getComments(
-        @Header("Authorization") token: String,
-        @Query("postId") postId: String
-    ): CommentsResponse
 
     @DELETE("comments/{commentId}")
     suspend fun deleteComment(
