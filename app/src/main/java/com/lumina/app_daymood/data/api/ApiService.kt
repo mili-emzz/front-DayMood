@@ -53,11 +53,15 @@ interface ApiService {
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    // -- EMOCIONES SUBIDAS POR OTROS USUARIOS
     @GET("emotions/explore")
     suspend fun getUploadedEmotions(
         @Header("Authorization") token: String
     ): EmotionsResponse
+
+    @GET("habits")
+    suspend fun getHabits(
+        @Header("Authorization") token: String
+    ): HabitsResponse
 
     @Multipart
     @POST("emotions")
