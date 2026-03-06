@@ -32,6 +32,7 @@ import com.lumina.app_daymood.presentation.views.record.RecordHabitView
 import java.time.LocalDate
 import com.lumina.app_daymood.presentation.views.record.CalendarView
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 
 
 @Composable
@@ -45,15 +46,15 @@ fun AppNavHost(
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
-    val initialRoute = if (authViewModel.isAuthenticated()) {
-        Destination.CALENDAR.route
-    } else {
-        AuthRoutes.REGISTER
+    val uiState = authViewModel.uiState
+
+    val startRoute = remember(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) Destination.CALENDAR.route else AuthRoutes.REGISTER
     }
 
     NavHost(
         navController = navController,
-        startDestination = initialRoute,
+        startDestination = startRoute,
         modifier = modifier.padding(innerPadding)
     ) {
 

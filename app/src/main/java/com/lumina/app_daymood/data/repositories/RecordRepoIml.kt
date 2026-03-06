@@ -83,28 +83,4 @@ class RecordRepositoryIml(
         }
     }
 
-    override suspend fun updateRecord(
-        recordId: String,
-        emotionId: String,
-        habitIds: List<String>,
-        note: String?
-    ): Result<RecordModel> {
-        return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val request = CreateRecordRequest(
-                date = "", // Backend must handle this
-                note = note,
-                emotionId = emotionId,
-                habitIds = habitIds
-            )
-            val response = apiService.updateRecord("Bearer $token", recordId, request)
-            if (!response.success) throw Exception(response.message)
-            val currentUserId = firebaseAuthDataSource.getCurrentUser() ?: throw Exception("Usuario no autenticado")
-            val record = response.data?.toDomain(currentUserId) ?: throw Exception("No data en respuesta")
-            Result.success(record)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
 }
