@@ -23,7 +23,6 @@ data class CommentsResponse(
 )
 
 data class CommentRequest(
-    @SerializedName("id_user") val userId: String,
     @SerializedName("id_post") val postId: String,
     @SerializedName("content") val content: String
 )
