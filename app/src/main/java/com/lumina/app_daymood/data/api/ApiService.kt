@@ -126,7 +126,7 @@ interface ApiService {
         @Body request: PostRequest
     ): PostDTO
 
-    @GET("posts")
+    @GET("forums/details/id_category")
     suspend fun getAllPosts(
         @Header("Authorization") token: String
     ): PostsResponse
@@ -170,7 +170,7 @@ interface ApiService {
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:3000/api/"
+    private const val BASE_URL = "http://10.86.238.132:3000/api/"
     val instance: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
