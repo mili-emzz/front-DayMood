@@ -263,7 +263,7 @@ fun AppNavHost(
                     }
                 },
                 onRegisterSuccess = {
-                    navController.navigate(Destination.PROFILE.route) {
+                    navController.navigate(Destination.CALENDAR.route) {
                         popUpTo(AuthRoutes.REGISTER) { inclusive = true }
                     }
                 }

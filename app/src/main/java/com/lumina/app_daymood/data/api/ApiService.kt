@@ -10,10 +10,10 @@ import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.data.api.dto.FavoritesResponse
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
 import com.lumina.app_daymood.data.api.dto.PostRequest
-import com.lumina.app_daymood.data.api.dto.PostResponse
+import com.lumina.app_daymood.data.api.dto.PostDTO
 import com.lumina.app_daymood.data.api.dto.PostsResponse
-import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
+import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
 import okhttp3.MultipartBody
@@ -23,6 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -74,9 +75,10 @@ interface ApiService {
         @Header("Authorization") token: String
     ): FavoritesResponse
 
-    @POST("emotions")
+    @POST("emotions/favorites/{id}")
     suspend fun addFavorite(
         @Header("Authorization") token: String,
+        @Path("id") emotionId: String,
         @Body request: FavoriteRequest
     ): FavoriteActionResponse
 
@@ -95,19 +97,19 @@ interface ApiService {
         @Query("month") month: Int
     ): RecordMonthResponse
 
-    // -- RECORD BY DATE
     @GET("records/day")
     suspend fun getRecordByDate(
         @Header("Authorization") token: String,
         @Query("date") date: String
     ): RecordResponse
 
+    // ========== FORUMS ===================
     // ========== POSTS ====================
     @POST("posts")
     suspend fun createPost(
         @Header("Authorization") token: String,
         @Body request: PostRequest
-    ): PostResponse
+    ): PostDTO
 
     @GET("posts")
     suspend fun getAllPosts(
@@ -118,19 +120,38 @@ interface ApiService {
     suspend fun getPost(
         @Header("Authorization") token: String,
         @Path("postId") postId: String
-    ): PostResponse
+    ): PostDTO
 
-    @POST("/posts/comments")
+    @PATCH("posts/{postId}")
+    suspend fun updatePost(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: String,
+        @Body request: com.lumina.app_daymood.data.api.dto.UpdatePostRequest
+    ): PostDTO
+
+    @DELETE("posts/{postId}")
+    suspend fun deletePost(
+        @Header("Authorization") token: String,
+        @Path("postId") postId: String
+    ): MessageResponse // Assumes Response<Unit> or just doesn't crash on 204/200 OK
+
+    @POST("comments")
     suspend fun addComment(
         @Header("Authorization") token: String,
         @Body request: CommentRequest
-    ): CommentsResponse
+    ): CommentDTO
 
     @GET("posts/comments")
     suspend fun getComments(
         @Header("Authorization") token: String,
         @Query("postId") postId: String
     ): CommentsResponse
+
+    @DELETE("comments/{commentId}")
+    suspend fun deleteComment(
+        @Header("Authorization") token: String,
+        @Path("commentId") commentId: String
+    ): MessageResponse
 }
 
 object RetrofitClient {

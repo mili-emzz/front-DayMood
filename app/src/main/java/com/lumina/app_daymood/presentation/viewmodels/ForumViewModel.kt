@@ -113,16 +113,13 @@ class ForumViewModel(
             _createPostState.update { it.copy(isLoading = true, success = false, error = null) }
             forumRepository.createPost(
                 token = token,
-                userId = userId,
                 forumId = forumId,
                 categoryId = categoryId,
                 title = title,
                 content = content
             ).onSuccess { newPost ->
-                allPosts = listOf(newPost) + allPosts
-                _forumState.update { state ->
-                    state.copy(posts = filterPosts(allPosts, state.selectedCategory))
-                }
+                // Refresh list from server to ensure state consistency
+                loadPosts()
                 _createPostState.update { it.copy(isLoading = false, success = true) }
             }.onFailure { error ->
                 _createPostState.update { it.copy(isLoading = false, error = error.message) }
@@ -133,6 +130,32 @@ class ForumViewModel(
     fun resetCreatePostState() {
         _createPostState.update { CreatePostUiState() }
     }
+
+    // Edit/Delete Posts
+    fun updatePost(postId: String, title: String, content: String) {
+        val token = authRepository.getCurrentUser() ?: return
+        viewModelScope.launch {
+            _forumState.update { it.copy(isLoading = true, error = null) }
+            forumRepository.updatePost(token, postId, title, content).onSuccess {
+                loadPosts()
+            }.onFailure { error ->
+                _forumState.update { it.copy(isLoading = false, error = error.message) }
+            }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        val token = authRepository.getCurrentUser() ?: return
+        viewModelScope.launch {
+            _forumState.update { it.copy(isLoading = true, error = null) }
+            forumRepository.deletePost(token, postId).onSuccess {
+                loadPosts()
+            }.onFailure { error ->
+                _forumState.update { it.copy(isLoading = false, error = error.message) }
+            }
+        }
+    }
+
 
     //  Comments 
 
@@ -150,10 +173,9 @@ class ForumViewModel(
 
     fun addComment(postId: String, content: String) {
         val token = authRepository.getCurrentUser() ?: return
-        val userId = token // ajustar  si se almacena el id de usuario por separado
         viewModelScope.launch {
             _commentsState.update { it.copy(isSending = true) }
-            forumRepository.addComment(token, userId, postId, content)
+            forumRepository.addComment(token, postId, content)
                 .onSuccess { updatedComments ->
                     _commentsState.update {
                         it.copy(isSending = false, comments = updatedComments)
@@ -161,6 +183,18 @@ class ForumViewModel(
                 }.onFailure { error ->
                     _commentsState.update { it.copy(isSending = false, error = error.message) }
                 }
+        }
+    }
+
+    fun deleteComment(postId: String, commentId: String) {
+        val token = authRepository.getCurrentUser() ?: return
+        viewModelScope.launch {
+            _commentsState.update { it.copy(isLoading = true) }
+            forumRepository.deleteComment(token, commentId).onSuccess {
+                loadComments(postId) // recargar comentarios
+            }.onFailure { error ->
+                _commentsState.update { it.copy(isLoading = false, error = error.message) }
+            }
         }
     }
 

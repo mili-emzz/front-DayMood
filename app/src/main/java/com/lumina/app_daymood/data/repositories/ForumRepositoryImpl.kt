@@ -26,7 +26,6 @@ class ForumRepositoryImpl(
 
     override suspend fun createPost(
         token: String,
-        userId: String,
         forumId: String,
         categoryId: Int,
         title: String,
@@ -36,16 +35,46 @@ class ForumRepositoryImpl(
             val response = apiService.createPost(
                 token = "Bearer $token",
                 request = PostRequest(
-                    userId = userId,
                     forumId = forumId,
                     id_category = categoryId,
                     title = title,
                     content = content
                 )
             )
-            if (!response.success) throw Exception(response.message.ifBlank { "Error al crear post" })
-            val post = response.data?.toDomain() ?: throw Exception("No se recibió data del post")
-            Result.success(post)
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updatePost(
+        token: String,
+        postId: String,
+        title: String,
+        content: String
+    ): Result<PostModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.updatePost(
+                token = "Bearer $token",
+                postId = postId,
+                request = com.lumina.app_daymood.data.api.dto.UpdatePostRequest(
+                    title = title,
+                    content = content
+                )
+            )
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deletePost(
+        token: String,
+        postId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deletePost("Bearer $token", postId)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -62,23 +91,38 @@ class ForumRepositoryImpl(
             }
         }
 
+    // El API retorna { "id": "...", "content": "...", "id_post": "...", "created_at": "..." } -> un CommentDTO directo
     override suspend fun addComment(
         token: String,
-        userId: String,
         postId: String,
         content: String
     ): Result<List<CommentModel>> = withContext(Dispatchers.IO) {
         try {
+            // Se hace la creacion
             val response = apiService.addComment(
                 token = "Bearer $token",
                 request = CommentRequest(
-                    userId = userId,
                     postId = postId,
                     content = content
                 )
             )
-            if (!response.success) throw Exception("Error al agregar comentario")
-            Result.success(response.data.map { it.toDomain() })
+            // Despues de crear, pedimos la lista de nuevo, o retornamos la nueva agregada al estado.
+            // Pidiendo la lista actualizada
+            val listResponse = apiService.getComments("Bearer $token", postId)
+            if (!listResponse.success) throw Exception("Error al refrescar comentarios tras crearlo")
+            Result.success(listResponse.data.map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteComment(
+        token: String,
+        commentId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deleteComment("Bearer $token", commentId)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
