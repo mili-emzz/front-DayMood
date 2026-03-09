@@ -6,6 +6,15 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+val configuredLocalApiBaseUrl =
+    (project.findProperty("API_BASE_URL") as String?) ?: "http://192.168.100.9:3000/api/"
+
+val localApiBaseUrl = if (configuredLocalApiBaseUrl.endsWith("/")) {
+    configuredLocalApiBaseUrl
+} else {
+    "$configuredLocalApiBaseUrl/"
+}
+
 android {
     namespace = "com.lumina.app_daymood"
     compileSdk = 36
@@ -21,7 +30,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"$localApiBaseUrl\"")
+        }
         release {
+            buildConfigField("String", "API_BASE_URL", "\"http://192.168.100.9:3000/api/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -38,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

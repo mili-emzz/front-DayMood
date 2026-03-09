@@ -32,10 +32,8 @@ data class ForumUiState(
     val isLoading: Boolean = false,
     val posts: List<PostModel> = emptyList(),
     val error: String? = null,
-    // Categoría seleccionada — default = Bienestar emocional (16)
     val selectedCategory: String = categoryMap[16] ?: "Bienestar emocional",
     val selectedCategoryId: Int = 16,
-    // ID del foro actual (se obtiene del paso 1 del flujo)
     val currentForumId: String? = null
 )
 
@@ -50,7 +48,6 @@ data class CreatePostUiState(
     val isLoading: Boolean = false, val success: Boolean = false, val error: String? = null
 )
 
-//  ViewModel
 
 class ForumViewModel(
     private val forumRepository: IForumRepository, private val authRepository: IAuthRepository
@@ -69,21 +66,17 @@ class ForumViewModel(
     private val _createPostState = MutableStateFlow(CreatePostUiState())
     val createPostState: StateFlow<CreatePostUiState> = _createPostState.asStateFlow()
 
-    //  Cargar posts por categoría (flujo de 2 pasos)
-
     fun loadPostsByCategory(categoryId: Int) {
         val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
             _forumState.update { it.copy(isLoading = true, error = null) }
             Log.d(TAG, "Cargando foro para categoría $categoryId (${categoryMap[categoryId]})")
 
-            // Paso 1: Obtener el id_foro para esta categoría
             forumRepository.getForumIdForCategory(token, categoryId)
                 .onSuccess { forumId ->
                     Log.d(TAG, "Paso 1 OK — forumId=$forumId para categoría $categoryId")
                     _forumState.update { it.copy(currentForumId = forumId) }
 
-                    // Paso 2: Obtener los posts del foro
                     forumRepository.getForumDetail(token, forumId)
                         .onSuccess { posts ->
                             Log.d(TAG, "Paso 2 OK — ${posts.size} posts cargados")

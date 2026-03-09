@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.data.api
 
+import com.lumina.app_daymood.BuildConfig
 import com.lumina.app_daymood.data.api.dto.CommentDTO
 import com.lumina.app_daymood.data.api.dto.CommentRequest
 import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
@@ -167,12 +168,13 @@ interface ApiService {
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.86.238.132:3000/api/"
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
+    // Quitamos 'const' porque BuildConfig no es una constante de tiempo de compilación simple
+    private val BASE_URL = BuildConfig.API_BASE_URL
+
+    val instance: ApiService by lazy {        Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
     }
 }
