@@ -39,11 +39,10 @@ fun ForoView(
 ) {
     val uiState by viewModel.forumState.collectAsState()
 
-    // Category chips: "Todos" + categorias
-    val tags = listOf("Todos") + categoryMap.values.toList()
+    val tags = categoryMap.values.toList()
 
     LaunchedEffect(Unit) {
-        viewModel.loadPosts()
+        viewModel.loadPostsByCategory(16) // Default: Bienestar emocional
     }
 
     Box(

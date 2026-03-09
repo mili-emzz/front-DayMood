@@ -30,20 +30,6 @@ data class PostDTO(
     )
 }
 
-// Single post response (create / get by id)
-data class PostResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("message") val message: String = "",
-    @SerializedName("data") val data: PostDTO? = null
-)
-
-// List of posts response (getAllPosts)
-data class PostsResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("message") val message: String = "",
-    @SerializedName("data") val data: List<PostDTO> = emptyList()
-)
-
 data class PostRequest(
     @SerializedName("id_forum") val forumId: String,
     @SerializedName("id_category") val id_category: Int,

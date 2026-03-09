@@ -124,10 +124,7 @@ fun AppNavHost(
         // ===== CREATE POST =====
         composable(ForumRoutes.CREATE_POST) {
             if (authViewModel.isAuthenticated()) {
-                // replace "" with the real forumId once it's available from login/session
-                val forumId = authViewModel.uiState.user?.id ?: ""
                 CreatePostView(
-                    forumId = forumId,
                     viewModel = forumViewModel,
                     onDismiss = { navController.popBackStack() },
                     onPublishSuccess = {

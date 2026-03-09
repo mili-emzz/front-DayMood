@@ -2,7 +2,6 @@ package com.lumina.app_daymood.data.api
 
 import com.lumina.app_daymood.data.api.dto.CommentDTO
 import com.lumina.app_daymood.data.api.dto.CommentRequest
-import com.lumina.app_daymood.data.api.dto.CommentsResponse
 import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
 import com.lumina.app_daymood.data.api.dto.EmotionsResponse
@@ -11,11 +10,12 @@ import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.data.api.dto.FavoritesResponse
 import com.lumina.app_daymood.data.api.dto.FormRequest
 import com.lumina.app_daymood.data.api.dto.FormResponse
+import com.lumina.app_daymood.data.api.dto.ForumCategoryDetailDTO
+import com.lumina.app_daymood.data.api.dto.ForumDTO
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
 import com.lumina.app_daymood.data.api.dto.MessageResponse
 import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.PostDTO
-import com.lumina.app_daymood.data.api.dto.PostsResponse
 import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
@@ -119,17 +119,26 @@ interface ApiService {
     ): FormResponse
 
     // ========== FORUMS ===================
+    // Paso 1: Obtener el foro por categoría (retorna lista, el backend filtra por edad)
+    @GET("forums/category/{categoryId}")
+    suspend fun getForumsByCategory(
+        @Header("Authorization") token: String,
+        @Path("categoryId") categoryId: Int
+    ): List<ForumCategoryDetailDTO>
+
+    // Paso 2: Obtener detalle del foro (posts + comentarios anidados)
+    @GET("forums/detail/{forumId}")
+    suspend fun getForumDetail(
+        @Header("Authorization") token: String,
+        @Path("forumId") forumId: String
+    ): ForumDTO
+
     // ========== POSTS ====================
     @POST("posts")
     suspend fun createPost(
         @Header("Authorization") token: String,
         @Body request: PostRequest
     ): PostDTO
-
-    @GET("forums/details/id_category")
-    suspend fun getAllPosts(
-        @Header("Authorization") token: String
-    ): PostsResponse
 
     @PATCH("posts/{postId}")
     suspend fun updatePost(

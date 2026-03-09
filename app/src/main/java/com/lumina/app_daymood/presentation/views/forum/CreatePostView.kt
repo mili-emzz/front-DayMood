@@ -30,7 +30,6 @@ import com.lumina.app_daymood.ui.theme.MainColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostView(
-    forumId: String,
     viewModel: ForumViewModel,
     onDismiss: () -> Unit = {},
     onPublishSuccess: () -> Unit = {}
@@ -211,7 +210,6 @@ fun CreatePostView(
             Button(
                 onClick = {
                     if (canPublish) viewModel.createPost(
-                        forumId,
                         selectedCategoryName,
                         title,
                         content

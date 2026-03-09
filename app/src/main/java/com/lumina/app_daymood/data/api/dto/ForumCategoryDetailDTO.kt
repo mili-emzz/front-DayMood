@@ -7,8 +7,5 @@ data class ForumCategoryDetailDTO(
     @SerializedName("min_age") val min_age: Int,
     @SerializedName("max_age") val max_age: Int,
     @SerializedName("id_category") val id_category: Int,
-    // La API también retorna "_count", pero podemos mapearlo como un entero o ignorarlo si no se requiere.
-    // También retorna posts si ya hay creados, u omitimos esta lista dependiendo de si es solo detail.
-    @SerializedName("posts") val posts: List<PostDTO>? = emptyList()
 )
 

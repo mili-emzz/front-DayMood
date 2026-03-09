@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lumina.app_daymood.domain.models.CommentModel
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// De numeros de categorias a texto
+// De números de categorías a texto
 val categoryMap = mapOf(
     // Foro
     16 to "Bienestar emocional",
@@ -25,14 +26,17 @@ val categoryMap = mapOf(
 // Reverse: display name → id
 val categoryIdByName: Map<String, Int> = categoryMap.entries.associate { (k, v) -> v to k }
 
-// UI State 
+// UI State
 
 data class ForumUiState(
     val isLoading: Boolean = false,
     val posts: List<PostModel> = emptyList(),
     val error: String? = null,
-// filtrar por categoria, todos es sin filtro
-    val selectedCategory: String = "Todos"
+    // Categoría seleccionada — default = Bienestar emocional (16)
+    val selectedCategory: String = categoryMap[16] ?: "Bienestar emocional",
+    val selectedCategoryId: Int = 16,
+    // ID del foro actual (se obtiene del paso 1 del flujo)
+    val currentForumId: String? = null
 )
 
 data class CommentsUiState(
@@ -46,11 +50,15 @@ data class CreatePostUiState(
     val isLoading: Boolean = false, val success: Boolean = false, val error: String? = null
 )
 
-//  ViewModel 
+//  ViewModel
 
 class ForumViewModel(
     private val forumRepository: IForumRepository, private val authRepository: IAuthRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "ForumViewModel"
+    }
 
     private val _forumState = MutableStateFlow(ForumUiState())
     val forumState: StateFlow<ForumUiState> = _forumState.asStateFlow()
@@ -61,49 +69,58 @@ class ForumViewModel(
     private val _createPostState = MutableStateFlow(CreatePostUiState())
     val createPostState: StateFlow<CreatePostUiState> = _createPostState.asStateFlow()
 
-    // Holds the full unfiltered list so category filtering is done in-memory
-    private var allPosts: List<PostModel> = emptyList()
+    //  Cargar posts por categoría (flujo de 2 pasos)
 
-    //  Forum / Posts 
-
-    fun loadPosts() {
+    fun loadPostsByCategory(categoryId: Int) {
         val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
             _forumState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.getPosts(token).onSuccess { posts ->
-                allPosts = posts
-                _forumState.update { state ->
-                    state.copy(
-                        isLoading = false, posts = filterPosts(posts, state.selectedCategory)
-                    )
+            Log.d(TAG, "Cargando foro para categoría $categoryId (${categoryMap[categoryId]})")
+
+            // Paso 1: Obtener el id_foro para esta categoría
+            forumRepository.getForumIdForCategory(token, categoryId)
+                .onSuccess { forumId ->
+                    Log.d(TAG, "Paso 1 OK — forumId=$forumId para categoría $categoryId")
+                    _forumState.update { it.copy(currentForumId = forumId) }
+
+                    // Paso 2: Obtener los posts del foro
+                    forumRepository.getForumDetail(token, forumId)
+                        .onSuccess { posts ->
+                            Log.d(TAG, "Paso 2 OK — ${posts.size} posts cargados")
+                            _forumState.update { it.copy(isLoading = false, posts = posts) }
+                        }
+                        .onFailure { error ->
+                            Log.e(TAG, "Error en paso 2 (detail): ${error.message}")
+                            _forumState.update { it.copy(isLoading = false, error = error.message) }
+                        }
                 }
-            }.onFailure { error ->
-                _forumState.update { it.copy(isLoading = false, error = error.message) }
-            }
+                .onFailure { error ->
+                    Log.e(TAG, "Error en paso 1 (category): ${error.message}")
+                    _forumState.update { it.copy(isLoading = false, error = error.message) }
+                }
         }
     }
 
     fun selectCategory(category: String) {
+        val categoryId = categoryIdByName[category] ?: return
         _forumState.update { state ->
-            state.copy(
-                selectedCategory = category, posts = filterPosts(allPosts, category)
-            )
+            state.copy(selectedCategory = category, selectedCategoryId = categoryId)
         }
+        // Cada cambio de categoría dispara el flujo de 2 pasos
+        loadPostsByCategory(categoryId)
     }
 
-    private fun filterPosts(posts: List<PostModel>, category: String): List<PostModel> {
-        if (category == "Todos") return posts
-        val catId = categoryIdByName[category] ?: return posts
-        return posts.filter { it.id_category == catId }
-    }
-
-    //  Crear Post 
+    //  Crear Post
 
     fun createPost(
-        forumId: String, categoryName: String, title: String, content: String
+        categoryName: String, title: String, content: String
     ) {
         val token = authRepository.getCurrentUser() ?: return
-        val userId = token // ajustar si se almacena el id de usuario por separado
+        val forumId = _forumState.value.currentForumId
+        if (forumId == null) {
+            _createPostState.update { it.copy(error = "No se ha cargado ningún foro") }
+            return
+        }
         val categoryId = categoryIdByName[categoryName] ?: run {
             _createPostState.update { it.copy(error = "Categoría inválida") }
             return
@@ -118,8 +135,8 @@ class ForumViewModel(
                 title = title,
                 content = content
             ).onSuccess { newPost ->
-                // Refresh list from server to ensure state consistency
-                loadPosts()
+                // Recargar posts del foro actual
+                loadPostsByCategory(_forumState.value.selectedCategoryId)
                 _createPostState.update { it.copy(isLoading = false, success = true) }
             }.onFailure { error ->
                 _createPostState.update { it.copy(isLoading = false, error = error.message) }
@@ -137,7 +154,7 @@ class ForumViewModel(
         viewModelScope.launch {
             _forumState.update { it.copy(isLoading = true, error = null) }
             forumRepository.updatePost(token, postId, title, content).onSuccess {
-                loadPosts()
+                loadPostsByCategory(_forumState.value.selectedCategoryId)
             }.onFailure { error ->
                 _forumState.update { it.copy(isLoading = false, error = error.message) }
             }
@@ -149,7 +166,7 @@ class ForumViewModel(
         viewModelScope.launch {
             _forumState.update { it.copy(isLoading = true, error = null) }
             forumRepository.deletePost(token, postId).onSuccess {
-                loadPosts()
+                loadPostsByCategory(_forumState.value.selectedCategoryId)
             }.onFailure { error ->
                 _forumState.update { it.copy(isLoading = false, error = error.message) }
             }
@@ -157,16 +174,18 @@ class ForumViewModel(
     }
 
 
-    //  Comments 
+    //  Comments — se leen directo del post, solo crear y borrar necesitan API
 
     fun loadComments(postId: String) {
-        val token = authRepository.getCurrentUser() ?: return
-        viewModelScope.launch {
-            _commentsState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.getComments(token, postId).onSuccess { comments ->
-                _commentsState.update { it.copy(isLoading = false, comments = comments) }
-            }.onFailure { error ->
-                _commentsState.update { it.copy(isLoading = false, error = error.message) }
+        // Los comentarios ya vienen en el post desde el detail del foro
+        val post = _forumState.value.posts.find { it.id == postId }
+        if (post != null) {
+            _commentsState.update {
+                it.copy(isLoading = false, comments = post.comments, error = null)
+            }
+        } else {
+            _commentsState.update {
+                it.copy(isLoading = false, error = "Post no encontrado")
             }
         }
     }
@@ -176,9 +195,39 @@ class ForumViewModel(
         viewModelScope.launch {
             _commentsState.update { it.copy(isSending = true) }
             forumRepository.addComment(token, postId, content)
-                .onSuccess { updatedComments ->
-                    _commentsState.update {
-                        it.copy(isSending = false, comments = updatedComments)
+                .onSuccess { newComment ->
+                    // Recargar el foro completo para obtener comentarios actualizados
+                    val categoryId = _forumState.value.selectedCategoryId
+                    val forumId = _forumState.value.currentForumId
+                    if (forumId != null) {
+                        forumRepository.getForumDetail(token, forumId)
+                            .onSuccess { posts ->
+                                _forumState.update { it.copy(posts = posts) }
+                                // Actualizar los comentarios del post actual
+                                val updatedPost = posts.find { it.id == postId }
+                                _commentsState.update {
+                                    it.copy(
+                                        isSending = false,
+                                        comments = updatedPost?.comments ?: emptyList()
+                                    )
+                                }
+                            }
+                            .onFailure {
+                                // Si falla el refresh, al menos agregamos el nuevo
+                                _commentsState.update { state ->
+                                    state.copy(
+                                        isSending = false,
+                                        comments = state.comments + newComment
+                                    )
+                                }
+                            }
+                    } else {
+                        _commentsState.update { state ->
+                            state.copy(
+                                isSending = false,
+                                comments = state.comments + newComment
+                            )
+                        }
                     }
                 }.onFailure { error ->
                     _commentsState.update { it.copy(isSending = false, error = error.message) }
@@ -191,7 +240,24 @@ class ForumViewModel(
         viewModelScope.launch {
             _commentsState.update { it.copy(isLoading = true) }
             forumRepository.deleteComment(token, commentId).onSuccess {
-                loadComments(postId) // recargar comentarios
+                // Recargar foro para refrescar comentarios
+                val forumId = _forumState.value.currentForumId
+                if (forumId != null) {
+                    forumRepository.getForumDetail(token, forumId)
+                        .onSuccess { posts ->
+                            _forumState.update { it.copy(posts = posts) }
+                            val updatedPost = posts.find { it.id == postId }
+                            _commentsState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    comments = updatedPost?.comments ?: emptyList()
+                                )
+                            }
+                        }
+                        .onFailure {
+                            _commentsState.update { it.copy(isLoading = false) }
+                        }
+                }
             }.onFailure { error ->
                 _commentsState.update { it.copy(isLoading = false, error = error.message) }
             }
