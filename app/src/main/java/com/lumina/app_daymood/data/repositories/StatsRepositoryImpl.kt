@@ -15,7 +15,6 @@ class StatsRepositoryImpl(
             try {
                 val response = apiService.getWeeklyStats("Bearer $token")
                 if (response.success && response.data != null) {
-                    // Agrupar por emoción y sumar totales (la API ya viene agrupado por semana)
                     val grouped = response.data
                         .groupBy { it.emotion }
                         .map { (emotion, items) ->

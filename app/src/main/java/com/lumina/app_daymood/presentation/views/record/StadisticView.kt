@@ -32,17 +32,9 @@ private val TextDark      = Color(0xFF3D3D3D)
 private val TextMuted     = Color(0xFF9E9E9E)
 private val GridLine      = Color(0xFFE0C5C0)
 
-// ── Modelo mock ────────────────────────────────────────────────
 data class EmotionStat(
     val label: String,
     val count: Int
-)
-
-private val mockStats = listOf(
-    EmotionStat("Amor",      1),
-    EmotionStat("Vergüenza", 1),
-    EmotionStat("Ira",       2),
-    EmotionStat("Tristeza",  3),
 )
 
 // ── Vista principal ────────────────────────────────────────────
@@ -52,15 +44,14 @@ fun StatsView(
     onBackClick: () -> Unit = {},
     statsViewModel: StatsViewModel? = null
 ) {
-    // Si hay ViewModel, usar sus datos; si no (preview), usar mock
     val uiState = statsViewModel?.uiState
-    val stats = uiState?.stats?.takeIf { it.isNotEmpty() } ?: mockStats
+    val stats = uiState?.stats?.takeIf { it.isNotEmpty() }
 
     LaunchedEffect(Unit) {
         statsViewModel?.loadStats()
     }
 
-    val maxCount = stats.maxOfOrNull { it.count } ?: 1
+    val maxCount = stats?.maxOfOrNull { it.count } ?: 1
 
     Scaffold(
 
@@ -142,7 +133,7 @@ fun StatsView(
                     Spacer(Modifier.height(32.dp))
 
                     // ── Resumen debajo ──
-                    val topEmotion = stats.maxByOrNull { it.count }
+                    val topEmotion = stats?.maxByOrNull { it.count }
                     if (topEmotion != null) {
                         SummaryCard(topEmotion = topEmotion, totalDays = stats.sumOf { it.count })
                     }
@@ -157,7 +148,7 @@ fun StatsView(
 // ── Gráfica de barras ──────────────────────────────────────────
 @Composable
 fun BarChart(
-    stats: List<EmotionStat>,
+    stats: List<EmotionStat>?,
     maxCount: Int,
     modifier: Modifier = Modifier
 ) {
@@ -203,7 +194,6 @@ fun BarChart(
             }
         }
 
-        // ── Barras ──
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -212,7 +202,7 @@ fun BarChart(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.Bottom
         ) {
-            stats.forEach { stat ->
+            stats?.forEach { stat ->
                 val fraction = (stat.count.toFloat() / maxCount) * animProgress.value
                 val isHighest = stat.count == maxCount
                 val barColor = if (isHighest) BarColorHigh else BarColor
@@ -243,7 +233,7 @@ fun BarChart(
                 .padding(start = 28.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            stats.forEach { stat ->
+            stats?.forEach { stat ->
                 Text(
                     text = stat.label,
                     fontSize = 11.sp,
