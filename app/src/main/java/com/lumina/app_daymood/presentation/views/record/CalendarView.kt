@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,7 +33,8 @@ fun CalendarView(
     imageResId: Int,
     onNavigateToCreate: (LocalDate) -> Unit,
     onNavigateToDetail: (LocalDate) -> Unit,
-    onDiaryClick: () -> Unit
+    onDiaryClick: () -> Unit,
+    onNavigateToStats: () -> Unit = {}
 ) {
     val uiState = recordViewModel.uiState
     var currentMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
@@ -57,16 +60,29 @@ fun CalendarView(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Buen día",
-            style = MaterialTheme.typography.headlineSmall,
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp)
-        )
+                .padding(bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Buen día",
+                style = MaterialTheme.typography.headlineSmall,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            IconButton(onClick = onNavigateToStats) {
+                Icon(
+                    imageVector = Icons.Filled.BarChart,
+                    contentDescription = "Estadísticas",
+                    tint = Color(0xFFFEB4A7),
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
 
         // Botones de meses
         Row(

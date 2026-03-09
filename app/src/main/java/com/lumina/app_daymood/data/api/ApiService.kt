@@ -21,6 +21,7 @@ import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
+import com.lumina.app_daymood.data.api.dto.WeeklyStatsResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Retrofit
@@ -111,6 +112,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Query("date") date: String
     ): RecordResponse
+
+    // ========== STATS ====================
+    @GET("stats/weekly")
+    suspend fun getWeeklyStats(
+        @Header("Authorization") token: String
+    ): WeeklyStatsResponse
 
     // ========== FORMS ====================
     @POST("forms/submit")
