@@ -2,8 +2,6 @@ package com.lumina.app_daymood.data.api.dto
 
 import com.google.gson.annotations.SerializedName
 import com.lumina.app_daymood.domain.models.ForumModel
-import com.lumina.app_daymood.domain.models.RecordModel
-import com.lumina.app_daymood.domain.models.UserModel
 
 data class ForumDTO(
     @SerializedName("id")          val id: String,

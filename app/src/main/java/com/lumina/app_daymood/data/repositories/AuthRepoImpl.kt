@@ -26,7 +26,7 @@ class AuthRepositoryImpl(
             val uid = firebaseUser.uid
             val username = generateRandomUsername()
 
-            firebaseAuthDataSource.updateProfile(email, password)
+            firebaseAuthDataSource.updateProfile(username)
 
             firestoreDataSource.saveUser(
                 firebase_uid = uid,
@@ -141,9 +141,9 @@ class AuthRepositoryImpl(
             val response = apiService.registerUser("Bearer $token", request)
 
             if (response.success) {
-                Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
+                Log.d("AuthRepository", "Usuario registrado en API")
             } else {
-                Log.e("AuthRepository", "Error de API: ${response?.message}")
+                Log.e("AuthRepository", "Error de API")
             }
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error al enviar a API: ${e.message}")

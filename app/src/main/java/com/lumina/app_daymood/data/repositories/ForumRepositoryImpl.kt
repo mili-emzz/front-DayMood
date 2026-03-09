@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.data.repositories
 
+import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CommentRequest
 import com.lumina.app_daymood.data.api.dto.PostRequest
@@ -13,20 +14,43 @@ class ForumRepositoryImpl(
     private val apiService: ApiService
 ) : IForumRepository {
 
-    override suspend fun getPosts(token: String): Result<List<PostModel>> =
+    companion object {
+        private const val TAG = "ForumRepository"
+    }
+
+    // Paso 1: Obtener el id del foro para una categoría específica
+    // El backend ya filtra por la edad del usuario autenticado
+    override suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String> =
         withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getAllPosts("Bearer $token")
-                if (!response.success) throw Exception(response.message.ifBlank { "Error al obtener posts" })
-                Result.success(response.data.map { it.toDomain() })
+                val forums = apiService.getForumsByCategory("Bearer $token", categoryId)
+                if (forums.isEmpty()) {
+                    throw Exception("No se encontró un foro para la categoría $categoryId")
+                }
+                val forum = forums.first()
+                Log.d(TAG, "Foro encontrado para categoría $categoryId: id=${forum.id}, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(forum.id)
             } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo foro para categoría $categoryId: ${e.message}")
+                Result.failure(e)
+            }
+        }
+
+    // Paso 2: Obtener detalle del foro (posts con comentarios anidados)
+    override suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val forum = apiService.getForumDetail("Bearer $token", forumId)
+                Log.d(TAG, "Detalle de foro cargado: ${forum.posts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(forum.posts.map { it.toDomain() })
+            } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo detalle del foro $forumId: ${e.message}")
                 Result.failure(e)
             }
         }
 
     override suspend fun createPost(
         token: String,
-        userId: String,
         forumId: String,
         categoryId: Int,
         title: String,
@@ -36,49 +60,78 @@ class ForumRepositoryImpl(
             val response = apiService.createPost(
                 token = "Bearer $token",
                 request = PostRequest(
-                    userId = userId,
                     forumId = forumId,
                     id_category = categoryId,
                     title = title,
                     content = content
                 )
             )
-            if (!response.success) throw Exception(response.message.ifBlank { "Error al crear post" })
-            val post = response.data?.toDomain() ?: throw Exception("No se recibió data del post")
-            Result.success(post)
+            Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun getComments(token: String, postId: String): Result<List<CommentModel>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = apiService.getComments("Bearer $token", postId)
-                if (!response.success) throw Exception("Error al obtener comentarios")
-                Result.success(response.data.map { it.toDomain() })
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+    override suspend fun updatePost(
+        token: String,
+        postId: String,
+        title: String,
+        content: String
+    ): Result<PostModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.updatePost(
+                token = "Bearer $token",
+                postId = postId,
+                request = com.lumina.app_daymood.data.api.dto.UpdatePostRequest(
+                    title = title,
+                    content = content
+                )
+            )
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
+    override suspend fun deletePost(
+        token: String,
+        postId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deletePost("Bearer $token", postId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // Crear comentario — retorna el comentario creado
     override suspend fun addComment(
         token: String,
-        userId: String,
         postId: String,
         content: String
-    ): Result<List<CommentModel>> = withContext(Dispatchers.IO) {
+    ): Result<CommentModel> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.addComment(
                 token = "Bearer $token",
                 request = CommentRequest(
-                    userId = userId,
                     postId = postId,
                     content = content
                 )
             )
-            if (!response.success) throw Exception("Error al agregar comentario")
-            Result.success(response.data.map { it.toDomain() })
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteComment(
+        token: String,
+        commentId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deleteComment("Bearer $token", commentId)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
