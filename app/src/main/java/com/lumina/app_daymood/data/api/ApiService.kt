@@ -168,7 +168,6 @@ interface ApiService {
 }
 
 object RetrofitClient {
-    // Quitamos 'const' porque BuildConfig no es una constante de tiempo de compilación simple
     private val BASE_URL = BuildConfig.API_BASE_URL
 
     val instance: ApiService by lazy {        Retrofit.Builder()

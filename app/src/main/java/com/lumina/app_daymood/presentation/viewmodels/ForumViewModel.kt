@@ -67,8 +67,8 @@ class ForumViewModel(
     val createPostState: StateFlow<CreatePostUiState> = _createPostState.asStateFlow()
 
     fun loadPostsByCategory(categoryId: Int) {
-        val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _forumState.update { it.copy(isLoading = true, error = null) }
             Log.d(TAG, "Cargando foro para categoría $categoryId (${categoryMap[categoryId]})")
 
@@ -108,7 +108,6 @@ class ForumViewModel(
     fun createPost(
         categoryName: String, title: String, content: String
     ) {
-        val token = authRepository.getCurrentUser() ?: return
         val forumId = _forumState.value.currentForumId
         if (forumId == null) {
             _createPostState.update { it.copy(error = "No se ha cargado ningún foro") }
@@ -120,6 +119,7 @@ class ForumViewModel(
         }
 
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _createPostState.update { it.copy(isLoading = true, success = false, error = null) }
             forumRepository.createPost(
                 token = token,
@@ -143,8 +143,8 @@ class ForumViewModel(
 
     // Edit/Delete Posts
     fun updatePost(postId: String, title: String, content: String) {
-        val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _forumState.update { it.copy(isLoading = true, error = null) }
             forumRepository.updatePost(token, postId, title, content).onSuccess {
                 loadPostsByCategory(_forumState.value.selectedCategoryId)
@@ -155,8 +155,8 @@ class ForumViewModel(
     }
 
     fun deletePost(postId: String) {
-        val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _forumState.update { it.copy(isLoading = true, error = null) }
             forumRepository.deletePost(token, postId).onSuccess {
                 loadPostsByCategory(_forumState.value.selectedCategoryId)
@@ -184,8 +184,8 @@ class ForumViewModel(
     }
 
     fun addComment(postId: String, content: String) {
-        val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _commentsState.update { it.copy(isSending = true) }
             forumRepository.addComment(token, postId, content)
                 .onSuccess { newComment ->
@@ -229,8 +229,8 @@ class ForumViewModel(
     }
 
     fun deleteComment(postId: String, commentId: String) {
-        val token = authRepository.getCurrentUser() ?: return
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
             _commentsState.update { it.copy(isLoading = true) }
             forumRepository.deleteComment(token, commentId).onSuccess {
                 // Recargar foro para refrescar comentarios

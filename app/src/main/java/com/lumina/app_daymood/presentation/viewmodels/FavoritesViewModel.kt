@@ -29,7 +29,7 @@ class FavoritesViewModel(
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            val token = authRepository.getCurrentUser() ?: return@launch
+            val token = authRepository.getIdToken() ?: return@launch
 
             val result = favoritesRepository.getFavorites(token)
             isLoading = false
@@ -46,7 +46,7 @@ class FavoritesViewModel(
 
     fun addFavorite(emotionId: String) {
         viewModelScope.launch {
-            val token = authRepository.getCurrentUser() ?: return@launch
+            val token = authRepository.getIdToken() ?: return@launch
             val result = favoritesRepository.addFavorite(token, emotionId)
             result
                 .onSuccess {
