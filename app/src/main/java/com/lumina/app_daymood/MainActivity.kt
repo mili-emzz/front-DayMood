@@ -8,6 +8,7 @@ import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
+import com.lumina.app_daymood.presentation.viewmodels.StatsViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +30,7 @@ class MainActivity : ComponentActivity() {
     private val formViewModel by lazy { AppModule.provideFormViewModel() }
     private val forumViewModel by lazy { AppModule.provideForumViewModel() }
     private val addEmotionViewModel by lazy { AppModule.provideAddEmotionViewModel() }
+    private val statsViewModel by lazy { AppModule.provideStatsViewModel() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +49,8 @@ class MainActivity : ComponentActivity() {
                         favoritesViewModel = favoritesViewModel,
                         formViewModel = formViewModel,
                         forumViewModel = forumViewModel,
-                        addEmotionViewModel = addEmotionViewModel
+                        addEmotionViewModel = addEmotionViewModel,
+                        statsViewModel = statsViewModel
                     )
                 }
             }
@@ -62,7 +65,8 @@ fun MainScreen(
     favoritesViewModel: FavoritesViewModel,
     formViewModel: FormViewModel,
     forumViewModel: ForumViewModel,
-    addEmotionViewModel: AddEmotionViewModel
+    addEmotionViewModel: AddEmotionViewModel,
+    statsViewModel: StatsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -79,6 +83,7 @@ fun MainScreen(
             formViewModel = formViewModel,
             forumViewModel = forumViewModel,
             addEmotionViewModel = addEmotionViewModel,
+            statsViewModel = statsViewModel,
             innerPadding = innerPadding,
             authViewModel = authViewModel
         )
