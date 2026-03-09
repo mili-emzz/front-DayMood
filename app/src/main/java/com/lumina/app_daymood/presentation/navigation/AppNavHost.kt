@@ -20,6 +20,7 @@ import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
+import com.lumina.app_daymood.presentation.viewmodels.StatsViewModel
 import com.lumina.app_daymood.presentation.views.add_emotion.AddEmotionScreen
 import com.lumina.app_daymood.presentation.views.auth.LoginView
 import com.lumina.app_daymood.presentation.views.auth.RegisterView
@@ -31,6 +32,7 @@ import com.lumina.app_daymood.presentation.views.home.HomeView
 import com.lumina.app_daymood.presentation.views.profile.ProfileView
 import com.lumina.app_daymood.presentation.views.record.RecordEmotionView
 import com.lumina.app_daymood.presentation.views.record.RecordHabitView
+import com.lumina.app_daymood.presentation.views.stats.StatsView
 import java.time.LocalDate
 import com.lumina.app_daymood.presentation.views.record.CalendarView
 import androidx.compose.runtime.collectAsState
@@ -46,6 +48,7 @@ fun AppNavHost(
     formViewModel: FormViewModel,
     forumViewModel: ForumViewModel,
     addEmotionViewModel: AddEmotionViewModel,
+    statsViewModel: StatsViewModel,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -84,8 +87,23 @@ fun AppNavHost(
                     } else {
                         navController.navigate(AuthRoutes.REGISTER)
                     }
+                },
+                onNavigateToStats = {
+                    navController.navigate("stats")
                 }
             )
+        }
+
+        // ===== ESTADÍSTICAS =====
+        composable("stats") {
+            if (authViewModel.isAuthenticated()) {
+                StatsView(
+                    onBackClick = { navController.popBackStack() },
+                    statsViewModel = statsViewModel
+                )
+            } else {
+                LaunchedEffect(Unit) { navController.navigate(AuthRoutes.REGISTER) }
+            }
         }
 
         // ===== HOME (emociones custom del usuario) =====

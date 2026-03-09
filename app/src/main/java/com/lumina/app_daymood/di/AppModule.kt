@@ -17,18 +17,21 @@ import com.lumina.app_daymood.data.repositories.FavoritesRepositoryIml
 import com.lumina.app_daymood.data.repositories.FormRepositoryImpl
 import com.lumina.app_daymood.data.repositories.ForumRepositoryImpl
 import com.lumina.app_daymood.data.repositories.RecordRepositoryIml
+import com.lumina.app_daymood.data.repositories.StatsRepositoryImpl
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
 import com.lumina.app_daymood.domain.repositories.IEmotionRepository
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IFormRepository
 import com.lumina.app_daymood.domain.repositories.IForumRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
+import com.lumina.app_daymood.domain.repositories.IStatsRepository
 import com.lumina.app_daymood.presentation.viewmodels.FavoritesViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
 import com.lumina.app_daymood.presentation.viewmodels.ForumViewModel
 import com.lumina.app_daymood.presentation.viewmodels.FormViewModel
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
+import com.lumina.app_daymood.presentation.viewmodels.StatsViewModel
 
 object AppModule {
     // Context se inicializa una sola vez desde MainActivity
@@ -95,6 +98,12 @@ object AppModule {
         )
     }
 
+    val statsRepository: IStatsRepository by lazy {
+        StatsRepositoryImpl(
+            apiService = apiService
+        )
+    }
+
     // ViewModel Factory
     fun provideAuthViewModel(): AuthViewModel {
         return AuthViewModel(authRepository)
@@ -131,6 +140,13 @@ object AppModule {
     fun provideForumViewModel(): ForumViewModel {
         return ForumViewModel(
             forumRepository = forumRepository,
+            authRepository = authRepository
+        )
+    }
+
+    fun provideStatsViewModel(): StatsViewModel {
+        return StatsViewModel(
+            statsRepository = statsRepository,
             authRepository = authRepository
         )
     }
