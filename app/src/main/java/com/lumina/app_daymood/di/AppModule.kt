@@ -42,7 +42,12 @@ object AppModule {
         Firebase.auth
     }
     private val firestore: FirebaseFirestore by lazy {
-        Firebase.firestore
+        val db = Firebase.firestore
+        val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
+            .setPersistenceEnabled(false)
+            .build()
+        db.firestoreSettings = settings
+        db
     }
     private val firebaseAuthDataSource: FirebaseAuthDataSource by lazy {
         FirebaseAuthDataSource(firebaseAuth)
