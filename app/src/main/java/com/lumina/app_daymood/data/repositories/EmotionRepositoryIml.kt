@@ -14,10 +14,6 @@ class EmotionRepositoryIml(
     private val context: Context          // necesario para abrir el InputStream del Uri
 ) : IEmotionRepository {
 
-    /**
-     * Envía la imagen + metadatos a POST /api/emotions como multipart/form-data.
-     * El backend sube la imagen a Firebase Storage y devuelve la URL.
-     */
     override suspend fun createEmotion(
         token: String,
         name: String,

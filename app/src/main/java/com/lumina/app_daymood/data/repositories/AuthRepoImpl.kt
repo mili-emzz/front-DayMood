@@ -39,7 +39,6 @@ class AuthRepositoryImpl(
                 val token = firebaseAuthDataSource.getIdToken()
                 sendToApi(token, uid, username, email, birth_day)
             } catch (e: Exception) {
-                // Si falla la API, no importa, ya está en Firebase
                 Log.w("AuthRepository", "API no disponible o falló: ${e.message}")
             }
 
@@ -137,7 +136,6 @@ class AuthRepositoryImpl(
                 birth_day = birthDay
             )
 
-            // El token va como "Bearer <token>" en el header
             val response = apiService.registerUser("Bearer $token", request)
 
             if (response.success) {
