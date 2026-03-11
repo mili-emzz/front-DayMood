@@ -25,7 +25,7 @@ data class EmotionsResponse(
 )
 
 // Request para crear emoción personalizada se envía como multipart/form-data
-data class CreateEmotionRequest(
+data class CreateEmotionRequest (
     val name: String,
     val categoryId: Int,
     val saveToFavorites: Boolean
