@@ -58,12 +58,4 @@ class FavoritesViewModel(
                 }
         }
     }
-
-    fun isFavorite(emotionId: String): Boolean {
-        return favorites.any { it.id == emotionId }
-    }
-
-    fun clearError() {
-        errorMessage = null
-    }
 }

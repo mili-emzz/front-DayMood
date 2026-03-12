@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -46,7 +47,7 @@ object AppModule {
     }
     private val firestore: FirebaseFirestore by lazy {
         val db = Firebase.firestore
-        val settings = com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
+        val settings = FirebaseFirestoreSettings.Builder()
             .setPersistenceEnabled(false)
             .build()
         db.firestoreSettings = settings
@@ -73,15 +74,16 @@ object AppModule {
         val storage = Firebase.storage
         RecordRepositoryIml(
             apiService = apiService,
-            firebaseAuthDataSource = firebaseAuthDataSource,
-            storage = storage
+            firebaseAuthDataSource = firebaseAuthDataSource
         )
     }
 
     val emotionRepository: IEmotionRepository by lazy {
         EmotionRepositoryIml(
             apiService = apiService,
-            context = appContext          // para leer el Uri de la imagen seleccionada
+            context = appContext,
+            firebaseAuthDataSource = firebaseAuthDataSource
+            // para leer el Uri de la imagen seleccionada
         )
     }
 

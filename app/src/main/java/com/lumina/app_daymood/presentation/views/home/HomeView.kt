@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,7 @@ fun HomeView(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .semantics{testTag = "homeScreen"}
             .background(BackgroundColor)
             .padding(horizontal = 10.dp, vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -130,7 +133,6 @@ fun HomeViewPreview() {
             .fillMaxSize()
             .background(BackgroundColor)
     ) {
-        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -154,7 +156,6 @@ fun HomeViewPreview() {
             }
         }
 
-        // Grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),

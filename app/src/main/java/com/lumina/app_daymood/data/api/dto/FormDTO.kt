@@ -8,14 +8,12 @@ data class FormRequest(
     @SerializedName("answers") val answers: Map<String, Int>
 )
 
-// Cada elemento del array de respuesta
 data class FullAnswerDTO(
     @SerializedName("key")       val key: String,
     @SerializedName("pregunta")  val pregunta: String,
     @SerializedName("respuesta") val respuesta: Int
 )
 
-// Response wrapper: { "full_answers": [ { key, pregunta, respuesta }, ... ] }
 data class FormResponse(
     @SerializedName("full_answers") val fullAnswers: List<FullAnswerDTO> = emptyList()
 )

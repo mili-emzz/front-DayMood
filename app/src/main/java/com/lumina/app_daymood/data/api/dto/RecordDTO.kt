@@ -65,5 +65,5 @@ data class CreateRecordRequest(
     @SerializedName("date")    val date: String,
     @SerializedName("note")    val note: String?,
     @SerializedName("id_emotion") val emotionId: String,
-    @SerializedName("habits")  val habitIds: List<String>  // La API espera "habits", no "id_habit"
+    @SerializedName("habits")  val habitIds: List<String>
 )

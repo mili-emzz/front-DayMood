@@ -36,8 +36,6 @@ class AddEmotionViewModel(
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    // ── Imagen ────────────────────────────────────────────────────────────────
-
     fun onImageSelected(uri: Uri?) {
         if (uri == null) return
         imageUri = uri

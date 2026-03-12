@@ -3,6 +3,7 @@ package com.lumina.app_daymood.data.repositories
 import android.content.Context
 import android.net.Uri
 import com.lumina.app_daymood.data.api.ApiService
+import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.domain.models.EmotionModel
 import com.lumina.app_daymood.domain.repositories.IEmotionRepository
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -11,13 +12,10 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class EmotionRepositoryIml(
     private val apiService: ApiService,
-    private val context: Context          // necesario para abrir el InputStream del Uri
+    private val context: Context,          // necesario para abrir el InputStream del Uri
+    private val firebaseAuthDataSource: FirebaseAuthDataSource
 ) : IEmotionRepository {
 
-    /**
-     * Envía la imagen + metadatos a POST /api/emotions como multipart/form-data.
-     * El backend sube la imagen a Firebase Storage y devuelve la URL.
-     */
     override suspend fun createEmotion(
         token: String,
         name: String,
@@ -40,21 +38,32 @@ class EmotionRepositoryIml(
             val imagePart = MultipartBody.Part.createFormData("image", "emotion.jpg", imageBody)
 
             // Campos de texto como RequestBody
-            val nameBody          = name.toRequestBody("text/plain".toMediaTypeOrNull())
-            val categoryBody      = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val favoritesBody     = saveToFavorites.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
+            val categoryBody = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val favoritesBody =
+                saveToFavorites.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             val response = apiService.createEmotion(
-                token          = "Bearer $token",
-                name           = nameBody,
-                categoryId     = categoryBody,
+                token = "Bearer $token",
+                name = nameBody,
+                categoryId = categoryBody,
                 saveToFavorites = favoritesBody,
-                image          = imagePart
+                image = imagePart
             )
 
             if (!response.success) throw Exception(response.message ?: "Error al crear emoción")
             val emotion = response.data?.toDomain() ?: throw Exception("No se recibió data")
             Result.success(emotion)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUploadedEmotions(): Result<List<EmotionModel>> {
+        return try {
+            val token = firebaseAuthDataSource.getIdToken()
+            val response = apiService.getUploadedEmotions("Bearer $token")
+            Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
         }
