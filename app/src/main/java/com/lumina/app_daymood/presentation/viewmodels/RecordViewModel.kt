@@ -17,7 +17,7 @@ import java.time.LocalDate
 data class RecordUiState(
     // Catálogos
     val emotions: List<Emotion> = emptyList(),
-    val habits: List<Habit> = emptyList(),
+    val habitCategories: List<com.lumina.app_daymood.domain.models.HabitCategoryModel> = emptyList(),
     val loadingCatalogs: Boolean = false,
     val selectedEmotionId: String? = null,
     val selectedNote: String? = null,
@@ -68,7 +68,7 @@ class RecordViewModel(
 
             uiState = uiState.copy(
                 emotions = combinedEmotions,
-                habits = habitsResult.getOrDefault(emptyList()),
+                habitCategories = habitsResult.getOrDefault(emptyList()),
                 loadingCatalogs = false,
                 error = emotionsResult.exceptionOrNull()?.message
                     ?: favoritesResult.exceptionOrNull()?.message
@@ -86,7 +86,8 @@ class RecordViewModel(
 
     fun saveRecord(
         date: String,
-        habitIds: List<String>
+        habitIds: List<String>,
+        noteToSave: String? = null
     ) {
         val emotionId = uiState.selectedEmotionId
         if (emotionId == null) {
@@ -101,7 +102,7 @@ class RecordViewModel(
                 date = date,
                 emotionId = emotionId,
                 habitIds = habitIds,
-                note = uiState.selectedNote
+                note = noteToSave ?: uiState.selectedNote
             ).onSuccess { record ->
                 uiState = uiState.copy(
                     isLoading = false,

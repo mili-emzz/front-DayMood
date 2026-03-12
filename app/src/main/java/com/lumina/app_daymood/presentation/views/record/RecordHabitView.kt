@@ -26,18 +26,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-// Categorías fijas con sus IDs de categoryId de la BD
-private data class HabitCategory(
-    val categoryId: Int,
-    val title: String
-)
-
-private val HABIT_CATEGORIES = listOf(
-    HabitCategory(categoryId = 3, title = "Salud"),
-    HabitCategory(categoryId = 4, title = "Bienestar mental"),
-    HabitCategory(categoryId = 5, title = "Social"),
-    HabitCategory(categoryId = 6, title = "Productividad")
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,14 +47,15 @@ fun RecordHabitView(
         onBackClick = onBackClick,
         onSaveSuccess = onSaveSuccess,
         onClearSuccess = { recordViewModel.clearSuccess() },
-        onSaveClick = { note, selectedHabitIds ->
+        onSaveClick = { noteText, selectedHabitIds ->
             recordViewModel.saveEmotionSelection(
                 emotionId = uiState.selectedEmotionId ?: "",
-                note = note.ifBlank { null }
+                note = noteText.ifBlank { null }
             )
             recordViewModel.saveRecord(
                 date = recordViewModel.formatDate(date),
-                habitIds = selectedHabitIds.toList()
+                habitIds = selectedHabitIds.toList(),
+                noteToSave = noteText.ifBlank { "" }
             )
         }
     )
@@ -138,23 +127,22 @@ fun RecordHabitViewContent(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 } else {
-                    // Renderizamos una sección por cada categoría fija mostrando los hábitos dinámicos que correspondan a ese categoryId
-                    HABIT_CATEGORIES.forEach { category ->
-                        val habitsForCategory = uiState.habits.filter {
-                            it.categoryId == category.categoryId
-                        }
-
-                        // Solo mostramos la categoría si tiene hábitos
-                        if (habitsForCategory.isNotEmpty()) {
+                    // Renderizamos las categorías dinámicas provenientes de la API
+                    uiState.habitCategories.forEach { category ->
+                        if (category.habits.isNotEmpty()) {
                             HabitCategorySection(
-                                title = category.title,
-                                habits = habitsForCategory,
+                                title = category.categoryName,
+                                habits = category.habits,
                                 selectedHabitIds = selectedHabitIds,
                                 onHabitToggle = { habitId ->
-                                    selectedHabitIds = if (habitId in selectedHabitIds) {
-                                        selectedHabitIds - habitId
+                                    val isSelected = habitId in selectedHabitIds
+                                    if (isSelected) {
+                                        // Deseleccionar si ya estaba
+                                        selectedHabitIds = selectedHabitIds - habitId
                                     } else {
-                                        selectedHabitIds + habitId
+                                        // Si no estaba seleccionado, quitamos cualquier otro de la MISMA categoría y agregamos el nuevo
+                                        val otherHabitIdsInCategory = category.habits.map { it.id }.toSet()
+                                        selectedHabitIds = (selectedHabitIds - otherHabitIdsInCategory) + habitId
                                     }
                                 }
                             )
@@ -190,9 +178,9 @@ fun RecordHabitViewContent(
                         .height(100.dp)
                 )
 
-                // Contador de caracteres
+                // Contador de caracteres (Límite 200)
                 Text(
-                    text = "${note.length}/500",
+                    text = "${note.length}/200",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier
