@@ -17,6 +17,7 @@ class FavoritesViewModel(
 ) : ViewModel() {
 
     val favorites = mutableStateListOf<EmotionModel>()
+    val uploadedEmotions = mutableStateListOf<EmotionModel>()
 
     var isLoading by mutableStateOf(false)
         private set
@@ -40,6 +41,25 @@ class FavoritesViewModel(
                 }
                 .onFailure { e ->
                     errorMessage = "Error al cargar favoritos: ${e.message}"
+                }
+        }
+    }
+
+    fun loadUploadedEmotions() {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            val token = authRepository.getIdToken() ?: return@launch
+
+            val result = favoritesRepository.getUploadedEmotions(token)
+            isLoading = false
+            result
+                .onSuccess { list ->
+                    uploadedEmotions.clear()
+                    uploadedEmotions.addAll(list)
+                }
+                .onFailure { e ->
+                    errorMessage = "Error al cargar emociones: ${e.message}"
                 }
         }
     }

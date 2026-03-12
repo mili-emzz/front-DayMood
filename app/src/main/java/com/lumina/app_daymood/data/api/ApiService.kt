@@ -113,7 +113,7 @@ interface ApiService {
     ): RecordResponse
 
     // ========== STATS ====================
-    @GET("stats/weekly")
+    @GET("/weekly")
     suspend fun getWeeklyStats(
         @Header("Authorization") token: String
     ): WeeklyStatsResponse

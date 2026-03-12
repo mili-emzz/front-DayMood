@@ -20,6 +20,16 @@ class FavoritesRepositoryIml(
         }
     }
 
+    override suspend fun getUploadedEmotions(token: String): Result<List<EmotionModel>> {
+        return try {
+            val response = apiService.getUploadedEmotions("Bearer $token")
+            if (!response.success) throw Exception(response.message ?: "Error al obtener emociones subidas")
+            Result.success(response.data.map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun addFavorite(
         token: String,
         emotionId: String
