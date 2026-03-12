@@ -4,23 +4,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.emiliagomez.vanamiapp.navigation.Destination
 import com.lumina.app_daymood.presentation.navigation.routes.AuthRoutes
 import com.lumina.app_daymood.presentation.navigation.routes.NavigationHelper
-import com.lumina.app_daymood.presentation.navigation.routes.RecordRoutes
-import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
-import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
-import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.MainColor
 import com.lumina.app_daymood.ui.theme.navBarColor
 
@@ -28,6 +27,8 @@ import com.lumina.app_daymood.ui.theme.navBarColor
 fun BottomNav(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    var selectedItemRoute by remember(currentRoute) { mutableStateOf(currentRoute) }
 
     // Ocultar bottom nav en ciertas rutas
     if (NavigationHelper.shouldHideBottomNav(currentRoute)) {
@@ -39,18 +40,16 @@ fun BottomNav(navController: NavHostController) {
     ) {
         Destination.entries.forEach { destination ->
             val isSelected = when {
-                currentRoute in listOf(
-                    AuthRoutes.LOGIN,
-                    AuthRoutes.REGISTER
-                ) && destination == Destination.PROFILE -> true
-
-                currentRoute == AuthRoutes.PROFILE_AUTHENTICATED && destination == Destination.PROFILE -> true
-                else -> currentRoute == destination.route
+                (selectedItemRoute in listOf(AuthRoutes.LOGIN, AuthRoutes.REGISTER) ||
+                        selectedItemRoute == AuthRoutes.PROFILE_AUTHENTICATED) &&
+                        destination == Destination.PROFILE -> true
+                else -> selectedItemRoute == destination.route
             }
 
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
+                    selectedItemRoute = destination.route
                     if (currentRoute != destination.route) {
                         navController.navigate(destination.route) {
                             popUpTo(Destination.CALENDAR.route) {
@@ -65,11 +64,17 @@ fun BottomNav(navController: NavHostController) {
                     Icon(
                         imageVector = destination.icon,
                         contentDescription = destination.route,
-                        tint = if (isSelected) MainColor else navBarColor,
                         modifier = Modifier.size(34.dp)
                     )
-                }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = navBarColor,
+                    indicatorColor = MainColor,
+                    unselectedIconColor = MainColor,
+                )
+
             )
         }
     }
 }
+

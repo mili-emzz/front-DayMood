@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.components.register
+package com.lumina.app_daymood.presentation.views.auth.components
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +29,8 @@ fun FormTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
-    onVisibilityChange: () -> Unit = {} //afectar icono de visibilidad
+    onVisibilityChange: () -> Unit = {}, //afectar icono de visibilidad
+    modifier: Modifier
 ) {
 
     val visualTransformation =

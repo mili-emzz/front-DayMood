@@ -20,7 +20,6 @@ class FirebaseAuthDataSource(
             Log.e("FirebaseAuthDataSource", "Error al crear usuario: ${e.message}")
             throw e
         }
-
     }
 
     suspend fun signInUser(email: String, password: String): FirebaseUser {
@@ -33,10 +32,10 @@ class FirebaseAuthDataSource(
         }
     }
 
-    suspend fun updateProfile(email: String, password: String): FirebaseUser {
+    suspend fun updateProfile(username: String): FirebaseUser {
         return suspendCoroutine { continuation ->
             val profileUpdates = userProfileChangeRequest {
-                this.displayName = displayName
+                this.displayName = username
             }
 
             auth.currentUser?.updateProfile(profileUpdates)

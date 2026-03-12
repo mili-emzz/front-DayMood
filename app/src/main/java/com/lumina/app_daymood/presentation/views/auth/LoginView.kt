@@ -8,14 +8,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lumina.app_daymood.presentation.components.register.ButtonContainers
-import com.lumina.app_daymood.presentation.components.register.FormTextField
-import com.lumina.app_daymood.presentation.components.register.LoginImage
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
+import com.lumina.app_daymood.presentation.views.auth.components.ButtonContainers
+import com.lumina.app_daymood.presentation.views.auth.components.FormTextField
+import com.lumina.app_daymood.presentation.views.auth.components.LoginImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +37,8 @@ fun LoginView(
             .verticalScroll(rememberScrollState())
             .imePadding()
             .padding(horizontal = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -69,16 +72,18 @@ fun LoginView(
             Text(
                 text = error,
                 color = Color.Red,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                modifier = Modifier.semantics
+                {testTag = "loginErrorMessage"}
             )
         }
 
-        Spacer(modifier = Modifier.height(72.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         ButtonContainers(
             text = "Iniciar Sesión",
             isRegister = false,
-            enabled = !uiState.isLoading,  // ← Deshabilitar si está cargando
+            enabled = !uiState.isLoading,
             onButtonClick = {
                 authViewModel.login(
                     email = email,
@@ -86,7 +91,9 @@ fun LoginView(
                     onSuccess = onLoginSuccess
                 )
             },
-            onNavigateClick = onNavigateToRegister
+            onNavigateClick = onNavigateToRegister,
+            modifier = Modifier.semantics
+            {testTag = "loginButton"}
         )
 
         // Loading indicator
@@ -112,17 +119,21 @@ fun FormLoginView(
         FormTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = "Correo electrónico"
+            label = "Correo electrónico",
+            modifier = Modifier.semantics
+            {testTag = "emailField"}
         )
 
         FormTextField(
             value = password,
             onValueChange = onPasswordChange,
-            isPassword = true,
             label = "Contraseña",
             keyboardType = KeyboardType.Password,
+            isPassword = true,
             isPasswordVisible = isPasswordVisible,
-            onVisibilityChange = { isPasswordVisible = !isPasswordVisible }
+            onVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+            modifier = Modifier.semantics
+            {testTag = "passswordField"}
         )
     }
 }

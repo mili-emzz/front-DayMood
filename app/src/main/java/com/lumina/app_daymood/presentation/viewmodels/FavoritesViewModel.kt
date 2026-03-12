@@ -17,6 +17,7 @@ class FavoritesViewModel(
 ) : ViewModel() {
 
     val favorites = mutableStateListOf<EmotionModel>()
+    val uploadedEmotions = mutableStateListOf<EmotionModel>()
 
     var isLoading by mutableStateOf(false)
         private set
@@ -29,7 +30,7 @@ class FavoritesViewModel(
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
-            val token = "mock_token" // TODO: obtener el token real del authRepository
+            val token = authRepository.getIdToken() ?: return@launch
 
             val result = favoritesRepository.getFavorites(token)
             isLoading = false
@@ -44,21 +45,37 @@ class FavoritesViewModel(
         }
     }
 
-    fun addFavorite(emotionId: String) {
+    fun loadUploadedEmotions() {
         viewModelScope.launch {
-            val token = "mock_token" // TODO: token real
-            val result = favoritesRepository.addFavorite(token, emotionId)
-            result.onFailure { e ->
-                errorMessage = "Error al agregar favorito: ${e.message}"
-            }
+            isLoading = true
+            errorMessage = null
+            val token = authRepository.getIdToken() ?: return@launch
+
+            val result = favoritesRepository.getUploadedEmotions(token)
+            isLoading = false
+            result
+                .onSuccess { list ->
+                    uploadedEmotions.clear()
+                    uploadedEmotions.addAll(list)
+                }
+                .onFailure { e ->
+                    errorMessage = "Error al cargar emociones: ${e.message}"
+                }
         }
     }
 
-    fun isFavorite(emotionId: String): Boolean {
-        return favorites.any { it.id == emotionId }
-    }
-
-    fun clearError() {
-        errorMessage = null
+    fun addFavorite(emotionId: String) {
+        viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: return@launch
+            val result = favoritesRepository.addFavorite(token, emotionId)
+            result
+                .onSuccess {
+                    // Refrescamos la lista de favoritos
+                    loadFavorites()
+                }
+                .onFailure { e ->
+                    errorMessage = "Error al agregar favorito: ${e.message}"
+                }
+        }
     }
 }

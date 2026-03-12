@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.components.register
+package com.lumina.app_daymood.presentation.views.auth.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +21,8 @@ import java.util.*
 fun DatePickerField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    testTag: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()

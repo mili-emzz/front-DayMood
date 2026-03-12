@@ -1,4 +1,4 @@
-package com.lumina.app_daymood.presentation.components.register
+package com.lumina.app_daymood.presentation.views.auth.components
 
 
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,8 @@ fun ButtonContainers(
     isRegister: Boolean,
     enabled: Boolean = true,
     onButtonClick: () -> Unit,
-    onNavigateClick: () -> Unit
+    onNavigateClick: () -> Unit,
+    modifier: Modifier
 ){
     Column(
         modifier = Modifier

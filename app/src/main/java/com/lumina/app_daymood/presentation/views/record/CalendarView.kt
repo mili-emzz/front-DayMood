@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.R
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
@@ -30,7 +33,8 @@ fun CalendarView(
     imageResId: Int,
     onNavigateToCreate: (LocalDate) -> Unit,
     onNavigateToDetail: (LocalDate) -> Unit,
-    onDiaryClick: () -> Unit
+    onDiaryClick: () -> Unit,
+    onNavigateToStats: () -> Unit = {}
 ) {
     val uiState = recordViewModel.uiState
     var currentMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
@@ -38,7 +42,7 @@ fun CalendarView(
 
     // Cargar records del mes cuando cambia el mes o año
     LaunchedEffect(currentMonth, currentYear) {
-        recordViewModel.loadRecordsByMonth(currentYear, currentMonth)
+        recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
     }
 
     // Map de fechapara record para acceso O(1) en el grid
@@ -52,18 +56,33 @@ fun CalendarView(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor)
-            .padding(horizontal = 12.dp, vertical = 16.dp),
+            .padding(horizontal = 32.dp, vertical = 32.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Buen día",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color(0xFF2C2C2C),
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp)
-        )
+                .padding(bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Buen día",
+                style = MaterialTheme.typography.headlineSmall,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            IconButton(onClick = onNavigateToStats) {
+                Icon(
+                    imageVector = Icons.Filled.BarChart,
+                    contentDescription = "Estadísticas",
+                    tint = Color(0xFFFEB4A7),
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
 
         // Botones de meses
         Row(

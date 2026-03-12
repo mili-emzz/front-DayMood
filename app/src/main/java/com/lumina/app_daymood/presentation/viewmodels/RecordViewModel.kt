@@ -17,7 +17,7 @@ import java.time.LocalDate
 data class RecordUiState(
     // Catálogos
     val emotions: List<Emotion> = emptyList(),
-    val habits: List<Habit> = emptyList(),
+    val habitCategories: List<com.lumina.app_daymood.domain.models.HabitCategoryModel> = emptyList(),
     val loadingCatalogs: Boolean = false,
     val selectedEmotionId: String? = null,
     val selectedNote: String? = null,
@@ -47,9 +47,9 @@ class RecordViewModel(
     }
     private fun loadCatalogs() {
         val userId = authRepository.getCurrentUser()
-        val token = "mock_token" // usar token real cuando se integre
 
         viewModelScope.launch {
+            val token = authRepository.getIdToken() ?: ""
             uiState = uiState.copy(loadingCatalogs = true)
 
             // Cargar emociones default
@@ -60,15 +60,15 @@ class RecordViewModel(
             val favoritesResult = favoritesRepository.getFavorites(token)
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
 
-            // Combinar listas: defaults + favoritas
-            val combinedEmotions = defaultEmotions + favoriteEmotions
+            // Combinar listas y evitar duplicados
+            val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
 
             // Cargar hábitos
             val habitsResult = recordRepository.getHabits()
 
             uiState = uiState.copy(
                 emotions = combinedEmotions,
-                habits = habitsResult.getOrDefault(emptyList()),
+                habitCategories = habitsResult.getOrDefault(emptyList()),
                 loadingCatalogs = false,
                 error = emotionsResult.exceptionOrNull()?.message
                     ?: favoritesResult.exceptionOrNull()?.message
@@ -86,7 +86,8 @@ class RecordViewModel(
 
     fun saveRecord(
         date: String,
-        habitIds: List<String>
+        habitIds: List<String>,
+        noteToSave: String? = null
     ) {
         val emotionId = uiState.selectedEmotionId
         if (emotionId == null) {
@@ -101,7 +102,7 @@ class RecordViewModel(
                 date = date,
                 emotionId = emotionId,
                 habitIds = habitIds,
-                note = uiState.selectedNote
+                note = noteToSave ?: uiState.selectedNote
             ).onSuccess { record ->
                 uiState = uiState.copy(
                     isLoading = false,
@@ -120,7 +121,6 @@ class RecordViewModel(
         }
     }
 
-
     fun loadRecordByDate(date: String) {
         val userId = authRepository.getCurrentUser()
 
@@ -135,7 +135,7 @@ class RecordViewModel(
         }
     }
 
-    fun loadRecordsByMonth(year: Int, month: Int) {
+    fun loadRecordsByMonth(year: String, month: Int) {
         val userId = authRepository.getCurrentUser()
 
         viewModelScope.launch {
@@ -146,33 +146,6 @@ class RecordViewModel(
                 .onFailure { error ->
                     uiState = uiState.copy(error = error.message)
                 }
-        }
-    }
-
-    fun updateRecord(recordId: String, habitIds: List<String>) {
-        val emotionId = uiState.selectedEmotionId
-            ?: uiState.currentRecord?.emotion?.id
-            ?: return
-
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
-
-            recordRepository.updateRecord(
-                recordId = recordId,
-                emotionId = emotionId,
-                habitIds = habitIds,
-                note = uiState.selectedNote ?: uiState.currentRecord?.note
-            ).onSuccess { record ->
-                uiState = uiState.copy(
-                    isLoading = false,
-                    saveSuccess = true,
-                    currentRecord = record,
-                    selectedEmotionId = null,
-                    selectedNote = null
-                )
-            }.onFailure { error ->
-                uiState = uiState.copy(isLoading = false, error = error.message)
-            }
         }
     }
 

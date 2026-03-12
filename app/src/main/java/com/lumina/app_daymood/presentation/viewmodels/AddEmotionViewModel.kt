@@ -17,16 +17,16 @@ class AddEmotionViewModel(
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    // Estados de UI
+    // Estado de UI
     var uploadState by mutableStateOf<UploadState>(UploadState.ImageNotSelected)
         private set
 
     var imageUri by mutableStateOf<Uri?>(null)
         private set
 
-    // Campos del formulario — públicos para que la View los pueda leer y el Composable bindearlos
+    // Campos del formulario
     var emotionName by mutableStateOf("")
-    var selectedCategoryId by mutableStateOf(1)   // Int — id de la categoría
+    var selectedCategoryId by mutableStateOf(8)  // default: Alegría (id=8)
     var saveToFavorites by mutableStateOf(true)
 
     var isSubmitting by mutableStateOf(false)
@@ -36,19 +36,18 @@ class AddEmotionViewModel(
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    // Imagen
-
     fun onImageSelected(uri: Uri?) {
         if (uri == null) return
         imageUri = uri
-        simulateImageLoad()
+        // Simula progress visual mientras el usuario llena el formulario
+        simulateLoadingAnimation()
     }
 
-    private fun simulateImageLoad() {
+    private fun simulateLoadingAnimation() {
         viewModelScope.launch {
             uploadState = UploadState.UploadingImage(0f)
             for (i in 1..10) {
-                delay(200)
+                delay(150)
                 uploadState = UploadState.UploadingImage(i / 10f)
             }
             uploadState = UploadState.UploadCompleted
@@ -61,6 +60,13 @@ class AddEmotionViewModel(
         uploadState = UploadState.ImageNotSelected
     }
 
+    // ── Submit ────────────────────────────────────────────────────────────────
+
+    /**
+     * Valida el formulario y envía la emoción a la API como multipart.
+     * La API recibe la imagen, la sube a Firebase Storage y devuelve la URL.
+     * Ya NO se sube la imagen desde el app directamente a Firebase.
+     */
     fun submitEmotion(onSuccess: () -> Unit) {
         val uri = imageUri ?: run {
             errorMessage = "Selecciona una imagen primero"
@@ -79,33 +85,28 @@ class AddEmotionViewModel(
             isSubmitting = true
             errorMessage = null
 
-            // Paso 1: Subir imagen a Firebase Storage
-            val userId = authRepository.getCurrentUser() ?: "mock_user"
-            val token  = "mock_token" // TODO: obtener el token real del authRepository
-
-            val uploadResult = emotionRepository.uploadEmotionImage(userId, uri)
-            if (uploadResult.isFailure) {
-                errorMessage = "Error al subir imagen: ${uploadResult.exceptionOrNull()?.message}"
+            val token = authRepository.getIdToken() ?: run {
+                errorMessage = "No se pudo obtener el token de sesión"
                 isSubmitting = false
                 return@launch
             }
-            val imgUrl = uploadResult.getOrThrow()
 
-            // Paso 2: Crear emoción en el backend (el backend manejará favoritos si saveToFavorites es true)
-            val createResult = emotionRepository.createEmotion(
-                token = token,
-                name = emotionName.trim(),
-                categoryId = selectedCategoryId,
-                imgUrl = imgUrl,
+            // Un solo paso: mandar imagen + datos a la API (multipart)
+            val result = emotionRepository.createEmotion(
+                token           = token,
+                name            = emotionName.trim(),
+                categoryId      = selectedCategoryId,
+                imageUri        = uri,
                 saveToFavorites = saveToFavorites
             )
-            if (createResult.isFailure) {
-                errorMessage = "Error al crear emoción: ${createResult.exceptionOrNull()?.message}"
-                isSubmitting = false
+
+            isSubmitting = false
+
+            if (result.isFailure) {
+                errorMessage = "Error al subir emoción: ${result.exceptionOrNull()?.message}"
                 return@launch
             }
 
-            isSubmitting = false
             successMessage = "¡Emoción subida correctamente!"
             resetForm()
             onSuccess()
@@ -116,7 +117,7 @@ class AddEmotionViewModel(
         imageUri = null
         uploadState = UploadState.ImageNotSelected
         emotionName = ""
-        selectedCategoryId = 1
+        selectedCategoryId = 8
         saveToFavorites = true
     }
 
@@ -125,4 +126,3 @@ class AddEmotionViewModel(
         successMessage = null
     }
 }
-
