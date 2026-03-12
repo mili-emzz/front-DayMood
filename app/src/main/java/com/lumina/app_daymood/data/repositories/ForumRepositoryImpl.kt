@@ -18,8 +18,6 @@ class ForumRepositoryImpl(
         private const val TAG = "ForumRepository"
     }
 
-    // Paso 1: Obtener el id del foro para una categoría específica
-    // El backend ya filtra por la edad del usuario autenticado
     override suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String> =
         withContext(Dispatchers.IO) {
             try {
@@ -36,13 +34,15 @@ class ForumRepositoryImpl(
             }
         }
 
-    // Paso 2: Obtener detalle del foro (posts con comentarios anidados)
     override suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>> =
         withContext(Dispatchers.IO) {
             try {
                 val forum = apiService.getForumDetail("Bearer $token", forumId)
-                Log.d(TAG, "Detalle de foro cargado: ${forum.posts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
-                Result.success(forum.posts.map { it.toDomain() })
+                // Usamos la lista segura mapeada para evitar el error de IterablesKt
+                val domainPosts = forum.posts?.map { it.toDomain() } ?: emptyList()
+                
+                Log.d(TAG, "Detalle de foro cargado: ${domainPosts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(domainPosts)
             } catch (e: Exception) {
                 Log.e(TAG, "Error obteniendo detalle del foro $forumId: ${e.message}")
                 Result.failure(e)
@@ -57,6 +57,7 @@ class ForumRepositoryImpl(
         content: String
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
+            Log.d(TAG, "Creando post en forumId: $forumId, cat: $categoryId")
             val response = apiService.createPost(
                 token = "Bearer $token",
                 request = PostRequest(
@@ -68,6 +69,7 @@ class ForumRepositoryImpl(
             )
             Result.success(response.toDomain())
         } catch (e: Exception) {
+            Log.e(TAG, "Error creando post: ${e.message}")
             Result.failure(e)
         }
     }
@@ -105,7 +107,6 @@ class ForumRepositoryImpl(
         }
     }
 
-    // Crear comentario — retorna el comentario creado
     override suspend fun addComment(
         token: String,
         postId: String,

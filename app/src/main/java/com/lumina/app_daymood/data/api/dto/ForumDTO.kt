@@ -9,7 +9,7 @@ data class ForumDTO(
     @SerializedName("max_age")     val max_age: Int,
     @SerializedName("id_category") val category_id: Int,
     @SerializedName("users")       val users: List<UserData>,
-    @SerializedName("posts")       val posts: List<PostDTO>
+    @SerializedName("posts")       val posts: List<PostDTO> = emptyList()
 ) {
     fun toDomain(): ForumModel = ForumModel(
         id = id,

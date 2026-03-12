@@ -18,6 +18,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.compose.rememberNavController
 import com.lumina.app_daymood.di.AppModule
 import com.lumina.app_daymood.ui.theme.App_daymoodTheme
@@ -40,7 +42,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             App_daymoodTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .semantics{
+                            testTagsAsResourceId = true
+                        },
                     color = BackgroundColor
                 ) {
                     MainScreen(

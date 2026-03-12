@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -70,7 +72,9 @@ fun LoginView(
             Text(
                 text = error,
                 color = Color.Red,
-                fontSize = 14.sp
+                fontSize = 14.sp,
+                modifier = Modifier.semantics
+                {testTag = "loginErrorMessage"}
             )
         }
 
@@ -79,7 +83,7 @@ fun LoginView(
         ButtonContainers(
             text = "Iniciar Sesión",
             isRegister = false,
-            enabled = !uiState.isLoading,  // ← Deshabilitar si está cargando
+            enabled = !uiState.isLoading,
             onButtonClick = {
                 authViewModel.login(
                     email = email,
@@ -87,7 +91,9 @@ fun LoginView(
                     onSuccess = onLoginSuccess
                 )
             },
-            onNavigateClick = onNavigateToRegister
+            onNavigateClick = onNavigateToRegister,
+            modifier = Modifier.semantics
+            {testTag = "loginButton"}
         )
 
         // Loading indicator
@@ -113,17 +119,21 @@ fun FormLoginView(
         FormTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = "Correo electrónico"
+            label = "Correo electrónico",
+            modifier = Modifier.semantics
+            {testTag = "emailField"}
         )
 
         FormTextField(
             value = password,
             onValueChange = onPasswordChange,
-            isPassword = true,
             label = "Contraseña",
             keyboardType = KeyboardType.Password,
+            isPassword = true,
             isPasswordVisible = isPasswordVisible,
-            onVisibilityChange = { isPasswordVisible = !isPasswordVisible }
+            onVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+            modifier = Modifier.semantics
+            {testTag = "passswordField"}
         )
     }
 }

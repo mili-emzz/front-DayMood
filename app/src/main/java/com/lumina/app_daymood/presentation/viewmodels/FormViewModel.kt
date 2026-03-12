@@ -24,11 +24,6 @@ class FormViewModel(
     var uiState by mutableStateOf(FormUiState())
         private set
 
-    /**
-     * Envía las respuestas del formulario al API.
-     * @param answers Mapa índice (0-9) → valor (1-5) proveniente de TmmsTestView
-     * @param onSuccess Callback que se ejecuta al completar exitosamente
-     */
     fun submitForm(answers: Map<Int, Int>, onSuccess: () -> Unit) {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)

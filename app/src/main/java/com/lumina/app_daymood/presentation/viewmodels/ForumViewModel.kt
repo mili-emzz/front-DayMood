@@ -16,9 +16,9 @@ import kotlinx.coroutines.launch
 // De números de categorías a texto
 val categoryMap = mapOf(
     // Foro
-    16 to "Bienestar emocional",
-    17 to "Estudios, trabajo y presión",
-    18 to "Relaciones y vínculos",
+    2 to "Bienestar emocional",
+    3 to "Estudios, trabajo y presión",
+    6 to "Relaciones y vínculos",
     19 to "Autoconocimiento",
     20 to "Logros"
 )
@@ -140,35 +140,6 @@ class ForumViewModel(
     fun resetCreatePostState() {
         _createPostState.update { CreatePostUiState() }
     }
-
-    // Edit/Delete Posts
-    fun updatePost(postId: String, title: String, content: String) {
-        viewModelScope.launch {
-            val token = authRepository.getIdToken() ?: return@launch
-            _forumState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.updatePost(token, postId, title, content).onSuccess {
-                loadPostsByCategory(_forumState.value.selectedCategoryId)
-            }.onFailure { error ->
-                _forumState.update { it.copy(isLoading = false, error = error.message) }
-            }
-        }
-    }
-
-    fun deletePost(postId: String) {
-        viewModelScope.launch {
-            val token = authRepository.getIdToken() ?: return@launch
-            _forumState.update { it.copy(isLoading = true, error = null) }
-            forumRepository.deletePost(token, postId).onSuccess {
-                loadPostsByCategory(_forumState.value.selectedCategoryId)
-            }.onFailure { error ->
-                _forumState.update { it.copy(isLoading = false, error = error.message) }
-            }
-        }
-    }
-
-
-    //  Comments — se leen directo del post, solo crear y borrar necesitan API
-
     fun loadComments(postId: String) {
         // Los comentarios ya vienen en el post desde el detail del foro
         val post = _forumState.value.posts.find { it.id == postId }

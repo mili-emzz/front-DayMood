@@ -29,7 +29,8 @@ fun FormTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false,
     isPasswordVisible: Boolean = false,
-    onVisibilityChange: () -> Unit = {} //afectar icono de visibilidad
+    onVisibilityChange: () -> Unit = {}, //afectar icono de visibilidad
+    modifier: Modifier
 ) {
 
     val visualTransformation =

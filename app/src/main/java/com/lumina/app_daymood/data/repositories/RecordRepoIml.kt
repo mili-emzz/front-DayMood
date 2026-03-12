@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.data.repositories
 
+import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -42,12 +43,25 @@ class RecordRepositoryIml(
         return try {
             val token = firebaseAuthDataSource.getIdToken()
             val request = CreateRecordRequest(date, note, emotionId, habitIds)
+            
+            Log.d("RecordRepository", "Enviando record a API para fecha: $date")
             val response = apiService.createRecord("Bearer $token", request)
-            if (!response.success) throw Exception(response.message)
-            val userId = firebaseAuthDataSource.getCurrentUser() ?: throw Exception("Usuario no autenticado")
-            val record = response.data?.toDomain(userId) ?: throw Exception("No data en respuesta")
+            
+            if (!response.success) {
+                Log.e("RecordRepository", "API Error: ${response.message}")
+                throw Exception(response.message ?: "Error desconocido en la API")
+            }
+
+            // Obtenemos el userId de forma segura (si es null, usamos vacío o el de la respuesta si existiera)
+            val userId = firebaseAuthDataSource.getCurrentUser() ?: ""
+            
+            val recordData = response.data ?: throw Exception("La API no devolvió los datos del registro")
+            val record = recordData.toDomain(userId)
+            
+            Log.d("RecordRepository", "Record creado exitosamente")
             Result.success(record)
         } catch (e: Exception) {
+            Log.e("RecordRepository", "Error en createRecord: ${e.message}")
             Result.failure(e)
         }
     }
@@ -78,5 +92,4 @@ class RecordRepositoryIml(
             Result.failure(e)
         }
     }
-
 }
