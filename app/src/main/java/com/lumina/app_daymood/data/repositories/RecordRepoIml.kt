@@ -28,6 +28,10 @@ class RecordRepositoryIml(
         return try {
             val token = firebaseAuthDataSource.getIdToken()
             val response = apiService.getHabits("Bearer $token")
+            Log.d("RecordRepository", "Habit Categories fetched: ${response.data.size}")
+            if (response.data.isNotEmpty()) {
+                Log.d("RecordRepository", "First category: ${response.data[0].categoryName} with ${response.data[0].habits.size} habits")
+            }
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
