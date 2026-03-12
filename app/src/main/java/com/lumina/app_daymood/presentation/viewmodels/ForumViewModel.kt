@@ -18,7 +18,7 @@ val categoryMap = mapOf(
     // Foro
     2 to "Bienestar emocional",
     3 to "Estudios, trabajo y presión",
-    6 to "Relaciones y vínculos",
+    16 to "Relaciones y vínculos",
     19 to "Autoconocimiento",
     20 to "Logros"
 )
