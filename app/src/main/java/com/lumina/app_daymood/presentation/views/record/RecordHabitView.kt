@@ -19,6 +19,7 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.record.components.HabitChip
 import com.lumina.app_daymood.presentation.views.record.components.habitIconRes
+import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 import com.lumina.app_daymood.ui.theme.borderLines
@@ -108,7 +109,7 @@ fun RecordHabitViewContent(
                 }
             )
         },
-        containerColor = Color(0xFFFFF0F0)
+        containerColor = BackgroundColor
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -204,7 +205,7 @@ fun RecordHabitViewContent(
                     },
                     enabled = !uiState.isLoading,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF4C2C2),
+                        containerColor = MainColor,
                         disabledContainerColor = DisabledButton
                     ),
                     shape = RoundedCornerShape(16.dp),
@@ -234,18 +235,6 @@ fun RecordHabitViewContent(
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
-@Composable
-fun RecordHabitViewPreview() {
-    RecordHabitViewContent(
-        uiState = RecordUiState(),
-        formattedDate = "Lunes, 1 de Enero",
-        onBackClick = {},
-        onSaveSuccess = {},
-        onClearSuccess = {},
-        onSaveClick = { _, _ -> }
-    )
-}
 
 @Composable
 private fun HabitCategorySection(

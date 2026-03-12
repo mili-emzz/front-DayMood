@@ -22,12 +22,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lumina.app_daymood.presentation.viewmodels.StatsViewModel
+import com.lumina.app_daymood.ui.theme.BackgroundColor
+import com.lumina.app_daymood.ui.theme.MainColor
 
-// ── Colores del theme ──────────────────────────────────────────
-private val MainColor     = Color(0xFFFEB4A7)
-private val BgColor       = Color(0xFFFFECE6)
 private val BarColor      = Color(0xFFFEB4A7)
-private val BarColorHigh  = Color(0xFFFC8C7A)  // barra más alta, más saturada
+private val BarColorHigh  = Color(0xFFFC8C7A)
 private val TextDark      = Color(0xFF3D3D3D)
 private val TextMuted     = Color(0xFF9E9E9E)
 private val GridLine      = Color(0xFFE0C5C0)
@@ -37,7 +36,6 @@ data class EmotionStat(
     val count: Int
 )
 
-// ── Vista principal ────────────────────────────────────────────
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsView(
@@ -68,11 +66,11 @@ fun StatsView(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BgColor
+                    containerColor = BackgroundColor
                 )
             )
         },
-        containerColor = BgColor
+        containerColor = BackgroundColor
     ) { paddingValues ->
         when {
             uiState?.isLoading == true -> {
@@ -104,7 +102,6 @@ fun StatsView(
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 24.dp, vertical = 8.dp)
                 ) {
-                    // ── Header ──
                     Text(
                         text = "Estadísticas",
                         fontSize = 24.sp,
@@ -113,7 +110,7 @@ fun StatsView(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "Descubre qué categoría de emoción\npredomino esta semana",
+                        text = "Descubre qué categoría de la emoción\npredomino esta semana",
                         fontSize = 14.sp,
                         color = TextMuted,
                         lineHeight = 20.sp
@@ -121,7 +118,6 @@ fun StatsView(
 
                     Spacer(Modifier.height(40.dp))
 
-                    // ── Gráfica ──
                     BarChart(
                         stats = stats,
                         maxCount = maxCount,
@@ -132,7 +128,6 @@ fun StatsView(
 
                     Spacer(Modifier.height(32.dp))
 
-                    // ── Resumen debajo ──
                     val topEmotion = stats?.maxByOrNull { it.count }
                     if (topEmotion != null) {
                         SummaryCard(topEmotion = topEmotion, totalDays = stats.sumOf { it.count })
@@ -145,7 +140,6 @@ fun StatsView(
     }
 }
 
-// ── Gráfica de barras ──────────────────────────────────────────
 @Composable
 fun BarChart(
     stats: List<EmotionStat>?,
@@ -165,7 +159,6 @@ fun BarChart(
     BoxWithConstraints(modifier = modifier) {
         val chartHeight = maxHeight - 32.dp  // reserva para labels
 
-        // ── Líneas de grid horizontales ──
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -225,7 +218,6 @@ fun BarChart(
             }
         }
 
-        // ── Labels debajo ──
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,7 +238,6 @@ fun BarChart(
     }
 }
 
-// ── Card de resumen ────────────────────────────────────────────
 @Composable
 fun SummaryCard(topEmotion: EmotionStat, totalDays: Int) {
     Box(
@@ -287,7 +278,6 @@ fun SummaryCard(topEmotion: EmotionStat, totalDays: Int) {
     }
 }
 
-// ── Preview ───────────────────────────────────────────────────
 @Preview(showBackground = true, backgroundColor = 0xFFFFECE6)
 @Composable
 fun StatsViewPreview() {

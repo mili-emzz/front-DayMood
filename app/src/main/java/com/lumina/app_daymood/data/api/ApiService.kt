@@ -63,7 +63,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    @GET("habits")
+    @GET("records/habits")
     suspend fun getHabits(
         @Header("Authorization") token: String
     ): HabitsResponse
@@ -113,7 +113,7 @@ interface ApiService {
     ): RecordResponse
 
     // ========== STATS ====================
-    @GET("/weekly")
+    @GET("stats/weekly")
     suspend fun getWeeklyStats(
         @Header("Authorization") token: String
     ): WeeklyStatsResponse
