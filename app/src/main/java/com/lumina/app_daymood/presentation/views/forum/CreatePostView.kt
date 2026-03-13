@@ -40,7 +40,6 @@ fun CreatePostView(
     var content by remember { mutableStateOf("") }
     var selectedCategoryName by remember { mutableStateOf("") }
 
-    // Category names from the central map
     val categoryNames = categoryMap.values.toList()
 
     val canPublish = title.isNotBlank() && content.isNotBlank() &&
