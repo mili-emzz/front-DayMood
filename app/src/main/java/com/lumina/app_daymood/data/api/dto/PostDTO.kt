@@ -1,6 +1,7 @@
 package com.lumina.app_daymood.data.api.dto
 
 import com.google.gson.annotations.SerializedName
+import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 
 data class NestedUserDTO(
@@ -16,7 +17,7 @@ data class PostDTO(
     @SerializedName("users") val user: NestedUserDTO? = null,
     @SerializedName("title") val title: String,
     @SerializedName("content") val content: String,
-    @SerializedName("comments") val comments: List<CommentDTO> = emptyList()
+    @SerializedName("comments") val comments: List<CommentDTO>? = emptyList()
 ) {
     fun toDomain(): PostModel = PostModel(
         id = id,
@@ -26,7 +27,7 @@ data class PostDTO(
         username = user?.username ?: "Anónimo",
         title = title,
         content = content,
-        comments = comments.map { it.toDomain() }
+        comments = comments?.map { it.toDomain() } ?: emptyList()
     )
 }
 
