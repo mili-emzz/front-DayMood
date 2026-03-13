@@ -24,8 +24,6 @@ import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 import com.lumina.app_daymood.ui.theme.borderLines
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,13 +35,8 @@ fun RecordHabitView(
 ) {
     val uiState = recordViewModel.uiState
 
-    val formattedDate = date.format(
-        DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", Locale("es", "ES"))
-    )
-
     RecordHabitViewContent(
         uiState = uiState,
-        formattedDate = formattedDate,
         onBackClick = onBackClick,
         onSaveSuccess = onSaveSuccess,
         onClearSuccess = { recordViewModel.clearSuccess() },
@@ -65,13 +58,11 @@ fun RecordHabitView(
 @Composable
 fun RecordHabitViewContent(
     uiState: RecordUiState,
-    formattedDate: String,
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit,
     onClearSuccess: () -> Unit,
     onSaveClick: (String, Set<String>) -> Unit
 ) {
-    // Hábitos seleccionados localmente (Set de IDs). Al final no se necesita category como un model XD
     var selectedHabitIds by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     // Nota vive aquí en RecordHabitView
@@ -140,7 +131,6 @@ fun RecordHabitViewContent(
                                         // Deseleccionar si ya estaba
                                         selectedHabitIds = selectedHabitIds - habitId
                                     } else {
-                                        // Si no estaba seleccionado, quitamos cualquier otro de la MISMA categoría y agregamos el nuevo
                                         val otherHabitIdsInCategory = category.habits.map { it.id }.toSet()
                                         selectedHabitIds = (selectedHabitIds - otherHabitIdsInCategory) + habitId
                                     }
