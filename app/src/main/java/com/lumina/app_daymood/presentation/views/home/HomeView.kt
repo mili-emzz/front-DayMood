@@ -31,12 +31,13 @@ fun HomeView(
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
 ) {
-    val customEmotions = recordViewModel.uiState.emotions.filter { it.isCustom }
-    val isLoading = recordViewModel.uiState.loadingCatalogs
+    val uploadedEmotions = favoritesViewModel.uploadedEmotions
+    val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
     LaunchedEffect(Unit) {
         favoritesViewModel.loadFavorites()
+        favoritesViewModel.loadUploadedEmotions()
     }
 
     Column(
@@ -71,7 +72,7 @@ fun HomeView(
                 }
             }
 
-            customEmotions.isEmpty() -> {
+            uploadedEmotions.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -101,7 +102,7 @@ fun HomeView(
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(customEmotions, key = { it.id }) { emotion ->
+                    items(uploadedEmotions, key = { it.id }) { emotion ->
                         val isFav = favorites.any { it.id == emotion.id }
                         EmotionCard(
                             emotion = emotion,

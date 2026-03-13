@@ -21,7 +21,8 @@ data class EmotionDTO(
 
 data class EmotionsResponse(
     @SerializedName("success") val success: Boolean,
-    @SerializedName("data")    val data: List<EmotionDTO> = emptyList()
+    @SerializedName("data")    val data: List<EmotionDTO> = emptyList(),
+    @SerializedName("message") val message: String? = null
 )
 
 // Request para crear emoción personalizada se envía como multipart/form-data

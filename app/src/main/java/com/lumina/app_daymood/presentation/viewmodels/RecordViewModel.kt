@@ -17,7 +17,7 @@ import java.time.LocalDate
 data class RecordUiState(
     // Catálogos
     val emotions: List<Emotion> = emptyList(),
-    val habits: List<Habit> = emptyList(),
+    val habitCategories: List<com.lumina.app_daymood.domain.models.HabitCategoryModel> = emptyList(),
     val loadingCatalogs: Boolean = false,
     val selectedEmotionId: String? = null,
     val selectedNote: String? = null,
@@ -60,15 +60,13 @@ class RecordViewModel(
             val favoritesResult = favoritesRepository.getFavorites(token)
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
 
-            // Combinar listas y evitar duplicados
             val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
 
-            // Cargar hábitos
             val habitsResult = recordRepository.getHabits()
 
             uiState = uiState.copy(
                 emotions = combinedEmotions,
-                habits = habitsResult.getOrDefault(emptyList()),
+                habitCategories = habitsResult.getOrDefault(emptyList()),
                 loadingCatalogs = false,
                 error = emotionsResult.exceptionOrNull()?.message
                     ?: favoritesResult.exceptionOrNull()?.message
@@ -86,7 +84,8 @@ class RecordViewModel(
 
     fun saveRecord(
         date: String,
-        habitIds: List<String>
+        habitIds: List<String>,
+        noteToSave: String? = null
     ) {
         val emotionId = uiState.selectedEmotionId
         if (emotionId == null) {
@@ -101,7 +100,7 @@ class RecordViewModel(
                 date = date,
                 emotionId = emotionId,
                 habitIds = habitIds,
-                note = uiState.selectedNote
+                note = noteToSave ?: uiState.selectedNote
             ).onSuccess { record ->
                 uiState = uiState.copy(
                     isLoading = false,
@@ -114,25 +113,25 @@ class RecordViewModel(
             }.onFailure { error ->
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = error.message ?: "Error al guardar"
+                    error = "Error al guardar. ¡Es probable que ya tengas un record guardado para esta fecha!. Más detalles:" + error.message
                 )
             }
         }
     }
 
-    fun loadRecordByDate(date: String) {
-        val userId = authRepository.getCurrentUser()
-
-        viewModelScope.launch {
-            recordRepository.getRecordByDate(userId, date)
-                .onSuccess { record ->
-                    uiState = uiState.copy(currentRecord = record)
-                }
-                .onFailure { error ->
-                    uiState = uiState.copy(error = error.message)
-                }
-        }
-    }
+//    fun loadRecordByDate(date: String) { -- Sin uso por ahora
+//        val userId = authRepository.getCurrentUser()
+//
+//        viewModelScope.launch {
+//            recordRepository.getRecordByDate(userId, date)
+//                .onSuccess { record ->
+//                    uiState = uiState.copy(currentRecord = record)
+//                }
+//                .onFailure { error ->
+//                    uiState = uiState.copy(error = error.message)
+//                }
+//        }
+//    }
 
     fun loadRecordsByMonth(year: String, month: Int) {
         val userId = authRepository.getCurrentUser()
@@ -152,14 +151,6 @@ class RecordViewModel(
         uiState = uiState.copy(saveSuccess = false)
     }
 
-    fun clearError() {
-        uiState = uiState.copy(error = null)
-    }
-
-    // Saber si un día del calendario tiene record (para mostrar emoji)
-    fun getEmotionForDate(date: String): Emotion? {
-        return uiState.monthRecords.find { it.date == date }?.emotion
-    }
 
     // Helper para formatear LocalDate al formato que usa la API
     fun formatDate(date: LocalDate): String {

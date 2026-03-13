@@ -13,20 +13,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// De números de categorías a texto
 val categoryMap = mapOf(
-    // Foro
     2 to "Bienestar emocional",
     3 to "Estudios, trabajo y presión",
-    6 to "Relaciones y vínculos",
+    16 to "Relaciones y vínculos",
     19 to "Autoconocimiento",
     20 to "Logros"
 )
 
-// Reverse: display name → id
 val categoryIdByName: Map<String, Int> = categoryMap.entries.associate { (k, v) -> v to k }
-
-// UI State
 
 data class ForumUiState(
     val isLoading: Boolean = false,
@@ -103,8 +98,6 @@ class ForumViewModel(
         loadPostsByCategory(categoryId)
     }
 
-    //  Crear Post
-
     fun createPost(
         categoryName: String, title: String, content: String
     ) {
@@ -161,7 +154,6 @@ class ForumViewModel(
             forumRepository.addComment(token, postId, content)
                 .onSuccess { newComment ->
                     // Recargar el foro completo para obtener comentarios actualizados
-                    val categoryId = _forumState.value.selectedCategoryId
                     val forumId = _forumState.value.currentForumId
                     if (forumId != null) {
                         forumRepository.getForumDetail(token, forumId)
@@ -226,9 +218,5 @@ class ForumViewModel(
                 _commentsState.update { it.copy(isLoading = false, error = error.message) }
             }
         }
-    }
-
-    fun clearCommentsError() {
-        _commentsState.update { it.copy(error = null) }
     }
 }

@@ -63,7 +63,7 @@ interface ApiService {
         @Header("Authorization") token: String
     ): EmotionsResponse
 
-    @GET("habits")
+    @GET("records/habits")
     suspend fun getHabits(
         @Header("Authorization") token: String
     ): HabitsResponse

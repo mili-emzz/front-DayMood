@@ -46,7 +46,6 @@ fun CommentsView(
             .fillMaxSize()
             .background(BackgroundColor)
     ) {
-        // ── Top bar ──
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -71,7 +70,6 @@ fun CommentsView(
             Spacer(Modifier.width(48.dp))
         }
 
-        // ── Post original (header card) ──
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,7 +94,6 @@ fun CommentsView(
 
         HorizontalDivider(color = Color(0xFFE8C9C3), thickness = 0.8.dp)
 
-        // ── Comments list ──
         when {
             commentsState.isLoading -> {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -131,7 +128,6 @@ fun CommentsView(
             }
         }
 
-        // ── Comment input ──
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

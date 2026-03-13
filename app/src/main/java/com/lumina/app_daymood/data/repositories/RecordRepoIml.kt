@@ -7,7 +7,7 @@ import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.domain.models.RecordModel
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
 import com.lumina.app_daymood.domain.models.EmotionModel as Emotion
-import com.lumina.app_daymood.domain.models.HabitModel as Habit
+import com.lumina.app_daymood.domain.models.HabitCategoryModel as HabitCategory
 
 class RecordRepositoryIml(
     private val apiService: ApiService,
@@ -24,10 +24,14 @@ class RecordRepositoryIml(
         }
     }
 
-    override suspend fun getHabits(): Result<List<Habit>> {
+    override suspend fun getHabits(): Result<List<HabitCategory>> {
         return try {
             val token = firebaseAuthDataSource.getIdToken()
             val response = apiService.getHabits("Bearer $token")
+            Log.d("RecordRepository", "Habit Categories fetched: ${response.data.size}")
+            if (response.data.isNotEmpty()) {
+                Log.d("RecordRepository", "First category: ${response.data[0].categoryName} with ${response.data[0].habits.size} habits")
+            }
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
