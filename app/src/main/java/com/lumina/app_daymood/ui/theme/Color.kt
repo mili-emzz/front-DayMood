@@ -6,7 +6,7 @@ val navBarColor = Color(0xFFFFFFFF)
 val borderLines = Color(0xFFFF8C78)
 val MainColor = Color(0xFFFF9D8C)
 val BackgroundColor = Color(0xFFF8F2EF)
-val DisabledButton = Color(0xFFEECDC7)
+val DisabledButton = Color(0xFFF8B0A5)
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

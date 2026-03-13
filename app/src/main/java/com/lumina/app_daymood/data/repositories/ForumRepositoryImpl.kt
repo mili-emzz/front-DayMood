@@ -4,6 +4,7 @@ import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CommentRequest
 import com.lumina.app_daymood.data.api.dto.PostRequest
+import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
 import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 import com.lumina.app_daymood.domain.repositories.IForumRepository
@@ -84,7 +85,7 @@ class ForumRepositoryImpl(
             val response = apiService.updatePost(
                 token = "Bearer $token",
                 postId = postId,
-                request = com.lumina.app_daymood.data.api.dto.UpdatePostRequest(
+                request = UpdatePostRequest(
                     title = title,
                     content = content
                 )

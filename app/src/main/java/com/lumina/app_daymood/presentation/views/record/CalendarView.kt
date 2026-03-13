@@ -22,6 +22,7 @@ import coil.compose.AsyncImage
 import com.lumina.app_daymood.R
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
+import com.lumina.app_daymood.ui.theme.MainColor
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -45,7 +46,6 @@ fun CalendarView(
         recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
     }
 
-    // Map de fechapara record para acceso O(1) en el grid
     val recordsByDate = uiState.monthRecords.associateBy { it.date }
 
     val currentDate = LocalDate.of(currentYear, currentMonth, 1)
@@ -74,12 +74,22 @@ fun CalendarView(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
-            IconButton(onClick = onNavigateToStats) {
-                Icon(
-                    imageVector = Icons.Filled.BarChart,
-                    contentDescription = "Estadísticas",
-                    tint = Color(0xFFFEB4A7),
-                    modifier = Modifier.size(28.dp)
+            Column (
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                IconButton(onClick = onNavigateToStats) {
+                    Icon(
+                        imageVector = Icons.Filled.BarChart,
+                        contentDescription = "Estadísticas",
+                        tint = MainColor,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
+                Text(
+                    text = "Estadísticas",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MainColor
                 )
             }
         }
@@ -103,7 +113,7 @@ fun CalendarView(
                         currentYear = month.year
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) Color(0xFFFEB4A7) else Color.White
+                        containerColor = if (isSelected) MainColor else Color.White
                     ),
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
@@ -122,18 +132,18 @@ fun CalendarView(
         Spacer(Modifier.height(12.dp))
 
         // Días de la semana
-        val daysOfWeek = listOf("Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "S")
+        val daysOfWeek = listOf("Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab")
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 6.dp, start = 8.dp, end = 8.dp),
+                .padding(bottom = 6.dp, start = 15.dp, end = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             daysOfWeek.forEach { day ->
                 Text(
                     text = day,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF424242),
+                    color = Color.Black,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -141,7 +151,6 @@ fun CalendarView(
 
         Spacer(Modifier.height(4.dp))
 
-        // Grid del calendario
         val firstDayOfMonth = LocalDate.of(currentYear, currentMonth, 1)
         val yearMonth = YearMonth.of(currentYear, currentMonth)
         val daysInMonth = yearMonth.lengthOfMonth()
@@ -167,7 +176,7 @@ fun CalendarView(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(240.dp)
+                    .height(300.dp)
             ) {
                 items(daysGrid) { date ->
                     if (date == null) {
@@ -179,28 +188,25 @@ fun CalendarView(
 
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(50.dp)
                                 .background(
                                     color = when {
-                                        isToday -> Color(0xFFFEB4A7)
-                                        record != null -> Color(0xFFFFF0F0)
-                                        else -> Color(0xFFF8F2EF)
+                                        isToday -> MainColor
+                                        record != null -> BackgroundColor
+                                        else -> BackgroundColor
                                     },
                                     shape = MaterialTheme.shapes.large
                                 )
                                 .clickable {
                                     if (record != null) {
-                                        // Día con record → ver detalle
                                         onNavigateToDetail(date)
                                     } else {
-                                        // Día sin record → ir a crear
                                         onNavigateToCreate(date)
                                     }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
                             if (record != null) {
-                                // Mostrar imagen de la emoción desde URL
                                 AsyncImage(
                                     model = record.emotion.imgUrl,
                                     contentDescription = record.emotion.name,
@@ -211,7 +217,7 @@ fun CalendarView(
                                 Text(
                                     date.dayOfMonth.toString(),
                                     color = if (isToday) Color.White else Color(0xFFFEB4A7),
-                                    style = MaterialTheme.typography.bodySmall
+                                    style = MaterialTheme.typography.labelLarge
                                 )
                             }
                         }
@@ -220,10 +226,9 @@ fun CalendarView(
             }
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(20.dp))
 
         InfoContent(imageResId = imageResId, onDiaryClick = onDiaryClick)
-        Spacer(Modifier.height(16.dp))
     }
 }
 
@@ -232,20 +237,26 @@ fun InfoContent(imageResId: Int, onDiaryClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFFFE6E6), shape = MaterialTheme.shapes.large)
+            .background(Color(0xFFFFEAE6), shape = MaterialTheme.shapes.large)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text("¿Cómo te sientes hoy?", fontWeight = FontWeight.Bold)
-            Text(
-                "Registra cómo te sientes hoy para una mejor calidad de vida",
-                style = MaterialTheme.typography.bodySmall
-            )
+            Column{
+                Text(
+                    "Registrar cómo te sientes hoy",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    "¡Esta es una version 1, algunas funciones pueden que no estén disponibles aún!",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
             Button(
                 onClick = onDiaryClick,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFFB7B7),
+                    containerColor = MainColor,
                     contentColor = Color.White
                 ),
                 shape = MaterialTheme.shapes.medium
