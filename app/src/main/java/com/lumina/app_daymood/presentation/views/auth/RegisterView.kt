@@ -183,7 +183,7 @@ fun FormsView(
             isPasswordVisible = isConfirmPasswordVisible,
             onVisibilityChange = { isConfirmPasswordVisible = !isConfirmPasswordVisible },
             modifier = Modifier.semantics
-            {testTag = "confimrPasswordField"}
+            {testTag = "confirmPasswordField"}
         )
     }
 }

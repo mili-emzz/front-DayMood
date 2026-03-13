@@ -10,7 +10,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-class EmotionRepositoryIml(
+class EmotionRepositoryImpl(
     private val apiService: ApiService,
     private val context: Context,          // necesario para abrir el InputStream del Uri
     private val firebaseAuthDataSource: FirebaseAuthDataSource

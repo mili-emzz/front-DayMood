@@ -87,7 +87,7 @@ fun RecordHabitViewContent(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFF0F0)
+                    containerColor = BackgroundColor
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -252,7 +252,7 @@ private fun HabitCategorySection(
                         label = habit.name,
                         isSelected = habit.id in selectedHabitIds,
                         onClick = { onHabitToggle(habit.id) },
-                        iconRes = habitIconRes(habit.name),   // ← nuevo
+                        iconRes = habitIconRes(habit.name),
                         modifier = Modifier.weight(1f)
                     )
                 }

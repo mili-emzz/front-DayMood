@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
     private val addEmotionViewModel by lazy { AppModule.provideAddEmotionViewModel() }
     private val statsViewModel by lazy { AppModule.provideStatsViewModel() }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppModule.init(this)

@@ -93,14 +93,14 @@ fun habitIconRes(name: String): Int = when (name) {
     "Parcial" -> R.drawable.habit_selfc_parcial
     "Minimo" -> R.drawable.habit_selfc_min
     "Nulo" -> R.drawable.habit_selfc_nule
-//Manias
-    "Moderadas" -> R.drawable.habit_adic_mod
+    //Manias
     "Controladas" -> R.drawable.habit_adic_cont
+    "Moderadas" -> R.drawable.habit_adic_mod
     "Excesivas" -> R.drawable.habit_adic_exc
     "Sin control" -> R.drawable.habit_adic_woc
     //Escuela/trabajp
     "Satisfactorio" -> R.drawable.habit_work_sats
-    "Pudo ser mejor" -> R.drawable.habit_work_accep
+    "Aceptable" -> R.drawable.habit_work_accep
     "Estrés" -> R.drawable.habit_work_stress
     "Agotador" -> R.drawable.habit_work_tired
     else -> R.drawable.habit_default
