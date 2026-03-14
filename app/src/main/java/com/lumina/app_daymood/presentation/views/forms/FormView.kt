@@ -44,13 +44,6 @@ private val QUESTIONS = listOf(
 )
 
 
-/**
- * Vista del test TMMS-24 (versión 10 preguntas).
- * Dividida en dos secciones de 5 preguntas con animación de deslizamiento.
- *
- * @param onSubmit  Callback con el mapa pregunta-índice → respuesta (1-5)
- * @param onBack    Callback para retroceder desde la vista (opcional, ej: cerrarla)
- */
 @Composable
 fun TmmsTestView(
     onSubmit: (answers: Map<Int, Int>) -> Unit = {},
@@ -75,13 +68,20 @@ fun TmmsTestView(
         ) {
             Spacer(Modifier.height(32.dp))
 
-            // ── Encabezado ─────────────────────────────────────────────────────
             Text(
                 text = "¡Déjanos conocerte!",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2C2C2C),
                 textAlign = TextAlign.Center
+            )
+            
+            Text(
+                text = "Formulario opcional para fines de investigación.\nPuedes omitirlo usando el botón de atrás de tu dispositivo.",
+                fontSize = 13.sp,
+                color = Color(0xFF9E9E9E),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp)
             )
 
             Spacer(Modifier.height(6.dp))
@@ -95,7 +95,6 @@ fun TmmsTestView(
 
             Spacer(Modifier.height(14.dp))
 
-            // ── Escala de referencia ────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,7 +121,6 @@ fun TmmsTestView(
 
             Spacer(Modifier.height(12.dp))
 
-            // ── Indicador de sección (dots) ─────────────────────────────────────
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(2) { index ->
                     Box(
@@ -136,7 +134,6 @@ fun TmmsTestView(
 
             Spacer(Modifier.height(8.dp))
 
-            // ── Lista de preguntas (animada) ────────────────────────────────────
             AnimatedContent(
                 targetState = currentSection,
                 transitionSpec = {
