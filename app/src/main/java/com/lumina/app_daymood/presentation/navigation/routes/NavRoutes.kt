@@ -3,6 +3,7 @@ package com.lumina.app_daymood.presentation.navigation.routes
 object AuthRoutes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORM_TEST = "form_test"
     const val PROFILE_AUTHENTICATED = "profile_authenticated"
 }
 
@@ -12,9 +13,8 @@ object RecordRoutes {
 }
 
 object ForumRoutes {
-    const val FORUM_HOME = "forum_home"
     const val CREATE_POST = "create_post"
-    const val POST_DETAILS = "post_details" // post_details/{postId}
+    const val POST_DETAILS = "post_details"
 }
 
 // Helper para saber si una ruta debe ocultar el bottom nav
@@ -24,8 +24,8 @@ object NavigationHelper {
         RecordRoutes.RECORD_HABIT,
         AuthRoutes.LOGIN,
         AuthRoutes.REGISTER,
+        AuthRoutes.FORM_TEST,
         ForumRoutes.CREATE_POST,
-        ForumRoutes.POST_DETAILS
     )
 
     fun shouldHideBottomNav(route: String?): Boolean {

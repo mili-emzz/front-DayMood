@@ -58,7 +58,7 @@ class FireStoreDataSource(
 
     suspend fun getUser(firebase_uid: String): UserModel? {
         return try {
-            val document = firestore.collection("Users")
+            val document = firestore.collection("users")
                 .document(firebase_uid)
                 .get()
                 .await()

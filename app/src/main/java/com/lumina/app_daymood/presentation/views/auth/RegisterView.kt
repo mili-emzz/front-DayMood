@@ -10,6 +10,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +33,11 @@ fun RegisterView(
 ) {
 
     val uiState = authViewModel.uiState
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            onRegisterSuccess()
+        }
+    }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -43,9 +50,9 @@ fun RegisterView(
             .fillMaxSize()
             .background(BackgroundColor)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 40.dp)
-            .imePadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -53,18 +60,18 @@ fun RegisterView(
         Text(
             "Únete a la comunidad",
             fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             color = Color.Black,
-            modifier = Modifier
-                .padding(bottom = 12.dp),
+            modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Box(modifier = Modifier.size(140.dp)) {
+        Box(modifier = Modifier.size(160.dp)) {
             LoginImage()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         FormsView(
             email = email,
@@ -113,7 +120,9 @@ fun RegisterView(
                     Log.d("RegisterView", "Las contraseñas no coinciden")
                 }
             },
-            onNavigateClick = onNavigateToLogin
+            onNavigateClick = onNavigateToLogin,
+            modifier = Modifier.semantics
+            {testTag = "loginButton"}
         )
     }
 }
@@ -141,13 +150,16 @@ fun FormsView(
         DatePickerField(
             value = birth_day,
             onValueChange = onBirthDayChange,
-            label = "Fecha de cumpleaños"
+            label = "Fecha de cumpleaños",
+            testTag = "birthDateField"
         )
 
         FormTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = "Correo electrónico"
+            label = "Correo electrónico",
+            modifier = Modifier.semantics
+            {testTag = "emailField"}
         )
 
         FormTextField(
@@ -157,7 +169,9 @@ fun FormsView(
             keyboardType = KeyboardType.Password,
             isPassword = true,
             isPasswordVisible = isPasswordVisible,
-            onVisibilityChange = { isPasswordVisible = !isPasswordVisible }
+            onVisibilityChange = { isPasswordVisible = !isPasswordVisible },
+            modifier = Modifier.semantics
+            {testTag = "passwordField"}
         )
 
         FormTextField(
@@ -167,7 +181,9 @@ fun FormsView(
             keyboardType = KeyboardType.Password,
             isPassword = true,
             isPasswordVisible = isConfirmPasswordVisible,
-            onVisibilityChange = { isConfirmPasswordVisible = !isConfirmPasswordVisible }
+            onVisibilityChange = { isConfirmPasswordVisible = !isConfirmPasswordVisible },
+            modifier = Modifier.semantics
+            {testTag = "confirmPasswordField"}
         )
     }
 }

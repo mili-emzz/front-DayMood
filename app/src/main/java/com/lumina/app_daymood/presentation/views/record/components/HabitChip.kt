@@ -49,7 +49,7 @@ fun HabitChip(
             .padding(vertical = 12.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-        ) {
+    ) {
         Icon(
             painter = painterResource(id = iconRes),
             contentDescription = label,
@@ -69,65 +69,39 @@ fun HabitChip(
 
 fun habitIconRes(name: String): Int = when (name) {
     // Sueño
-    "+8 horas"        -> R.drawable.habit_sleep_8h
-    "6-7 horas"       -> R.drawable.habit_sleep_6h
-    "4-5 horas"       -> R.drawable.habit_sleep_4h
-    "Menos de 4 horas"-> R.drawable.habit_sleep_lowest
+    "8 horas o mas" -> R.drawable.habit_sleep_8h
+    "6 a 7 horas" -> R.drawable.habit_sleep_6h
+    "4 a 5 horas" -> R.drawable.habit_sleep_4h
+    "Menos de 4 horas" -> R.drawable.habit_sleep_lowest
     // Alimentación
-    "Balanceada"      -> R.drawable.habit_food_balanced
-    "Aceptable"       -> R.drawable.habit_food_ok
-    "Irregular"       -> R.drawable.habit_food_irregular
-    "Insuficiente"    -> R.drawable.habit_food_bad
+    "Balanceada" -> R.drawable.habit_food_balanced
+    "Aceptable" -> R.drawable.habit_food_ok
+    "Irregular" -> R.drawable.habit_food_irregular
+    "Insuficiente" -> R.drawable.habit_food_bad
     // Social
-    "Excelentes"      -> R.drawable.habit_social_great
-    "Positivas"       -> R.drawable.habit_social_positive
-    "Neutras"         -> R.drawable.habit_social_neutral
-    "Conflictivas"    -> R.drawable.habit_social_conflict
+    "Excelentes" -> R.drawable.habit_social_great
+    "Positivas" -> R.drawable.habit_social_positive
+    "Neutras" -> R.drawable.habit_social_neutral
+    "Conflictivas" -> R.drawable.habit_social_conflict
     // Actividad física
-    "+60 minutos"     -> R.drawable.habit_activity_high
-    "30-60 min"       -> R.drawable.habit_activity_mid
+    "60 minutos o mas" -> R.drawable.habit_activity_high
+    "30 a 60 minutos" -> R.drawable.habit_activity_mid
     "Menos de 30 minutos" -> R.drawable.habit_activity_low
-    "Ninguna"         -> R.drawable.habit_activity_none
-    // Autocuidad
+    "Ninguna" -> R.drawable.habit_activity_none
+    // Autocuidado
     "Completo" -> R.drawable.habit_selfc_complete
     "Parcial" -> R.drawable.habit_selfc_parcial
     "Minimo" -> R.drawable.habit_selfc_min
     "Nulo" -> R.drawable.habit_selfc_nule
-    //Control adicciones
-    "Moderadas" -> R.drawable.habit_adic_mod
+    //Manias
     "Controladas" -> R.drawable.habit_adic_cont
+    "Moderadas" -> R.drawable.habit_adic_mod
     "Excesivas" -> R.drawable.habit_adic_exc
     "Sin control" -> R.drawable.habit_adic_woc
-    //Escuela/trabajp
+    //Escuela/trabajo
     "Satisfactorio" -> R.drawable.habit_work_sats
-    "Pudo ser mejor" -> R.drawable.habit_work_accep
-    "Estrés" -> R.drawable.habit_work_stress
+    "Aceptable" -> R.drawable.habit_work_accep
+    "Estresante" -> R.drawable.habit_work_stress
     "Agotador" -> R.drawable.habit_work_tired
-    else              -> R.drawable.habit_default
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HabitChipPreview() {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(16.dp)
-    ) {
-        // Sin seleccionar
-        HabitChip(
-            label = "+8 horas",
-            isSelected = false,
-            onClick = {},
-            iconRes = R.drawable.habit_sleep_8h, // ícono del sistema, temporal
-            modifier = Modifier.width(100.dp)
-        )
-        // Seleccionado
-        HabitChip(
-            label = "+8 horas",
-            isSelected = true,
-            onClick = {},
-            iconRes = R.drawable.habit_sleep_8h,
-            modifier = Modifier.width(100.dp)
-        )
-    }
+    else -> R.drawable.habit_default
 }

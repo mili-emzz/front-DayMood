@@ -8,4 +8,5 @@ interface IAuthRepository{
     fun isAuthenticated(): Boolean
     fun getCurrentUser(): String?
     suspend fun getIdToken(): String?
+    suspend fun loadCurrentUser(): Result<UserModel>
 }

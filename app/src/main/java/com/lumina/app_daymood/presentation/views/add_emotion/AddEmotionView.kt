@@ -1,11 +1,13 @@
 package com.lumina.app_daymood.presentation.views.add_emotion
 
+import android.Manifest
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
@@ -52,20 +55,29 @@ fun AddEmotionScreen(
         viewModel.onImageSelected(uri)
     }
 
-    val onButtonClick = {
-        when (uploadState) {
-            is UploadState.ImageNotSelected -> {
-                photoPickerLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            }
-            is UploadState.UploadingImage -> {
-                // Do nothing while uploading
-            }
-            is UploadState.UploadCompleted -> {
-                viewModel.submitEmotion(onSuccess = onNavigateBack)
-            }
+    // Launcher de permisos en runtime
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            photoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
         }
+    }
+
+    // Función que verifica/solicita permisos y luego abre la galería
+    val onOpenGallery = {
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        permissionLauncher.launch(permission)
+    }
+
+    val onButtonClick = {
+        viewModel.submitEmotion(onSuccess = onNavigateBack)
     }
 
     AddEmotionContent(
@@ -78,6 +90,7 @@ fun AddEmotionScreen(
         saveToFavorites = viewModel.saveToFavorites,
         onFavoritesChange = { viewModel.saveToFavorites = it },
         onRemoveImage = { viewModel.removeImage() },
+        onOpenGallery = onOpenGallery,
         onButtonClick = onButtonClick,
         isLoading = isSubmitting,
         errorMessage = errorMessage,
@@ -97,6 +110,7 @@ fun AddEmotionContent(
     saveToFavorites: Boolean,
     onFavoritesChange: (Boolean) -> Unit,
     onRemoveImage: () -> Unit,
+    onOpenGallery: () -> Unit = {},
     onButtonClick: () -> Unit,
     isLoading: Boolean = false,
     errorMessage: String? = null,
@@ -130,6 +144,8 @@ fun AddEmotionContent(
             Text(
                 text = "Publica más emociones",
                 style = MaterialTheme.typography.headlineSmall,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = Color.Black
             )
             Text(
@@ -148,11 +164,21 @@ fun AddEmotionContent(
             ) {
                 when (uploadState) {
                     is UploadState.ImageNotSelected -> {
-                        ImageNotSelectedContent(saveToFavorites, onFavoritesChange)
+                        ImageNotSelectedContent(
+                            saveToFavorites = saveToFavorites,
+                            onFavoritesChange = onFavoritesChange,
+                            onOpenGallery = onOpenGallery
+                        )
                     }
+
                     is UploadState.UploadingImage -> {
-                        UploadingImageContent(uploadState.progress, saveToFavorites, onFavoritesChange)
+                        UploadingImageContent(
+                            uploadState.progress,
+                            saveToFavorites,
+                            onFavoritesChange
+                        )
                     }
+
                     is UploadState.UploadCompleted -> {
                         UploadCompletedContent(
                             emotionName = emotionName,
@@ -170,69 +196,30 @@ fun AddEmotionContent(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            when (uploadState) {
-                is UploadState.ImageNotSelected -> {
-                    OutlinedButton(
-                        onClick = onButtonClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(25.dp),
-                        border = BorderStroke(1.dp, MainColor),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MainColor)
-                    ) {
+            // Solo mostramos el botón "Subir emoción" cuando ya se seleccionó y subió la imagen
+            if (uploadState is UploadState.UploadCompleted) {
+                Button(
+                    onClick = onButtonClick,
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(25.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MainColor)
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
                         Text(
-                            text = "Seleccionar imagen",
+                            text = "Subir emoción",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
-                    }
-                }
-                is UploadState.UploadingImage -> {
-                    OutlinedButton(
-                        onClick = {},
-                        enabled = false,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(25.dp),
-                        border = BorderStroke(1.dp, Color.Gray),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.Gray,
-                            disabledContentColor = Color.Gray
-                        )
-                    ) {
-                        Text(
-                            text = "Seleccionar imagen",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-                is UploadState.UploadCompleted -> {
-                    Button(
-                        onClick = onButtonClick,
-                        enabled = !isLoading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(25.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MainColor)
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = Color.White,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Text(
-                                text = "Subir emoción",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        }
                     }
                 }
             }
@@ -241,37 +228,54 @@ fun AddEmotionContent(
 }
 
 @Composable
-fun ImageNotSelectedContent(saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Unit) {
+fun ImageNotSelectedContent(
+    saveToFavorites: Boolean,
+    onFavoritesChange: (Boolean) -> Unit,
+    onOpenGallery: () -> Unit = {}
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.padding(vertical = 64.dp)
     ) {
-        Icon(
-            imageVector = Icons.Filled.CloudUpload,
-            contentDescription = "Upload Icon",
-            tint = Color.Gray,
-            modifier = Modifier.size(48.dp)
-        )
-        Text(
-            text = "Sube tu archivos aquí",
-            color = MainColor,
-            textDecoration = TextDecoration.Underline,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(top = 16.dp)
-        )
-        Text(
-            text = "PNG o JPG",
-            color = Color.Gray,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
-        )
+        // El icono y el texto son clickeables para abrir la galería
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .clickable { onOpenGallery() }
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.CloudUpload,
+                contentDescription = "Upload Icon",
+                tint = Color.Gray,
+                modifier = Modifier.size(48.dp)
+            )
+            Text(
+                text = "Sube tu archivos aquí",
+                color = MainColor,
+                textDecoration = TextDecoration.Underline,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            Text(
+                text = "PNG o JPG",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
         FavoriteSwitch(saveToFavorites, onFavoritesChange)
     }
 }
 
 @Composable
-fun UploadingImageContent(progress: Float, saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Unit) {
+fun UploadingImageContent(
+    progress: Float,
+    saveToFavorites: Boolean,
+    onFavoritesChange: (Boolean) -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -322,9 +326,14 @@ fun UploadCompletedContent(
 ) {
     // Categorías placeholder — se reemplazarán con los datos de la API cuando se integre
     val categories = listOf(
-        Pair(1, "Alegría / Positividad"),
-        Pair(2, "Tristeza / Negatividad"),
-        Pair(3, "Enojo / Frustración")
+        Pair(8, "Alegría"),
+        Pair(9, "Tristeza"),
+        Pair(10, "Ira"),
+        Pair(11, "Miedo"),
+        Pair(12, "Amor"),
+        Pair(13, "Desagrado"),
+        Pair(14, "Vergüenza"),
+        Pair(15, "Culpa")
     )
     var expanded by remember { mutableStateOf(false) }
 
@@ -409,7 +418,8 @@ fun UploadCompletedContent(
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value = categories.find { it.first == selectedCategoryId }?.second ?: "Selecciona Categoría",
+                value = categories.find { it.first == selectedCategoryId }?.second
+                    ?: "Selecciona Categoría",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Categoría") },

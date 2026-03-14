@@ -29,7 +29,8 @@ fun ButtonContainers(
     isRegister: Boolean,
     enabled: Boolean = true,
     onButtonClick: () -> Unit,
-    onNavigateClick: () -> Unit
+    onNavigateClick: () -> Unit,
+    modifier: Modifier
 ){
     Column(
         modifier = Modifier

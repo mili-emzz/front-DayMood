@@ -2,6 +2,7 @@ package com.lumina.app_daymood.data.repositories
 
 import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
+import com.lumina.app_daymood.data.api.dto.UserLoginRequest
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -24,10 +25,9 @@ class AuthRepositoryImpl(
         try {
             val firebaseUser = firebaseAuthDataSource.createUser(email, password)
             val uid = firebaseUser.uid
-
             val username = generateRandomUsername()
 
-            firebaseAuthDataSource.updateProfile(email, password)
+            firebaseAuthDataSource.updateProfile(username)
 
             firestoreDataSource.saveUser(
                 firebase_uid = uid,
@@ -40,7 +40,6 @@ class AuthRepositoryImpl(
                 val token = firebaseAuthDataSource.getIdToken()
                 sendToApi(token, uid, username, email, birth_day)
             } catch (e: Exception) {
-                // Si falla la API, no importa, ya está en Firebase
                 Log.w("AuthRepository", "API no disponible o falló: ${e.message}")
             }
 
@@ -101,6 +100,20 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun loadCurrentUser(): Result<UserModel> = withContext(Dispatchers.IO) {
+        try {
+            val uid = firebaseAuthDataSource.getCurrentUser()
+                ?: return@withContext Result.failure(Exception("No hay sesión activa"))
+            val user = firestoreDataSource.getUser(uid)
+                ?: return@withContext Result.failure(Exception("Usuario no encontrado en Firestore"))
+            Log.d("AuthRepository", "Usuario cargado: ${user.username}")
+            Result.success(user)
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error cargando usuario actual: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
     private fun generateRandomUsername(): String {
         val chars = "abcdefghijklmnopqrstuvxyz1234567890"
         val randomString = (1..8)
@@ -108,6 +121,23 @@ class AuthRepositoryImpl(
             .joinToString("")
         return "user_$randomString"
     }
+
+    /*
+    private suspend fun sentLoginToApi(
+        firebaseUid: String
+    ) {
+        try {
+            val request = UserLoginRequest(
+                firebase_uid = firebaseUid
+            )
+
+            val response = apiService.loginUser("Bearer $token", request)
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
+            throw e
+        }
+    }
+*/
 
     private suspend fun sendToApi(
         token: String,
@@ -124,21 +154,17 @@ class AuthRepositoryImpl(
                 birth_day = birthDay
             )
 
-            // El token va como "Bearer <token>" en el header
-            val response = apiService?.registerUser("Bearer $token", request)
+            val response = apiService.registerUser("Bearer $token", request)
 
-            if (response?.success == true) {
-                Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
+            if (response.success) {
+                Log.d("AuthRepository", "Usuario registrado en API")
             } else {
-                Log.e("AuthRepository", "Error de API: ${response?.message}")
+                Log.e("AuthRepository", "Error de API")
             }
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
             throw e
         }
 
-        Log.d("AuthRepository", "Token obtenido para API: ${token}...")
-        Log.d("TOKEN_FIREBASE", token)
-        Log.d("AuthRepository", "Datos listos para enviar a API cuando esté disponible")
     }
 }

@@ -4,8 +4,7 @@ import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.domain.models.EmotionModel
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
-
-class FavoritesRepositoryIml(
+class FavoritesRepositoryImpl(
     private val apiService: ApiService
 ): IFavoritesRepository {
 
@@ -13,6 +12,16 @@ class FavoritesRepositoryIml(
         return try {
             val response = apiService.getFavorites("Bearer $token")
             if (!response.success) throw Exception(response.message ?: "Error al obtener favoritos")
+            Result.success(response.data.map { it.emotion.toDomain() })
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getUploadedEmotions(token: String): Result<List<EmotionModel>> {
+        return try {
+            val response = apiService.getUploadedEmotions("Bearer $token")
+            if (!response.success) throw Exception(response.message ?: "Error al obtener emociones")
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -26,6 +35,7 @@ class FavoritesRepositoryIml(
         return try{
             val response = apiService.addFavorite(
                 token ="Bearer $token",
+                emotionId = emotionId,
                 request = FavoriteRequest(emotionId = emotionId)
             )
             if (!response.success) throw Exception(response.message ?: "Error al agregar a favoritos")

@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,34 +26,28 @@ import com.lumina.app_daymood.presentation.viewmodels.categoryMap
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.MainColor
 
-/**
- * HomeView — muestra las emociones personalizadas del usuario en un grid 2 columnas.
- *
- * @param recordViewModel    Provee la lista de emociones (cargadas en el init del VM).
- * @param favoritesViewModel Maneja el estado de favoritos y la acción addFavorite.
- * @param onForumClick       Navega al foro al presionar el ícono de arriba a la derecha.
- */
 @Composable
 fun HomeView(
     recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
-    onForumClick: () -> Unit = {}
 ) {
-    // Solo emociones custom (las que subió el usuario con createEmotion)
-    val customEmotions = recordViewModel.uiState.emotions.filter { it.isCustom }
-    val isLoading = recordViewModel.uiState.loadingCatalogs
+    val uploadedEmotions = favoritesViewModel.uploadedEmotions
+    val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
     LaunchedEffect(Unit) {
         favoritesViewModel.loadFavorites()
+        favoritesViewModel.loadUploadedEmotions()
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .semantics{testTag = "homeScreen"}
             .background(BackgroundColor)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // ── Header ──────────────────────────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,22 +57,11 @@ fun HomeView(
         ) {
             Text(
                 text = "Descubre más",
-                fontSize = 22.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D2D2D)
+                color = Color.Black
             )
-            // Forum access button
-            IconButton(onClick = onForumClick) {
-                Icon(
-                    imageVector = Icons.Outlined.Forum,
-                    contentDescription = "Ir al foro",
-                    tint = MainColor,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
         }
-
-        // ── Content ──────────────────────────────────────────────────────────
         when {
             isLoading -> {
                 Box(
@@ -87,7 +72,7 @@ fun HomeView(
                 }
             }
 
-            customEmotions.isEmpty() -> {
+            uploadedEmotions.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -117,7 +102,7 @@ fun HomeView(
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(customEmotions, key = { it.id }) { emotion ->
+                    items(uploadedEmotions, key = { it.id }) { emotion ->
                         val isFav = favorites.any { it.id == emotion.id }
                         EmotionCard(
                             emotion = emotion,
@@ -137,11 +122,11 @@ fun HomeView(
 fun HomeViewPreview() {
     val sampleEmotions = listOf(
         EmotionModel("1", "Emperrada", "", 16, userId = "u1"),
-        EmotionModel("2", "Feliz",     "", 17, userId = "u1"),
+        EmotionModel("2", "Feliz", "", 17, userId = "u1"),
         EmotionModel("3", "Fracasada", "", 18, userId = "u1"),
-        EmotionModel("4", "Tristona",  "", 19, userId = "u1"),
+        EmotionModel("4", "Tristona", "", 19, userId = "u1"),
         EmotionModel("5", "Tranquila", "", 17, userId = "u1"),
-        EmotionModel("6", "Despechada","", 19, userId = "u1"),
+        EmotionModel("6", "Despechada", "", 19, userId = "u1"),
     )
 
     Column(
@@ -149,7 +134,6 @@ fun HomeViewPreview() {
             .fillMaxSize()
             .background(BackgroundColor)
     ) {
-        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +157,6 @@ fun HomeViewPreview() {
             }
         }
 
-        // Grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),

@@ -21,18 +21,36 @@ class AuthViewModel(
     var uiState by mutableStateOf(AuthUiState())
         private set
 
+    init {
+        // Si ya hay sesión activa al abrir la app, cargamos los datos del usuario
+        if (authRepository.isAuthenticated()) {
+            loadCurrentUser()
+        }
+    }
+
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            uiState = uiState.copy(isLoading = true)
+            authRepository.loadCurrentUser()
+                .onSuccess { user ->
+                    uiState = uiState.copy(isLoading = false, user = user, isAuthenticated = true)
+                }
+                .onFailure { error ->
+                    Log.e("AuthViewModel", "Error cargando usuario: ${error.message}")
+                    uiState = uiState.copy(isLoading = false)
+                }
+        }
+    }
+
     private fun getErrorMessage(error: Throwable): String {
+        val message = error.message?.lowercase() ?: ""
         return when {
-            error.message?.contains("password") == true ->
-                "Contraseña incorrecta"
-            error.message?.contains("email") == true ->
-                "Email inválido o no registrado"
-            error.message?.contains("network") == true ->
-                "Error de conexión. Verifica tu internet"
-            error.message?.contains("existe") == true ->
-                "Este email ya está registrado"
-            else ->
-                error.message ?: "Error desconocido"
+            message.contains("already-in-use") || message.contains("existe") ->
+                "Este email ya está registrado. Intenta iniciar sesión."
+            message.contains("password") -> "Contraseña muy débil o incorrecta"
+            message.contains("email") -> "El formato del email no es válido"
+            message.contains("network") -> "Error de conexión. Revisa tu internet"
+            else -> "Ocurrió un error inesperado"
         }
     }
 
