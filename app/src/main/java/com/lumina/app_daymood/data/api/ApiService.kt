@@ -39,7 +39,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-
     @POST("users/register")
     suspend fun registerUser(
         @Header("Authorization") token: String,
