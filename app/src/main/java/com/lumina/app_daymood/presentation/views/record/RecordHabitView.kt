@@ -19,6 +19,7 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.record.components.HabitChip
 import com.lumina.app_daymood.presentation.views.record.components.habitIconRes
+import com.lumina.app_daymood.presentation.views.record.components.habitShortLabel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
@@ -87,7 +88,7 @@ fun RecordHabitViewContent(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFF0F0)
+                    containerColor = BackgroundColor
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -249,10 +250,10 @@ private fun HabitCategorySection(
             ) {
                 rowHabits.forEach { habit ->
                     HabitChip(
-                        label = habit.name,
+                        label = habitShortLabel(habit.name),
                         isSelected = habit.id in selectedHabitIds,
                         onClick = { onHabitToggle(habit.id) },
-                        iconRes = habitIconRes(habit.name),   // ← nuevo
+                        iconRes = habitIconRes(habit.name),
                         modifier = Modifier.weight(1f)
                     )
                 }

@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 val categoryMap = mapOf(
-    2 to "Bienestar emocional",
-    3 to "Estudios, trabajo y presión",
-    16 to "Relaciones y vínculos",
+    16 to "Bienestar emocional",
+    17 to "Estudios, trabajo y presión",
+    18 to "Relaciones y vínculos",
     19 to "Autoconocimiento",
     20 to "Logros"
 )

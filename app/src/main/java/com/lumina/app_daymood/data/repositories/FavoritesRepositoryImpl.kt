@@ -1,11 +1,10 @@
 package com.lumina.app_daymood.data.repositories
 
 import com.lumina.app_daymood.data.api.ApiService
-import com.lumina.app_daymood.data.api.dto.EmotionsResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.domain.models.EmotionModel
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
-class FavoritesRepositoryIml(
+class FavoritesRepositoryImpl(
     private val apiService: ApiService
 ): IFavoritesRepository {
 

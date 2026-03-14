@@ -13,8 +13,8 @@ import com.lumina.app_daymood.data.api.RetrofitClient
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.repositories.AuthRepositoryImpl
-import com.lumina.app_daymood.data.repositories.EmotionRepositoryIml
-import com.lumina.app_daymood.data.repositories.FavoritesRepositoryIml
+import com.lumina.app_daymood.data.repositories.EmotionRepositoryImpl
+import com.lumina.app_daymood.data.repositories.FavoritesRepositoryImpl
 import com.lumina.app_daymood.data.repositories.FormRepositoryImpl
 import com.lumina.app_daymood.data.repositories.ForumRepositoryImpl
 import com.lumina.app_daymood.data.repositories.RecordRepositoryIml
@@ -79,7 +79,7 @@ object AppModule {
     }
 
     val emotionRepository: IEmotionRepository by lazy {
-        EmotionRepositoryIml(
+        EmotionRepositoryImpl(
             apiService = apiService,
             context = appContext,
             firebaseAuthDataSource = firebaseAuthDataSource
@@ -88,7 +88,7 @@ object AppModule {
     }
 
     val favoritesRepository: IFavoritesRepository by lazy {
-        FavoritesRepositoryIml(
+        FavoritesRepositoryImpl(
             apiService = apiService
         )
     }

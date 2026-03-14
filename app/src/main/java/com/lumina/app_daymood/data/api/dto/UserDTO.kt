@@ -9,6 +9,10 @@ data class UserRequest (
     val birth_day: String
 )
 
+data class UserLoginRequest (
+    val firebase_uid: String
+)
+
 data class UserResponse(
     val success: Boolean,
     val data: UserData? = null

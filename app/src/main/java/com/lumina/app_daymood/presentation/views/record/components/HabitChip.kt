@@ -67,11 +67,23 @@ fun HabitChip(
     }
 }
 
+fun habitShortLabel(name: String): String = when (name) {
+    "8 horas o mas" -> "+8 horas"
+    "6 a 7 horas" -> "6-7 horas"
+    "4 a 5 horas" -> "4-5 horas"
+    "Menos de 4 horas" -> "< 4 hrs"
+    "60 minutos o mas" -> "+60 min"
+    "30 a 60 minutos" -> "30-60 min"
+    "Menos de 30 minutos" -> "< 30 min"
+    "Estresante" -> "Estrés"
+    else -> name
+}
+
 fun habitIconRes(name: String): Int = when (name) {
     // Sueño
-    "+8 horas" -> R.drawable.habit_sleep_8h
-    "6-7 horas" -> R.drawable.habit_sleep_6h
-    "4-5 horas" -> R.drawable.habit_sleep_4h
+    "8 horas o mas" -> R.drawable.habit_sleep_8h
+    "6 a 7 horas" -> R.drawable.habit_sleep_6h
+    "4 a 5 horas" -> R.drawable.habit_sleep_4h
     "Menos de 4 horas" -> R.drawable.habit_sleep_lowest
     // Alimentación
     "Balanceada" -> R.drawable.habit_food_balanced
@@ -84,24 +96,24 @@ fun habitIconRes(name: String): Int = when (name) {
     "Neutras" -> R.drawable.habit_social_neutral
     "Conflictivas" -> R.drawable.habit_social_conflict
     // Actividad física
-    "+60 minutos" -> R.drawable.habit_activity_high
-    "30-60 min" -> R.drawable.habit_activity_mid
+    "60 minutos o mas" -> R.drawable.habit_activity_high
+    "30 a 60 minutos" -> R.drawable.habit_activity_mid
     "Menos de 30 minutos" -> R.drawable.habit_activity_low
     "Ninguna" -> R.drawable.habit_activity_none
-    // Autocuidad
+    // Autocuidado
     "Completo" -> R.drawable.habit_selfc_complete
     "Parcial" -> R.drawable.habit_selfc_parcial
     "Minimo" -> R.drawable.habit_selfc_min
     "Nulo" -> R.drawable.habit_selfc_nule
-//Manias
-    "Moderadas" -> R.drawable.habit_adic_mod
+    //Manias
     "Controladas" -> R.drawable.habit_adic_cont
+    "Moderadas" -> R.drawable.habit_adic_mod
     "Excesivas" -> R.drawable.habit_adic_exc
     "Sin control" -> R.drawable.habit_adic_woc
-    //Escuela/trabajp
+    //Escuela/trabajo
     "Satisfactorio" -> R.drawable.habit_work_sats
-    "Pudo ser mejor" -> R.drawable.habit_work_accep
-    "Estrés" -> R.drawable.habit_work_stress
+    "Tranquilo" -> R.drawable.habit_work_accep
+    "Estresante" -> R.drawable.habit_work_stress
     "Agotador" -> R.drawable.habit_work_tired
     else -> R.drawable.habit_default
 }

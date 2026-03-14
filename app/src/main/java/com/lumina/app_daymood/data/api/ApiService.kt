@@ -19,6 +19,7 @@ import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.PostDTO
 import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
+import com.lumina.app_daymood.data.api.dto.UserLoginRequest
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
 import com.lumina.app_daymood.data.api.dto.WeeklyStatsResponse
@@ -38,7 +39,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-
     @POST("users/register")
     suspend fun registerUser(
         @Header("Authorization") token: String,
@@ -48,7 +48,7 @@ interface ApiService {
     @POST("users/login")
     suspend fun loginUser(
         @Header("Authorization") token: String,
-        @Body request: UserRequest
+        @Body request: UserLoginRequest
     ): UserResponse
 
     // ========== EMOTIONS / FAVORITES ====================

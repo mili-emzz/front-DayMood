@@ -2,6 +2,7 @@ package com.lumina.app_daymood.data.repositories
 
 import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
+import com.lumina.app_daymood.data.api.dto.UserLoginRequest
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.firebase.FireStoreDataSource
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
@@ -121,6 +122,23 @@ class AuthRepositoryImpl(
         return "user_$randomString"
     }
 
+    /*
+    private suspend fun sentLoginToApi(
+        firebaseUid: String
+    ) {
+        try {
+            val request = UserLoginRequest(
+                firebase_uid = firebaseUid
+            )
+
+            val response = apiService.loginUser("Bearer $token", request)
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
+            throw e
+        }
+    }
+*/
+
     private suspend fun sendToApi(
         token: String,
         firebaseUid: String,
@@ -148,8 +166,5 @@ class AuthRepositoryImpl(
             throw e
         }
 
-        Log.d("AuthRepository", "Token obtenido para API: ${token}...")
-        Log.d("TOKEN_FIREBASE", token)
-        Log.d("AuthRepository", "Datos listos para enviar a API cuando esté disponible")
     }
 }
