@@ -67,6 +67,18 @@ fun HabitChip(
     }
 }
 
+fun habitShortLabel(name: String): String = when (name) {
+    "8 horas o mas" -> "+8 horas"
+    "6 a 7 horas" -> "6-7 horas"
+    "4 a 5 horas" -> "4-5 horas"
+    "Menos de 4 horas" -> "< 4 hrs"
+    "60 minutos o mas" -> "+60 min"
+    "30 a 60 minutos" -> "30-60 min"
+    "Menos de 30 minutos" -> "< 30 min"
+    "Estresante" -> "Estrés"
+    else -> name
+}
+
 fun habitIconRes(name: String): Int = when (name) {
     // Sueño
     "8 horas o mas" -> R.drawable.habit_sleep_8h
@@ -100,7 +112,7 @@ fun habitIconRes(name: String): Int = when (name) {
     "Sin control" -> R.drawable.habit_adic_woc
     //Escuela/trabajo
     "Satisfactorio" -> R.drawable.habit_work_sats
-    "Aceptable" -> R.drawable.habit_work_accep
+    "Tranquilo" -> R.drawable.habit_work_accep
     "Estresante" -> R.drawable.habit_work_stress
     "Agotador" -> R.drawable.habit_work_tired
     else -> R.drawable.habit_default
