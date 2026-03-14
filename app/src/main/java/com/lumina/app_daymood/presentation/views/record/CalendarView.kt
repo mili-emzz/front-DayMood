@@ -27,6 +27,10 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.ui.draw.clip
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun CalendarView(
@@ -41,12 +45,25 @@ fun CalendarView(
     var currentMonth by remember { mutableStateOf(LocalDate.now().monthValue) }
     var currentYear by remember { mutableStateOf(LocalDate.now().year) }
 
-    // Cargar records del mes cuando cambia el mes o año
-    LaunchedEffect(currentMonth, currentYear) {
+    // Cargar records del mes cuando cambia el mes o año, o cuando la vista se reanuda
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, currentMonth, currentYear) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // Cargar inmediatamente cuando se instancia o cambian el mes/año
         recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
-    val recordsByDate = uiState.monthRecords.associateBy { it.date }
+    val recordsByDate = uiState.monthRecords.associateBy { it.date.substringBefore("T") }
 
     val currentDate = LocalDate.of(currentYear, currentMonth, 1)
     val previousMonth = currentDate.minusMonths(1)
@@ -210,8 +227,10 @@ fun CalendarView(
                                 AsyncImage(
                                     model = record.emotion.imgUrl,
                                     contentDescription = record.emotion.name,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(28.dp)
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(MaterialTheme.shapes.large)
                                 )
                             } else {
                                 Text(

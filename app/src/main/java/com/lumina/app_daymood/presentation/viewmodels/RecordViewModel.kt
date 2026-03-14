@@ -89,8 +89,18 @@ class RecordViewModel(
     ) {
         val emotionId = uiState.selectedEmotionId
         if (emotionId == null) {
-            uiState = uiState.copy(error = "Seleccioná una emoción primero")
+            uiState = uiState.copy(error = "Selecciona una emoción primero.")
             return
+        }
+
+        try {
+            val recordDate = LocalDate.parse(date.substringBefore("T"))
+            if (recordDate.isAfter(LocalDate.now())) {
+                uiState = uiState.copy(error = "No puedes registrar un estado para una fecha futura.")
+                return
+            }
+        } catch (e: Exception) {
+            // Ignorar el error de parseo
         }
 
         viewModelScope.launch {
@@ -113,9 +123,22 @@ class RecordViewModel(
             }.onFailure { error ->
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = "Error al guardar. ¡Es probable que ya tengas un record guardado para esta fecha!. Más detalles:" + error.message
+                    error = getErrorMessage(error)
                 )
             }
+        }
+    }
+
+    private fun getErrorMessage(error: Throwable): String {
+        val message = error.message?.lowercase() ?: ""
+        return when {
+            message.contains("already") || message.contains("exist") || message.contains("duplicate") || message.contains("409") ->
+                "Ya tienes un registro guardado para este día."
+            message.contains("future") ->
+                "No puedes registrar un estado para una fecha futura."
+            message.contains("network") || message.contains("timeout") ->
+                "Revisa tu conexión a internet."
+            else -> "Algo salió mal al guardar tu registro. Intenta de nuevo."
         }
     }
 
