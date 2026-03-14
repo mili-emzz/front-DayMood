@@ -79,7 +79,7 @@ fun TmmsTestView(
             Text(
                 text = "Formulario opcional para fines de investigación.\nPuedes omitirlo usando el botón de atrás de tu dispositivo.",
                 fontSize = 13.sp,
-                color = Color(0xFF9E9E9E),
+                color = Color.Black,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 2.dp)
             )
@@ -167,7 +167,6 @@ fun TmmsTestView(
                 }
             }
 
-            // ── Botones ─────────────────────────────────────────────────────────
             Spacer(Modifier.height(12.dp))
 
             if (currentSection == 0) {
