@@ -15,47 +15,54 @@ class ForumRepositoryImpl(
     private val apiService: ApiService
 ) : IForumRepository {
 
-    override suspend fun getForumsByCategory(categoryId: Int): Result<List<ForumCategoryDetailDTO>> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getForumsByCategory(categoryId)
-            Result.success(response.map { it.toDomain() })
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
+    override suspend fun getForumIdForCategory(categoryId: Int): Result<String> =
+        withContext(Dispatchers.IO) {
+            try {
+                val forums = apiService.getForumsByCategory(categoryId)
 
-    override suspend fun getForumDetail(forumId: String): Result<ForumModel> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getForumDetail(forumId)
-            Result.success(response.toDomain())
-        } catch (e: Exception) {
-            Result.failure(e)
+                val response = apiService.getForumsByCategory(categoryId)
+                Result.success(response.map { it })
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
-    }
+
+    override suspend fun getForumDetail(forumId: String): Result<List<PostModel>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getForumDetail(forumId)
+                Result.success(response.toDomain())
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
 
     override suspend fun createPost(
         forumId: String,
         categoryId: Int,
         title: String,
         content: String,
-        username: String
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
             val request = PostRequest(
-                id_forum = forumId,
+                forumId = forumId,
                 id_category = categoryId,
                 title = title,
-                content = content
+                content = content,
             )
             val response = apiService.createPost(request)
-            // Usamos el username pasado para evitar el null del backend
-            Result.success(response.toDomain(overrideUsername = username))
+            Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun updatePost(postId: String, title: String, content: String): Result<PostModel> = withContext(Dispatchers.IO) {
+    override suspend fun updatePost(
+        postId: String,
+        title: String,
+        content: String
+    ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
             val request = UpdatePostRequest(title = title, content = content)
             val response = apiService.updatePost(postId, request)
@@ -74,22 +81,24 @@ class ForumRepositoryImpl(
         }
     }
 
-    override suspend fun addComment(postId: String, content: String): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            val request = CommentRequest(id_post = postId, content = content)
-            apiService.addComment(request)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+    override suspend fun addComment(postId: String, content: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                val request = CommentRequest(postId = postId, content = content)
+                apiService.addComment(request)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
-    }
 
-    override suspend fun deleteComment(commentId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        try {
-            apiService.deleteComment(commentId)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+    override suspend fun deleteComment(commentId: String): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            try {
+                apiService.deleteComment(commentId)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
-    }
 }
