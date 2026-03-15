@@ -2,9 +2,9 @@ package com.lumina.app_daymood.data.repositories
 
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CommentRequest
+import com.lumina.app_daymood.data.api.dto.ForumCategoryDetailDTO
 import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
-import com.lumina.app_daymood.domain.models.ForumCategoryDetail
 import com.lumina.app_daymood.domain.models.ForumModel
 import com.lumina.app_daymood.domain.models.PostModel
 import com.lumina.app_daymood.domain.repositories.IForumRepository
@@ -15,9 +15,8 @@ class ForumRepositoryImpl(
     private val apiService: ApiService
 ) : IForumRepository {
 
-    override suspend fun getForumsByCategory(categoryId: Int): Result<List<ForumCategoryDetail>> = withContext(Dispatchers.IO) {
+    override suspend fun getForumsByCategory(categoryId: Int): Result<List<ForumCategoryDetailDTO>> = withContext(Dispatchers.IO) {
         try {
-            // Ya no pasamos el token, el Interceptor lo inyecta automáticamente
             val response = apiService.getForumsByCategory(categoryId)
             Result.success(response.map { it.toDomain() })
         } catch (e: Exception) {
