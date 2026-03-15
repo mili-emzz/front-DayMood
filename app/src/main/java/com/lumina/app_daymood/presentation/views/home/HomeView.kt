@@ -29,16 +29,15 @@ import com.lumina.app_daymood.ui.theme.MainColor
 
 @Composable
 fun HomeView(
-    recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
 ) {
     val uploadedEmotions = favoritesViewModel.uploadedEmotions
     val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
+    // Cargamos todo de una sola vez de forma optimizada
     LaunchedEffect(Unit) {
-        favoritesViewModel.loadFavorites()
-        favoritesViewModel.loadUploadedEmotions()
+        favoritesViewModel.loadHomeData()
     }
 
     Column(
@@ -86,14 +85,14 @@ fun HomeView(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Aún no tienes emociones guardadas",
+                            text = "Aún no hay emociones publicadas",
                             fontSize = 15.sp,
                             color = Color(0xFFBBBBBB),
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = "¡Sube tu primera emoción desde \"Subir\"!",
+                            text = "¡Sé el primero en subir una emoción!",
                             fontSize = 13.sp,
                             color = Color(0xFFCCCCCC)
                         )
