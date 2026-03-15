@@ -4,11 +4,12 @@ import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 
 interface IForumRepository {
-    suspend fun getForumIdForCategory(categoryId: Int): Result<String>
+    suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String>
 
-    suspend fun getForumDetail(forumId: String): Result<List<PostModel>>
+    suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>>
 
     suspend fun createPost(
+        token: String,
         forumId: String,
         categoryId: Int,
         title: String,
@@ -16,21 +17,25 @@ interface IForumRepository {
     ): Result<PostModel>
 
     suspend fun updatePost(
+        token: String,
         postId: String,
         title: String,
         content: String
     ): Result<PostModel>
 
     suspend fun deletePost(
+        token: String,
         postId: String
     ): Result<Unit>
 
     suspend fun addComment(
+        token: String,
         postId: String,
         content: String
     ): Result<CommentModel>
 
     suspend fun deleteComment(
+        token: String,
         commentId: String
     ): Result<Unit>
 }

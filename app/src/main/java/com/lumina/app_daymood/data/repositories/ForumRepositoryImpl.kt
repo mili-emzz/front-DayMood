@@ -1,11 +1,11 @@
 package com.lumina.app_daymood.data.repositories
 
+import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CommentRequest
-import com.lumina.app_daymood.data.api.dto.ForumCategoryDetailDTO
 import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
-import com.lumina.app_daymood.domain.models.ForumModel
+import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 import com.lumina.app_daymood.domain.repositories.IForumRepository
 import kotlinx.coroutines.Dispatchers
@@ -15,64 +15,88 @@ class ForumRepositoryImpl(
     private val apiService: ApiService
 ) : IForumRepository {
 
-    override suspend fun getForumIdForCategory(categoryId: Int): Result<String> =
+    companion object {
+        private const val TAG = "ForumRepository"
+    }
+
+    override suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String> =
         withContext(Dispatchers.IO) {
             try {
                 val forums = apiService.getForumsByCategory(categoryId)
-
-                val response = apiService.getForumsByCategory(categoryId)
-                Result.success(response.map { it })
+                if (forums.isEmpty()) {
+                    throw Exception("No se encontró un foro para la categoría $categoryId")
+                }
+                val forum = forums.first()
+                Log.d(TAG, "Foro encontrado para categoría $categoryId: id=${forum.id}, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(forum.id)
             } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo foro para categoría $categoryId: ${e.message}")
                 Result.failure(e)
             }
         }
 
-    override suspend fun getForumDetail(forumId: String): Result<List<PostModel>> =
+    override suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>> =
         withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getForumDetail(forumId)
-                Result.success(response.toDomain())
+                val forum = apiService.getForumDetail(forumId)
+                val domainPosts = forum.posts?.map { it.toDomain() } ?: emptyList()
+
+                Log.d(TAG, "Detalle de foro cargado: ${domainPosts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(domainPosts)
             } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo detalle del foro $forumId: ${e.message}")
                 Result.failure(e)
             }
         }
 
-
     override suspend fun createPost(
+        token: String,
         forumId: String,
         categoryId: Int,
         title: String,
-        content: String,
+        content: String
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
-            val request = PostRequest(
-                forumId = forumId,
-                id_category = categoryId,
-                title = title,
-                content = content,
+            Log.d(TAG, "Creando post en forumId: $forumId, cat: $categoryId")
+            val response = apiService.createPost(
+                request = PostRequest(
+                    forumId = forumId,
+                    id_category = categoryId,
+                    title = title,
+                    content = content
+                )
             )
-            val response = apiService.createPost(request)
             Result.success(response.toDomain())
         } catch (e: Exception) {
+            Log.e(TAG, "Error creando post: ${e.message}")
             Result.failure(e)
         }
     }
 
     override suspend fun updatePost(
+        token: String,
         postId: String,
         title: String,
         content: String
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
-            val request = UpdatePostRequest(title = title, content = content)
-            val response = apiService.updatePost(postId, request)
+            val response = apiService.updatePost(
+                postId = postId,
+                request = UpdatePostRequest(
+                    title = title,
+                    content = content
+                )
+            )
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun deletePost(postId: String): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun deletePost(
+        token: String,
+        postId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             apiService.deletePost(postId)
             Result.success(Unit)
@@ -81,24 +105,33 @@ class ForumRepositoryImpl(
         }
     }
 
-    override suspend fun addComment(postId: String, content: String): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                val request = CommentRequest(postId = postId, content = content)
-                apiService.addComment(request)
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+    override suspend fun addComment(
+        token: String,
+        postId: String,
+        content: String
+    ): Result<CommentModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.addComment(
+                request = CommentRequest(
+                    postId = postId,
+                    content = content
+                )
+            )
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-    override suspend fun deleteComment(commentId: String): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            try {
-                apiService.deleteComment(commentId)
-                Result.success(Unit)
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+    override suspend fun deleteComment(
+        token: String,
+        commentId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deleteComment(commentId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 }
