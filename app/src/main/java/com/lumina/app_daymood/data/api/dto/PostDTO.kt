@@ -1,7 +1,6 @@
 package com.lumina.app_daymood.data.api.dto
 
 import com.google.gson.annotations.SerializedName
-import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 
 data class NestedUserDTO(

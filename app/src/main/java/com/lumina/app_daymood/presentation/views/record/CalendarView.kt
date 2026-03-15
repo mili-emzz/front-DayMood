@@ -54,10 +54,10 @@ fun CalendarView(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        
+
         // Cargar inmediatamente cuando se instancia o cambian el mes/año
         recordViewModel.loadRecordsByMonth(currentYear.toString(), currentMonth)
-        
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }

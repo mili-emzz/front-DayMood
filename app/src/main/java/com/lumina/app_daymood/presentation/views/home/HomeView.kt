@@ -2,6 +2,7 @@ package com.lumina.app_daymood.presentation.views.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -28,16 +29,15 @@ import com.lumina.app_daymood.ui.theme.MainColor
 
 @Composable
 fun HomeView(
-    recordViewModel: RecordViewModel,
     favoritesViewModel: FavoritesViewModel,
 ) {
     val uploadedEmotions = favoritesViewModel.uploadedEmotions
     val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
+    // Cargamos todo de una sola vez de forma optimizada
     LaunchedEffect(Unit) {
-        favoritesViewModel.loadFavorites()
-        favoritesViewModel.loadUploadedEmotions()
+        favoritesViewModel.loadHomeData()
     }
 
     Column(
@@ -48,18 +48,24 @@ fun HomeView(
             .padding(horizontal = 10.dp, vertical = 5.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
+        Column  (
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 12.dp, top = 28.dp, bottom = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = "Descubre más",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
+            )
+            Text(
+                text = "Navegue y agregue emociones publicadas por usuarios",
+                fontSize = 13.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(top = 4.dp, bottom = 6.dp),
+                maxLines = 1
             )
         }
         when {
@@ -79,14 +85,14 @@ fun HomeView(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Aún no tienes emociones guardadas",
+                            text = "Aún no hay emociones publicadas",
                             fontSize = 15.sp,
                             color = Color(0xFFBBBBBB),
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = "¡Sube tu primera emoción desde \"Subir\"!",
+                            text = "¡Sé el primero en subir una emoción!",
                             fontSize = 13.sp,
                             color = Color(0xFFCCCCCC)
                         )
@@ -112,63 +118,6 @@ fun HomeView(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFFFAE8E5)
-@Composable
-fun HomeViewPreview() {
-    val sampleEmotions = listOf(
-        EmotionModel("1", "Emperrada", "", 16, userId = "u1"),
-        EmotionModel("2", "Feliz", "", 17, userId = "u1"),
-        EmotionModel("3", "Fracasada", "", 18, userId = "u1"),
-        EmotionModel("4", "Tristona", "", 19, userId = "u1"),
-        EmotionModel("5", "Tranquila", "", 17, userId = "u1"),
-        EmotionModel("6", "Despechada", "", 19, userId = "u1"),
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundColor)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 12.dp, top = 28.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Descubre más",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2D2D2D)
-            )
-            IconButton(onClick = {}) {
-                Icon(
-                    imageVector = Icons.Outlined.Forum,
-                    contentDescription = null,
-                    tint = MainColor,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            items(sampleEmotions, key = { it.id }) { emotion ->
-                EmotionCard(
-                    emotion = emotion,
-                    isFavorite = emotion.id == "2",
-                    categoryName = categoryMap[emotion.categoryId]
-                )
             }
         }
     }

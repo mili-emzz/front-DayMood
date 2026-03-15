@@ -10,10 +10,11 @@ class StatsRepositoryImpl(
     private val apiService: ApiService
 ) : IStatsRepository {
 
-    override suspend fun getWeeklyStats(token: String): Result<List<EmotionStat>> =
+    override suspend fun getWeeklyStats(): Result<List<EmotionStat>> =
         withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getWeeklyStats("Bearer $token")
+                // El token se inyecta automáticamente vía AuthInterceptor
+                val response = apiService.getWeeklyStats()
                 if (response.success && response.data != null) {
                     val grouped = response.data
                         .groupBy { it.emotion }

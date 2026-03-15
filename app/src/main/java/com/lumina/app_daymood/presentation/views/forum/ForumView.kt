@@ -57,11 +57,17 @@ fun ForoView(
         ) {
 
             Text(
-                text = "Descubre más",
+                text = "¡Bienvenid@ a los foros!",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                modifier = Modifier.padding(start = 20.dp, top = 24.dp, bottom = 12.dp)
+                modifier = Modifier.padding(start = 20.dp, top = 24.dp)
+            )
+            Text(
+                text = "Escoga un foro para navegar por las publicaciones más recientes.",
+                fontSize = 13.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(start = 20.dp, top = 4.dp, bottom = 6.dp)
             )
 
             LazyRow(

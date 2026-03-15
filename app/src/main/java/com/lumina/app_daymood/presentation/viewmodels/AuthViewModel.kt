@@ -50,8 +50,8 @@ class AuthViewModel(
             message.contains("password") -> "Contraseña muy débil o incorrecta."
             message.contains("email") -> "El formato del email no es válido."
             message.contains("network") || message.contains("timeout") -> "Revisa tu conexión a internet."
-            message.contains("unauthorized") || message.contains("invalid") || message.contains("credentials") 
-                || message.contains("401") || message.contains("404") || message.contains("wrong") -> 
+            message.contains("unauthorized") || message.contains("invalid") || message.contains("credentials")
+                    || message.contains("401") || message.contains("404") || message.contains("wrong") ->
                 "Correo o contraseña incorrectos."
             else -> "Algo salió mal. Verifica tus datos e intenta de nuevo."
         }
@@ -67,7 +67,6 @@ class AuthViewModel(
             uiState = uiState.copy(error = "La contraseña debe tener al menos 8 caracteres, un número y una mayúscula.")
             return
         }
-        
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
 

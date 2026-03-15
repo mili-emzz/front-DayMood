@@ -16,8 +16,7 @@ class RecordRepositoryIml(
 
     override suspend fun getEmotions(): Result<List<Emotion>> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val response = apiService.getEmotions("Bearer $token")
+            val response = apiService.getEmotions()
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -26,12 +25,8 @@ class RecordRepositoryIml(
 
     override suspend fun getHabits(): Result<List<HabitCategory>> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val response = apiService.getHabits("Bearer $token")
+            val response = apiService.getHabits()
             Log.d("RecordRepository", "Habit Categories fetched: ${response.data.size}")
-            if (response.data.isNotEmpty()) {
-                Log.d("RecordRepository", "First category: ${response.data[0].categoryName} with ${response.data[0].habits.size} habits")
-            }
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
@@ -45,18 +40,17 @@ class RecordRepositoryIml(
         note: String?
     ): Result<RecordModel> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
             val request = CreateRecordRequest(date, note, emotionId, habitIds)
             
             Log.d("RecordRepository", "Enviando record a API para fecha: $date")
-            val response = apiService.createRecord("Bearer $token", request)
+            val response = apiService.createRecord(request)
             
             if (!response.success) {
                 Log.e("RecordRepository", "API Error: ${response.message}")
                 throw Exception(response.message ?: "Error desconocido en la API")
             }
 
-            // Obtenemos el userId de forma segura (si es null, usamos vacío o el de la respuesta si existiera)
+            // Mantenemos la obtención del UID local para el mapeo al dominio
             val userId = firebaseAuthDataSource.getCurrentUser() ?: ""
             
             val recordData = response.data ?: throw Exception("La API no devolvió los datos del registro")
@@ -72,8 +66,7 @@ class RecordRepositoryIml(
 
     override suspend fun getRecordByDate(userId: String?, date: String): Result<RecordModel?> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val response = apiService.getRecordByDate("Bearer $token", date)
+            val response = apiService.getRecordByDate(date)
             val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUser() ?: ""
             val record = response.data?.toDomain(currentUserId)
             Result.success(record)
@@ -88,8 +81,7 @@ class RecordRepositoryIml(
         month: Int
     ): Result<List<RecordModel>> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val response = apiService.getRecordsByMonth("Bearer $token", year, month)
+            val response = apiService.getRecordsByMonth(year, month)
             val currentUserId = userId ?: firebaseAuthDataSource.getCurrentUser() ?: ""
             Result.success(response.data.map { it.toDomain(currentUserId) })
         } catch (e: Exception) {
