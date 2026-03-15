@@ -7,7 +7,7 @@ import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class FavoritesRepositoryIml(
+class FavoritesRepositoryImpl(
     private val apiService: ApiService
 ) : IFavoritesRepository {
 

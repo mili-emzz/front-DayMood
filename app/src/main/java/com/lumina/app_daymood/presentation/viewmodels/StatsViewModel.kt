@@ -35,7 +35,7 @@ class StatsViewModel(
                 return@launch
             }
 
-            statsRepository.getWeeklyStats(token)
+            statsRepository.getWeeklyStats()
                 .onSuccess { stats ->
                     Log.d("StatsViewModel", "Stats cargadas: ${stats.size} emociones")
                     uiState = uiState.copy(isLoading = false, stats = stats)

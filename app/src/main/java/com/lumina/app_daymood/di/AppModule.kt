@@ -82,7 +82,6 @@ object AppModule {
         EmotionRepositoryImpl(
             apiService = apiService,
             context = appContext,
-            firebaseAuthDataSource = firebaseAuthDataSource
             // para leer el Uri de la imagen seleccionada
         )
     }
@@ -134,7 +133,6 @@ object AppModule {
     fun provideFavoritesViewModel(): FavoritesViewModel {
         return FavoritesViewModel(
             favoritesRepository = favoritesRepository,
-            authRepository = authRepository
         )
     }
     fun provideFormViewModel(): FormViewModel {

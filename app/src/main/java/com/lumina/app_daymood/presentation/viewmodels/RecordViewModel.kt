@@ -57,7 +57,7 @@ class RecordViewModel(
             val defaultEmotions = emotionsResult.getOrDefault(emptyList())
 
             // Cargar emociones favoritas del usuario
-            val favoritesResult = favoritesRepository.getFavorites(token)
+            val favoritesResult = favoritesRepository.getFavorites()
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
 
             val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
