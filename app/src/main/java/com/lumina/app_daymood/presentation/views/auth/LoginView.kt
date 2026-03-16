@@ -46,8 +46,8 @@ fun LoginView(
         Text(
             "Bienvenido de nuevo",
             fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
             color = Color.Black,
+            style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 

@@ -55,7 +55,6 @@ fun EmotionCard(
                 .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ── Circular emotion image ──────────────────────────────
             Box(
                 modifier = Modifier
                     .size(90.dp)
@@ -75,19 +74,17 @@ fun EmotionCard(
 
             Spacer(Modifier.height(10.dp))
 
-            // ── Emotion name ────────────────────────────────────────
             Text(
                 text = emotion.name,
-                fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF2D2D2D),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
             )
 
             Spacer(Modifier.weight(1f))
 
-            // ── Footer: category + heart ────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -114,39 +111,5 @@ fun EmotionCard(
                 }
             }
         }
-    }
-}
-
-// ── Preview ────────────────────────────────────────────────────────────────────
-
-@Preview(showBackground = true, backgroundColor = 0xFFFAE8E5)
-@Composable
-fun EmotionCardPreview() {
-    Row(
-        modifier = Modifier.padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        EmotionCard(
-            emotion = EmotionModel(
-                id = "1",
-                name = "Emperrada",
-                imgUrl = "",
-                categoryId = 16
-            ),
-            isFavorite = false,
-            categoryName = "Ira",
-            modifier = Modifier.weight(1f)
-        )
-        EmotionCard(
-            emotion = EmotionModel(
-                id = "2",
-                name = "Feliz",
-                imgUrl = "",
-                categoryId = 17
-            ),
-            isFavorite = true,
-            categoryName = "Alegría",
-            modifier = Modifier.weight(1f)
-        )
     }
 }

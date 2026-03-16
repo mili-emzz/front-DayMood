@@ -104,14 +104,14 @@ fun StatsView(
                 ) {
                     Text(
                         text = "Estadísticas",
-                        fontSize = 24.sp,
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = "Descubre qué categoría de la emoción\npredomino esta semana",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         color = TextMuted,
                         lineHeight = 20.sp
                     )
@@ -276,10 +276,4 @@ fun SummaryCard(topEmotion: EmotionStat, totalDays: Int) {
             )
         }
     }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFFFFECE6)
-@Composable
-fun StatsViewPreview() {
-    StatsView()
 }

@@ -58,14 +58,14 @@ fun ForoView(
 
             Text(
                 text = "¡Bienvenid@ a los foros!",
-                fontSize = 26.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier.padding(start = 20.dp, top = 24.dp)
             )
             Text(
                 text = "Escoga un foro para navegar por las publicaciones más recientes.",
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color.Gray,
                 modifier = Modifier.padding(start = 20.dp, top = 4.dp, bottom = 6.dp)
             )
@@ -200,8 +200,8 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
         Text(
             text = post.username.ifBlank { "usuario" },
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
-            color = Color(0xFF3D3D3D)
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color(0xFF3D3D3D),
         )
 
         Spacer(Modifier.height(4.dp))
@@ -210,7 +210,7 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
         Text(
             text = post.title,
             fontWeight = FontWeight.Bold,
-            fontSize = 15.sp,
+            style = MaterialTheme.typography.titleMedium,
             color = Color(0xFF2D2D2D)
         )
 
@@ -219,7 +219,7 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
         // Content preview
         Text(
             text = post.content,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.bodySmall,
             color = Color(0xFF888888),
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -227,7 +227,6 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
 
         Spacer(Modifier.height(10.dp))
 
-        // Footer: comments count
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.Outlined.ChatBubbleOutline,
@@ -238,16 +237,16 @@ fun ForoPostItem(post: PostModel, onPostClick: () -> Unit) {
             Spacer(Modifier.width(4.dp))
             Text(
                 text = "Ver comentarios",
-                fontSize = 12.sp,
                 color = MainColor,
-                fontWeight = FontWeight.Medium
-            )
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodySmall,
+                )
             Spacer(Modifier.width(12.dp))
             Text(
                 text = "${post.comments.size} comentarios",
-                fontSize = 12.sp,
-                color = Color(0xFFBBBBBB)
-            )
+                color = Color(0xFFBBBBBB),
+                style = MaterialTheme.typography.bodySmall,
+                )
         }
     }
 }

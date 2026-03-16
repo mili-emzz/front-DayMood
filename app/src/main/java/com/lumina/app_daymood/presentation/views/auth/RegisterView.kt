@@ -60,7 +60,7 @@ fun RegisterView(
         Text(
             "Únete a la comunidad",
             fontWeight = FontWeight.Bold,
-            fontSize = 28.sp,
+            style = MaterialTheme.typography.headlineMedium,
             color = Color.Black,
             modifier = Modifier.padding(bottom = 16.dp),
             textAlign = TextAlign.Center
