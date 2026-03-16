@@ -9,15 +9,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,13 +28,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.presentation.viewmodels.AddEmotionViewModel
 import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.MainColor
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 sealed class UploadState {
     object ImageNotSelected : UploadState()
@@ -57,7 +57,6 @@ fun AddEmotionScreen(
         viewModel.onImageSelected(uri)
     }
 
-    // Launcher de permisos en runtime
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -68,7 +67,6 @@ fun AddEmotionScreen(
         }
     }
 
-    // Función que verifica/solicita permisos y luego abre la galería
     val onOpenGallery = {
         val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Manifest.permission.READ_MEDIA_IMAGES
@@ -120,6 +118,7 @@ fun AddEmotionContent(
     clearMessages: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(errorMessage, successMessage) {
         errorMessage?.let {
@@ -140,28 +139,30 @@ fun AddEmotionContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .verticalScroll(scrollState)
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = "Publica más emociones",
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = "Comparte imágenes para representar más emociones",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray,
-                modifier = Modifier.padding(bottom = 32.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
                 textAlign = TextAlign.Center
-                )
+            )
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(16.dp))
-                    .padding(16.dp),
+                    .background(Color.White, RoundedCornerShape(20.dp))
+                    .padding(20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 when (uploadState) {
@@ -196,17 +197,16 @@ fun AddEmotionContent(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Solo mostramos el botón "Subir emoción" cuando ya se seleccionó y subió la imagen
             if (uploadState is UploadState.UploadCompleted) {
                 Button(
                     onClick = onButtonClick,
                     enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(25.dp),
+                        .height(56.dp),
+                    shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MainColor)
                 ) {
                     if (isLoading) {
@@ -224,6 +224,8 @@ fun AddEmotionContent(
                         )
                     }
                 }
+                // Espacio extra abajo para que el teclado no tape el botón al escribir
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -238,9 +240,8 @@ fun ImageNotSelectedContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(vertical = 64.dp)
+        modifier = Modifier.padding(vertical = 40.dp)
     ) {
-        // El icono y el texto son clickeables para abrir la galería
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -250,24 +251,23 @@ fun ImageNotSelectedContent(
             Icon(
                 imageVector = Icons.Filled.CloudUpload,
                 contentDescription = "Upload Icon",
-                tint = Color.Gray,
-                modifier = Modifier.size(48.dp)
+                tint = Color.LightGray,
+                modifier = Modifier.size(64.dp)
             )
             Text(
-                text = "Sube tu archivos aquí",
+                text = "Sube tu archivo aquí",
                 color = MainColor,
                 textDecoration = TextDecoration.Underline,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp)
             )
             Text(
                 text = "PNG o JPG",
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
         FavoriteSwitch(saveToFavorites, onFavoritesChange)
     }
 }
@@ -281,35 +281,35 @@ fun UploadingImageContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(vertical = 64.dp)
+        modifier = Modifier.padding(vertical = 40.dp)
     ) {
         Icon(
             imageVector = Icons.Filled.Image,
             contentDescription = "Uploading Image",
-            tint = Color.Gray,
+            tint = Color.LightGray,
             modifier = Modifier.size(80.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+                .height(8.dp)
+                .clip(CircleShape),
             color = MainColor,
             trackColor = Color.LightGray,
-            strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
         )
         Text(
-            text = "${(progress * 100).toInt()}% completed",
+            text = "${(progress * 100).toInt()}% completado",
             color = Color.Gray,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier.padding(top = 8.dp)
         )
         Text(
             text = "Subiendo imagen...",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 8.dp, bottom = 32.dp)
+            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
         )
         FavoriteSwitch(saveToFavorites, onFavoritesChange)
     }
@@ -327,7 +327,6 @@ fun UploadCompletedContent(
     imageUri: Uri?,
     onRemoveImage: () -> Unit
 ) {
-    // Categorías placeholder — se reemplazarán con los datos de la API cuando se integre
     val categories = listOf(
         Pair(8, "Alegría"),
         Pair(9, "Tristeza"),
@@ -342,18 +341,16 @@ fun UploadCompletedContent(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(vertical = 16.dp)
+        verticalArrangement = Arrangement.Center
     ) {
         Box(contentAlignment = Alignment.Center) {
-            // Reemplazo del checkmark por la imagen subida en un círculo verde claro (si aplica)
             if (imageUri != null) {
                 AsyncImage(
                     model = imageUri,
                     contentDescription = "Uploaded Emotion Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(100.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFE8F5E9))
                 )
@@ -361,7 +358,7 @@ fun UploadCompletedContent(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(80.dp)
                         .clip(CircleShape)
                         .background(Color(0xFFE8F5E9))
                 ) {
@@ -369,7 +366,7 @@ fun UploadCompletedContent(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "Success",
                         tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(48.dp)
                     )
                 }
             }
@@ -377,7 +374,7 @@ fun UploadCompletedContent(
 
         Text(
             text = "Subida completada",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 16.dp)
         )
@@ -386,11 +383,11 @@ fun UploadCompletedContent(
                 imageVector = Icons.Filled.Delete,
                 contentDescription = "Eliminar subida",
                 tint = Color.Gray,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(18.dp)
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = "Eliminar subida",
+                text = "Cambiar imagen",
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -401,15 +398,13 @@ fun UploadCompletedContent(
         OutlinedTextField(
             value = emotionName,
             onValueChange = onNameChange,
-            label = { Text("Nombra tu emoción...") },
-            textStyle = MaterialTheme.typography.bodyLarge,
+            label = { Text("Nombre de la emoción") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = MainColor,
-                unfocusedIndicatorColor = Color.LightGray,
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MainColor,
+                unfocusedBorderColor = Color.LightGray
             )
         )
 
@@ -426,6 +421,7 @@ fun UploadCompletedContent(
                 readOnly = true,
                 label = { Text("Categoría") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                shape = RoundedCornerShape(12.dp),
                 colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
                     focusedBorderColor = MainColor,
                     unfocusedBorderColor = Color.LightGray
@@ -452,7 +448,7 @@ fun UploadCompletedContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         FavoriteSwitch(saveToFavorites, onFavoritesChange)
     }
 }
@@ -460,7 +456,9 @@ fun UploadCompletedContent(
 @Composable
 fun FavoriteSwitch(saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Unit) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
         Switch(
             checked = saveToFavorites,
@@ -468,15 +466,15 @@ fun FavoriteSwitch(saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Uni
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MainColor,
                 checkedTrackColor = MainColor.copy(alpha = 0.4f),
-                checkedBorderColor = MainColor,
                 uncheckedThumbColor = Color.Gray,
-                uncheckedBorderColor = Color.Gray
+                uncheckedTrackColor = Color.LightGray
             )
         )
         Text(
             text = "Guardar en favoritos",
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 8.dp)
+            color = Color.DarkGray,
+            modifier = Modifier.padding(start = 12.dp)
         )
     }
 }
