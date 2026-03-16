@@ -9,24 +9,30 @@ data class UserRequest (
     val birth_day: String
 )
 
+data class UserLoginRequest (
+    val firebase_uid: String
+)
+
 data class UserResponse(
     val success: Boolean,
-    val message: String,
-    val data: UserData?
+    val data: UserData? = null
 )
 
 data class UserData(
-    val id: String,
-    val firebase_uid: String,
-    val username: String,
-    val email: String,
+    val id: String?,
+    val firebase_uid: String?,
+    val username: String?,
+    val email: String?,
+    val birth_day: String?,
+    val start_date: String?,
+    val id_forum: String?
 ){
     fun toDomain(): UserModel = UserModel(
-        id = id,
-        firebase_uid = firebase_uid,
-        username = username,
-        email = email,
-        birth_day = "", // Default value as API doesn't provide it here
-        start_date = 0L // Default value as API doesn't provide it here
+        id = id ?: "",
+        firebase_uid = firebase_uid ?: "",
+        username = username ?: "",
+        email = email ?: "",
+        birth_day = birth_day ?: "",
+        start_date = 0L // Default value as API returns ISO string
     )
 }

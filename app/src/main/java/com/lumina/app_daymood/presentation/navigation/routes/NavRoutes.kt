@@ -3,6 +3,7 @@ package com.lumina.app_daymood.presentation.navigation.routes
 object AuthRoutes {
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val FORM_TEST = "form_test"
     const val PROFILE_AUTHENTICATED = "profile_authenticated"
 }
 
@@ -23,6 +24,7 @@ object NavigationHelper {
         RecordRoutes.RECORD_HABIT,
         AuthRoutes.LOGIN,
         AuthRoutes.REGISTER,
+        AuthRoutes.FORM_TEST,
         ForumRoutes.CREATE_POST,
     )
 

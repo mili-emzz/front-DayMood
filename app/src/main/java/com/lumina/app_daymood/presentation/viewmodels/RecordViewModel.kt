@@ -11,13 +11,14 @@ import com.lumina.app_daymood.domain.models.RecordModel as Record
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 data class RecordUiState(
     // Catálogos
     val emotions: List<Emotion> = emptyList(),
-    val habits: List<Habit> = emptyList(),
+    val habitCategories: List<com.lumina.app_daymood.domain.models.HabitCategoryModel> = emptyList(),
     val loadingCatalogs: Boolean = false,
     val selectedEmotionId: String? = null,
     val selectedNote: String? = null,
@@ -52,23 +53,22 @@ class RecordViewModel(
             val token = authRepository.getIdToken() ?: ""
             uiState = uiState.copy(loadingCatalogs = true)
 
-            // Cargar emociones default
-            val emotionsResult = recordRepository.getEmotions()
+            // Las 3 llamadas se lanzan en paralelo para cargar más rápido
+            val emotionsDeferred = async { recordRepository.getEmotions() }
+            val favoritesDeferred = async { favoritesRepository.getFavorites() }
+            val habitsDeferred = async { recordRepository.getHabits() }
+
+            val emotionsResult = emotionsDeferred.await()
+            val favoritesResult = favoritesDeferred.await()
+            val habitsResult = habitsDeferred.await()
+
             val defaultEmotions = emotionsResult.getOrDefault(emptyList())
-
-            // Cargar emociones favoritas del usuario
-            val favoritesResult = favoritesRepository.getFavorites(token)
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
-
-            // Combinar listas y evitar duplicados
             val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
-
-            // Cargar hábitos
-            val habitsResult = recordRepository.getHabits()
 
             uiState = uiState.copy(
                 emotions = combinedEmotions,
-                habits = habitsResult.getOrDefault(emptyList()),
+                habitCategories = habitsResult.getOrDefault(emptyList()),
                 loadingCatalogs = false,
                 error = emotionsResult.exceptionOrNull()?.message
                     ?: favoritesResult.exceptionOrNull()?.message
@@ -86,12 +86,23 @@ class RecordViewModel(
 
     fun saveRecord(
         date: String,
-        habitIds: List<String>
+        habitIds: List<String>,
+        noteToSave: String? = null
     ) {
         val emotionId = uiState.selectedEmotionId
         if (emotionId == null) {
-            uiState = uiState.copy(error = "Seleccioná una emoción primero")
+            uiState = uiState.copy(error = "Selecciona una emoción primero.")
             return
+        }
+
+        try {
+            val recordDate = LocalDate.parse(date.substringBefore("T"))
+            if (recordDate.isAfter(LocalDate.now())) {
+                uiState = uiState.copy(error = "No puedes registrar un estado para una fecha futura.")
+                return
+            }
+        } catch (e: Exception) {
+            // Ignorar el error de parseo
         }
 
         viewModelScope.launch {
@@ -101,7 +112,7 @@ class RecordViewModel(
                 date = date,
                 emotionId = emotionId,
                 habitIds = habitIds,
-                note = uiState.selectedNote
+                note = noteToSave ?: uiState.selectedNote
             ).onSuccess { record ->
                 uiState = uiState.copy(
                     isLoading = false,
@@ -114,28 +125,40 @@ class RecordViewModel(
             }.onFailure { error ->
                 uiState = uiState.copy(
                     isLoading = false,
-                    error = error.message ?: "Error al guardar"
+                    error = getErrorMessage(error)
                 )
             }
         }
     }
 
-
-    fun loadRecordByDate(date: String) {
-        val userId = authRepository.getCurrentUser()
-
-        viewModelScope.launch {
-            recordRepository.getRecordByDate(userId, date)
-                .onSuccess { record ->
-                    uiState = uiState.copy(currentRecord = record)
-                }
-                .onFailure { error ->
-                    uiState = uiState.copy(error = error.message)
-                }
+    private fun getErrorMessage(error: Throwable): String {
+        val message = error.message?.lowercase() ?: ""
+        return when {
+            message.contains("already") || message.contains("exist") || message.contains("duplicate") || message.contains("409") ->
+                "Ya tienes un registro guardado para este día."
+            message.contains("future") ->
+                "No puedes registrar un estado para una fecha futura."
+            message.contains("network") || message.contains("timeout") ->
+                "Revisa tu conexión a internet."
+            else -> "Algo salió mal al guardar tu registro. Intenta de nuevo."
         }
     }
 
-    fun loadRecordsByMonth(year: Int, month: Int) {
+//    fun loadRecordByDate(date: String) { -- Sin uso por ahora
+//        val userId = authRepository.getCurrentUser()
+//
+//        viewModelScope.launch {
+//            recordRepository.getRecordByDate(userId, date)
+//                .onSuccess { record ->
+//                    uiState = uiState.copy(currentRecord = record)
+//                }
+//                .onFailure { error ->
+//                    uiState = uiState.copy(error = error.message)
+//                }
+//        }
+//    }
+
+    fun loadRecordsByMonth(year: String, month: Int) {
         val userId = authRepository.getCurrentUser()
 
         viewModelScope.launch {
@@ -149,45 +172,10 @@ class RecordViewModel(
         }
     }
 
-    fun updateRecord(recordId: String, habitIds: List<String>) {
-        val emotionId = uiState.selectedEmotionId
-            ?: uiState.currentRecord?.emotion?.id
-            ?: return
-
-        viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true, error = null)
-
-            recordRepository.updateRecord(
-                recordId = recordId,
-                emotionId = emotionId,
-                habitIds = habitIds,
-                note = uiState.selectedNote ?: uiState.currentRecord?.note
-            ).onSuccess { record ->
-                uiState = uiState.copy(
-                    isLoading = false,
-                    saveSuccess = true,
-                    currentRecord = record,
-                    selectedEmotionId = null,
-                    selectedNote = null
-                )
-            }.onFailure { error ->
-                uiState = uiState.copy(isLoading = false, error = error.message)
-            }
-        }
-    }
-
     fun clearSuccess() {
         uiState = uiState.copy(saveSuccess = false)
     }
 
-    fun clearError() {
-        uiState = uiState.copy(error = null)
-    }
-
-    // Saber si un día del calendario tiene record (para mostrar emoji)
-    fun getEmotionForDate(date: String): Emotion? {
-        return uiState.monthRecords.find { it.date == date }?.emotion
-    }
 
     // Helper para formatear LocalDate al formato que usa la API
     fun formatDate(date: LocalDate): String {

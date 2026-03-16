@@ -30,7 +30,6 @@ import com.lumina.app_daymood.ui.theme.MainColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostView(
-    forumId: String,
     viewModel: ForumViewModel,
     onDismiss: () -> Unit = {},
     onPublishSuccess: () -> Unit = {}
@@ -41,7 +40,6 @@ fun CreatePostView(
     var content by remember { mutableStateOf("") }
     var selectedCategoryName by remember { mutableStateOf("") }
 
-    // Category names from the central map
     val categoryNames = categoryMap.values.toList()
 
     val canPublish = title.isNotBlank() && content.isNotBlank() &&
@@ -211,7 +209,6 @@ fun CreatePostView(
             Button(
                 onClick = {
                     if (canPublish) viewModel.createPost(
-                        forumId,
                         selectedCategoryName,
                         title,
                         content

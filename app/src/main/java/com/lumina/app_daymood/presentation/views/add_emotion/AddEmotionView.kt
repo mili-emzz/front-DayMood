@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -289,12 +290,13 @@ fun UploadingImageContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
             color = MainColor,
-            trackColor = Color.LightGray
+            trackColor = Color.LightGray,
+            strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
         )
         Text(
             text = "${(progress * 100).toInt()}% completed",
@@ -340,7 +342,7 @@ fun UploadCompletedContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(vertical = 32.dp)
+        modifier = Modifier.padding(vertical = 16.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {
             // Reemplazo del checkmark por la imagen subida en un círculo verde claro (si aplica)
@@ -412,7 +414,6 @@ fun UploadCompletedContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dropdown para Categoría
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -477,55 +478,4 @@ fun FavoriteSwitch(saveToFavorites: Boolean, onFavoritesChange: (Boolean) -> Uni
             modifier = Modifier.padding(start = 8.dp)
         )
     }
-}
-
-@Preview(showBackground = true, name = "State 1: Image Not Selected")
-@Composable
-fun AddEmotionScreen_Preview_ImageNotSelected() {
-    AddEmotionContent(
-        uploadState = UploadState.ImageNotSelected,
-        imageUri = null,
-        emotionName = "",
-        onNameChange = {},
-        selectedCategoryId = 1,
-        onCategoryChange = {},
-        saveToFavorites = false,
-        onFavoritesChange = {},
-        onRemoveImage = {},
-        onButtonClick = {}
-    )
-}
-
-@Preview(showBackground = true, name = "State 2: Uploading Image")
-@Composable
-fun AddEmotionScreen_Preview_UploadingImage() {
-    AddEmotionContent(
-        uploadState = UploadState.UploadingImage(0.76f),
-        imageUri = null,
-        emotionName = "",
-        onNameChange = {},
-        selectedCategoryId = 1,
-        onCategoryChange = {},
-        saveToFavorites = true,
-        onFavoritesChange = {},
-        onRemoveImage = {},
-        onButtonClick = {}
-    )
-}
-
-@Preview(showBackground = true, name = "State 3: Upload Completed")
-@Composable
-fun AddEmotionScreen_Preview_UploadCompleted() {
-    AddEmotionContent(
-        uploadState = UploadState.UploadCompleted,
-        imageUri = null,
-        emotionName = "Motivado",
-        onNameChange = {},
-        selectedCategoryId = 1,
-        onCategoryChange = {},
-        saveToFavorites = true,
-        onFavoritesChange = {},
-        onRemoveImage = {},
-        onButtonClick = {}
-    )
 }

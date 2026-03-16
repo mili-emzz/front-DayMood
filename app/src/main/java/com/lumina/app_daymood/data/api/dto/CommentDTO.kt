@@ -17,13 +17,7 @@ data class CommentDTO(
     )
 }
 
-data class CommentsResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("data") val data: List<CommentDTO> = emptyList()
-)
-
 data class CommentRequest(
-    @SerializedName("id_user") val userId: String,
     @SerializedName("id_post") val postId: String,
     @SerializedName("content") val content: String
 )

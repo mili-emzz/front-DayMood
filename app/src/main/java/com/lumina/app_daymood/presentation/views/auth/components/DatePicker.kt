@@ -21,7 +21,8 @@ import java.util.*
 fun DatePickerField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    testTag: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()

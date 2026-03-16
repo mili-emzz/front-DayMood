@@ -2,8 +2,6 @@ package com.lumina.app_daymood.data.api.dto
 
 import com.google.gson.annotations.SerializedName
 import com.lumina.app_daymood.domain.models.ForumModel
-import com.lumina.app_daymood.domain.models.RecordModel
-import com.lumina.app_daymood.domain.models.UserModel
 
 data class ForumDTO(
     @SerializedName("id")          val id: String,
@@ -11,7 +9,7 @@ data class ForumDTO(
     @SerializedName("max_age")     val max_age: Int,
     @SerializedName("id_category") val category_id: Int,
     @SerializedName("users")       val users: List<UserData>,
-    @SerializedName("posts")       val posts: List<PostDTO>
+    @SerializedName("posts")       val posts: List<PostDTO> = emptyList()
 ) {
     fun toDomain(): ForumModel = ForumModel(
         id = id,

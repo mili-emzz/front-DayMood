@@ -21,15 +21,15 @@ data class EmotionDTO(
 
 data class EmotionsResponse(
     @SerializedName("success") val success: Boolean,
-    @SerializedName("data")    val data: List<EmotionDTO> = emptyList()
+    @SerializedName("data")    val data: List<EmotionDTO> = emptyList(),
+    @SerializedName("message") val message: String? = null
 )
 
-// Request con adivinanza para crear una emoción personalizada
-data class CreateEmotionRequest(
-    @SerializedName("name")        val name: String,
-    @SerializedName("img_url")     val imgUrl: String,
-    @SerializedName("id_category") val categoryId: Int,
-    @SerializedName("save_to_favorites") val saveToFavorites: Boolean
+// Request para crear emoción personalizada se envía como multipart/form-data
+data class CreateEmotionRequest (
+    val name: String,
+    val categoryId: Int,
+    val saveToFavorites: Boolean
 )
 
 data class CreateEmotionResponse(
@@ -38,14 +38,20 @@ data class CreateEmotionResponse(
     @SerializedName("message") val message: String? = null
 )
 
-// Request para agregar/eliminar favorito
 data class FavoriteRequest(
     @SerializedName("id_emotion") val emotionId: String
 )
 
+// Wrapper que devuelve la API en GET /api/emotions/favorites
+data class FavoriteItemDTO(
+    @SerializedName("id_emotion") val emotionId: String,
+    @SerializedName("id_user")    val userId: String,
+    @SerializedName("emotions")   val emotion: EmotionDTO
+)
+
 data class FavoritesResponse(
     @SerializedName("success") val success: Boolean,
-    @SerializedName("data")    val data: List<EmotionDTO> = emptyList(),
+    @SerializedName("data")    val data: List<FavoriteItemDTO> = emptyList(),
     @SerializedName("message") val message: String? = null
 )
 

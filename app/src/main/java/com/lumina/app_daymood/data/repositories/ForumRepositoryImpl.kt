@@ -1,8 +1,10 @@
 package com.lumina.app_daymood.data.repositories
 
+import android.util.Log
 import com.lumina.app_daymood.data.api.ApiService
 import com.lumina.app_daymood.data.api.dto.CommentRequest
 import com.lumina.app_daymood.data.api.dto.PostRequest
+import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
 import com.lumina.app_daymood.domain.models.CommentModel
 import com.lumina.app_daymood.domain.models.PostModel
 import com.lumina.app_daymood.domain.repositories.IForumRepository
@@ -13,72 +15,121 @@ class ForumRepositoryImpl(
     private val apiService: ApiService
 ) : IForumRepository {
 
-    override suspend fun getPosts(token: String): Result<List<PostModel>> =
+    companion object {
+        private const val TAG = "ForumRepository"
+    }
+
+    override suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String> =
         withContext(Dispatchers.IO) {
             try {
-                val response = apiService.getAllPosts("Bearer $token")
-                if (!response.success) throw Exception(response.message.ifBlank { "Error al obtener posts" })
-                Result.success(response.data.map { it.toDomain() })
+                val forums = apiService.getForumsByCategory(categoryId)
+                if (forums.isEmpty()) {
+                    throw Exception("No se encontró un foro para la categoría $categoryId")
+                }
+                val forum = forums.first()
+                Log.d(TAG, "Foro encontrado para categoría $categoryId: id=${forum.id}, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(forum.id)
             } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo foro para categoría $categoryId: ${e.message}")
+                Result.failure(e)
+            }
+        }
+
+    override suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>> =
+        withContext(Dispatchers.IO) {
+            try {
+                val forum = apiService.getForumDetail(forumId)
+                val domainPosts = forum.posts?.map { it.toDomain() } ?: emptyList()
+
+                Log.d(TAG, "Detalle de foro cargado: ${domainPosts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
+                Result.success(domainPosts)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error obteniendo detalle del foro $forumId: ${e.message}")
                 Result.failure(e)
             }
         }
 
     override suspend fun createPost(
         token: String,
-        userId: String,
         forumId: String,
         categoryId: Int,
         title: String,
         content: String
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
+            Log.d(TAG, "Creando post en forumId: $forumId, cat: $categoryId")
             val response = apiService.createPost(
-                token = "Bearer $token",
                 request = PostRequest(
-                    userId = userId,
                     forumId = forumId,
                     id_category = categoryId,
                     title = title,
                     content = content
                 )
             )
-            if (!response.success) throw Exception(response.message.ifBlank { "Error al crear post" })
-            val post = response.data?.toDomain() ?: throw Exception("No se recibió data del post")
-            Result.success(post)
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Log.e(TAG, "Error creando post: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updatePost(
+        token: String,
+        postId: String,
+        title: String,
+        content: String
+    ): Result<PostModel> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.updatePost(
+                postId = postId,
+                request = UpdatePostRequest(
+                    title = title,
+                    content = content
+                )
+            )
+            Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun getComments(token: String, postId: String): Result<List<CommentModel>> =
-        withContext(Dispatchers.IO) {
-            try {
-                val response = apiService.getComments("Bearer $token", postId)
-                if (!response.success) throw Exception("Error al obtener comentarios")
-                Result.success(response.data.map { it.toDomain() })
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
+    override suspend fun deletePost(
+        token: String,
+        postId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deletePost(postId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
     override suspend fun addComment(
         token: String,
-        userId: String,
         postId: String,
         content: String
-    ): Result<List<CommentModel>> = withContext(Dispatchers.IO) {
+    ): Result<CommentModel> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.addComment(
-                token = "Bearer $token",
                 request = CommentRequest(
-                    userId = userId,
                     postId = postId,
                     content = content
                 )
             )
-            if (!response.success) throw Exception("Error al agregar comentario")
-            Result.success(response.data.map { it.toDomain() })
+            Result.success(response.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteComment(
+        token: String,
+        commentId: String
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            apiService.deleteComment(commentId)
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

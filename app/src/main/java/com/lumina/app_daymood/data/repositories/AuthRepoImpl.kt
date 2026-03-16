@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 class AuthRepositoryImpl(
     private val firebaseAuthDataSource: FirebaseAuthDataSource,
     private val firestoreDataSource: FireStoreDataSource,
-    private val apiService: ApiService // cuando haya api
+    private val apiService: ApiService
 ) : IAuthRepository {
 
     override suspend fun register(
@@ -26,7 +26,7 @@ class AuthRepositoryImpl(
             val uid = firebaseUser.uid
             val username = generateRandomUsername()
 
-            firebaseAuthDataSource.updateProfile(email, password)
+            firebaseAuthDataSource.updateProfile(username)
 
             firestoreDataSource.saveUser(
                 firebase_uid = uid,
@@ -36,10 +36,9 @@ class AuthRepositoryImpl(
             )
 
             try {
-                val token = firebaseAuthDataSource.getIdToken()
+                val token = firebaseAuthDataSource.getIdToken(false)
                 sendToApi(token, uid, username, email, birth_day)
             } catch (e: Exception) {
-                // Si falla la API, no importa, ya está en Firebase
                 Log.w("AuthRepository", "API no disponible o falló: ${e.message}")
             }
 
@@ -67,16 +66,13 @@ class AuthRepositoryImpl(
     ): Result<UserModel> = withContext(Dispatchers.IO) {
         try {
             val firebaseUser = firebaseAuthDataSource.signInUser(email, password)
-
             val user = firestoreDataSource.getUser(firebaseUser.uid)
-
             Log.d("AuthRepository", "Login exitoso: ${user?.username}")
-            Result.success(user)
-
+            Result.success(user!!)
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error en login: ${e.message}")
             Result.failure(e)
-        } as Result<UserModel>
+        }
     }
 
     override fun logout() {
@@ -93,7 +89,7 @@ class AuthRepositoryImpl(
 
     override suspend fun getIdToken(): String? {
         return try {
-            firebaseAuthDataSource.getIdToken()
+            firebaseAuthDataSource.getIdToken(false)
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error obteniendo token: ${e.message}")
             null
@@ -106,19 +102,15 @@ class AuthRepositoryImpl(
                 ?: return@withContext Result.failure(Exception("No hay sesión activa"))
             val user = firestoreDataSource.getUser(uid)
                 ?: return@withContext Result.failure(Exception("Usuario no encontrado en Firestore"))
-            Log.d("AuthRepository", "Usuario cargado: ${user.username}")
             Result.success(user)
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Error cargando usuario actual: ${e.message}")
             Result.failure(e)
         }
     }
 
     private fun generateRandomUsername(): String {
         val chars = "abcdefghijklmnopqrstuvxyz1234567890"
-        val randomString = (1..8)
-            .map { chars.random() }
-            .joinToString("")
+        val randomString = (1..8).map { chars.random() }.joinToString("")
         return "user_$randomString"
     }
 
@@ -129,29 +121,13 @@ class AuthRepositoryImpl(
         email: String,
         birthDay: String
     ) {
-        try {
-            val request = UserRequest(
-                firebase_uid = firebaseUid,
-                username = username,
-                email = email,
-                birth_day = birthDay
-            )
-
-            // El token va como "Bearer <token>" en el header
-            val response = apiService.registerUser("Bearer $token", request)
-
-            if (response.success) {
-                Log.d("AuthRepository", "Usuario registrado en API: ${response.message}")
-            } else {
-                Log.e("AuthRepository", "Error de API: ${response?.message}")
-            }
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Error al enviar a API: ${e.message}")
-            throw e
-        }
-
-        Log.d("AuthRepository", "Token obtenido para API: ${token}...")
-        Log.d("TOKEN_FIREBASE", token)
-        Log.d("AuthRepository", "Datos listos para enviar a API cuando esté disponible")
+        val request = UserRequest(
+            firebase_uid = firebaseUid,
+            username = username,
+            email = email,
+            birth_day = birthDay
+        )
+        // aquí sí pasamos el Bearer manualmente porque es una llamada de "one-time" durante el registro
+        apiService.registerUser(request) 
     }
 }

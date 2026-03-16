@@ -43,17 +43,17 @@ class AuthViewModel(
     }
 
     private fun getErrorMessage(error: Throwable): String {
+        val message = error.message?.lowercase() ?: ""
         return when {
-            error.message?.contains("password") == true ->
-                "Contraseña incorrecta"
-            error.message?.contains("email") == true ->
-                "Email inválido o no registrado"
-            error.message?.contains("network") == true ->
-                "Error de conexión. Verifica tu internet"
-            error.message?.contains("existe") == true ->
-                "Este email ya está registrado"
-            else ->
-                error.message ?: "Error desconocido"
+            message.contains("already-in-use") || message.contains("existe") ->
+                "Este email ya está registrado. Intenta iniciar sesión."
+            message.contains("password") -> "Contraseña muy débil o incorrecta."
+            message.contains("email") -> "El formato del email no es válido."
+            message.contains("network") || message.contains("timeout") -> "Revisa tu conexión a internet."
+            message.contains("unauthorized") || message.contains("invalid") || message.contains("credentials")
+                    || message.contains("401") || message.contains("404") || message.contains("wrong") ->
+                "Correo o contraseña incorrectos."
+            else -> "Algo salió mal. Verifica tus datos e intenta de nuevo."
         }
     }
 
@@ -63,6 +63,10 @@ class AuthViewModel(
         password: String,
         onSuccess: () -> Unit
     ){
+        if (password.length < 8 || !password.any { it.isDigit() } || !password.any { it.isUpperCase() }) {
+            uiState = uiState.copy(error = "La contraseña debe tener al menos 8 caracteres, un número y una mayúscula.")
+            return
+        }
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
 

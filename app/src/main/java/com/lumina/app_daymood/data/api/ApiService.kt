@@ -1,133 +1,153 @@
 package com.lumina.app_daymood.data.api
 
+import com.lumina.app_daymood.BuildConfig
+import com.lumina.app_daymood.data.api.dto.CommentDTO
 import com.lumina.app_daymood.data.api.dto.CommentRequest
-import com.lumina.app_daymood.data.api.dto.CommentsResponse
-import com.lumina.app_daymood.data.api.dto.CreateEmotionRequest
 import com.lumina.app_daymood.data.api.dto.CreateEmotionResponse
 import com.lumina.app_daymood.data.api.dto.CreateRecordRequest
 import com.lumina.app_daymood.data.api.dto.EmotionsResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteActionResponse
 import com.lumina.app_daymood.data.api.dto.FavoriteRequest
 import com.lumina.app_daymood.data.api.dto.FavoritesResponse
+import com.lumina.app_daymood.data.api.dto.FormRequest
+import com.lumina.app_daymood.data.api.dto.FormResponse
+import com.lumina.app_daymood.data.api.dto.ForumCategoryDetailDTO
+import com.lumina.app_daymood.data.api.dto.ForumDTO
 import com.lumina.app_daymood.data.api.dto.HabitsResponse
+import com.lumina.app_daymood.data.api.dto.MessageResponse
 import com.lumina.app_daymood.data.api.dto.PostRequest
-import com.lumina.app_daymood.data.api.dto.PostResponse
-import com.lumina.app_daymood.data.api.dto.PostsResponse
+import com.lumina.app_daymood.data.api.dto.PostDTO
+import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
-import com.lumina.app_daymood.data.api.dto.RecordsResponse
+import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
+import com.lumina.app_daymood.data.api.dto.UserLoginRequest
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
+import com.lumina.app_daymood.data.api.dto.WeeklyStatsResponse
+import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
+import retrofit2.http.PATCH
+import retrofit2.http.Multipart
 import retrofit2.http.POST
-import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface ApiService{
-    // cambiar rutas cuando este la api lista
-    @POST("auth/register")
-    suspend fun registerUser(
-        @Header("Authorization") token: String,
-        @Body request: UserRequest
-    ): UserResponse
+interface ApiService {
+    // le quitamos el header a todas las peticiones porque ya lo tenemos en el interceptor
+    @POST("users/register")
+    suspend fun registerUser(@Body request: UserRequest): UserResponse
 
-    @POST  ("auth/login")
-    suspend fun loginUser(@Body request: UserRequest): UserResponse
+    @POST("users/login")
+    suspend fun loginUser(@Body request: UserLoginRequest): UserResponse
 
+    // ========== EMOTIONS / FAVORITES ====================
     @GET("emotions")
-    suspend fun getEmotions(
-        @Header("Authorization") token: String
-    ): EmotionsResponse
+    suspend fun getEmotions(): EmotionsResponse
 
+    @GET("emotions/explore")
+    suspend fun getUploadedEmotions(): EmotionsResponse
+
+    @GET("records/habits")
+    suspend fun getHabits(): HabitsResponse
+
+    @Multipart
     @POST("emotions")
     suspend fun createEmotion(
-        @Header("Authorization") token: String,
-        @Body request: CreateEmotionRequest
+        @Part("name") name: RequestBody,
+        @Part("id_category") categoryId: RequestBody,
+        @Part("save_to_favorites") saveToFavorites: RequestBody,
+        @Part image: MultipartBody.Part
     ): CreateEmotionResponse
 
-    @GET("habits")
-    suspend fun getHabits(
-        @Header ("Authorization") token: String
-    ): HabitsResponse
+    @GET("emotions/favorites")
+    suspend fun getFavorites(): FavoritesResponse
 
-    @POST ("records")
-    suspend fun createRecord(
-        @Header ("Authorization") token: String,
-        @Body request: CreateRecordRequest
-    ): RecordResponse
-
-    @GET("records")
-    suspend fun getRecordsByMonth(
-        @Header("Authorization") token: String,
-        @Query("year") year: Int,
-        @Query("month") month: Int
-    ): RecordsResponse
-
-    @GET("records/date")
-    suspend fun getRecordByDate(
-        @Header("Authorization") token: String,
-        @Query("date") date: String
-    ): RecordResponse
-
-    @PUT("records/{recordId}")
-    suspend fun updateRecord(
-        @Header("Authorization") token: String,
-        @Path("recordId") recordId: String,
-        @Body request: CreateRecordRequest
-    ): RecordResponse
-
-    @GET("favorites")
-    suspend fun getFavorites(
-        @Header("Authorization") token: String
-    ): FavoritesResponse
-
-    @POST("favorites")
+    @POST("emotions/favorites/{id}")
     suspend fun addFavorite(
-        @Header("Authorization") token: String,
-        @Body request: FavoriteRequest
+        @Path("id") emotionId: String, @Body request: FavoriteRequest
     ): FavoriteActionResponse
 
+    // ========== RECORD ====================
+    @POST("records")
+    suspend fun createRecord(@Body request: CreateRecordRequest): RecordResponse
+
+    @GET("records/month")
+    suspend fun getRecordsByMonth(
+        @Query("year") year: String, @Query("month") month: Int
+    ): RecordMonthResponse
+
+    @GET("records/day")
+    suspend fun getRecordByDate(@Query("date") date: String): RecordResponse
+
+    // ========== STATS ====================
+    @GET("stats/weekly")
+    suspend fun getWeeklyStats(): WeeklyStatsResponse
+
+    // ========== FORMS ====================
+    @POST("forms/submit")
+    suspend fun submitForm(@Body request: FormRequest): FormResponse
+
+    // ========== FORUMS ===================
+    @GET("forums/category/{categoryId}")
+    suspend fun getForumsByCategory(@Path("categoryId") categoryId: Int): List<ForumCategoryDetailDTO>
+
+    @GET("forums/detail/{forumId}")
+    suspend fun getForumDetail(
+        @Path(
+            "forumId"
+        ) forumId: String
+    ): ForumDTO
+
+    // ========== POSTS ====================
     @POST("posts")
-    suspend fun createPost(
-        @Header("Authorization") token: String,
-        @Body request: PostRequest
-    ): PostResponse
+    suspend fun createPost(@Body request: PostRequest): PostDTO
 
-    @GET("posts")
-    suspend fun getAllPosts(
-        @Header("Authorization") token: String
-    ): PostsResponse
+    @PATCH("posts/{postId}")
+    suspend fun updatePost(
+        @Path("postId") postId: String, @Body request: UpdatePostRequest
+    ): PostDTO
 
-    @GET ("posts/{postId}")
-    suspend fun getPost(
-        @Header("Authorization") token: String,
-        @Path("postId") postId: String
-    ): PostResponse
+    @DELETE("posts/{postId}")
+    suspend fun deletePost(@Path("postId") postId: String): MessageResponse
 
-    @POST("/posts/comments")
-    suspend fun addComment(
-        @Header("Authorization") token: String,
-        @Body request: CommentRequest
-    ): CommentsResponse
+    @POST("comments")
+    suspend fun addComment(@Body request: CommentRequest): CommentDTO
 
-    @GET("posts/comments")
-    suspend fun getComments(
-        @Header("Authorization") token: String,
-        @Query("postId") postId: String
-    ): CommentsResponse
+    @DELETE("comments/{commentId}")
+    suspend fun deleteComment(@Path("commentId") commentId: String): MessageResponse
 }
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:3000/"
-    val instance: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+    private val BASE_URL = BuildConfig.API_BASE_URL
+
+    // La instancia de AuthDataSource se inyecta desde AppModule para evitar duplicados
+    private lateinit var authDataSource: FirebaseAuthDataSource
+
+    fun init(authDataSource: FirebaseAuthDataSource) {
+        this.authDataSource = authDataSource
+    }
+
+    private val client: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(authDataSource))
+            // Timeouts generosos para Render (cold start puede tardar 30-60s)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
             .build()
+    }
+
+    val instance: ApiService by lazy {
+        Retrofit.Builder().baseUrl(BASE_URL).client(client)
+            .addConverterFactory(GsonConverterFactory.create()).build()
             .create(ApiService::class.java)
     }
 }

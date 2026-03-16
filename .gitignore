@@ -14,5 +14,11 @@
 .cxx
 local.properties
 app/google-services.json
+# Secretos — nunca al repo
+keystore.properties
+*.jks
+*.keystore
+keystore/
+
 
 

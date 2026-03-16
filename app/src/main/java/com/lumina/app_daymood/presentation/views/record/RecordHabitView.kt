@@ -19,25 +19,12 @@ import com.lumina.app_daymood.domain.models.HabitModel as Habit
 import com.lumina.app_daymood.presentation.viewmodels.RecordViewModel
 import com.lumina.app_daymood.presentation.views.record.components.HabitChip
 import com.lumina.app_daymood.presentation.views.record.components.habitIconRes
+import com.lumina.app_daymood.presentation.views.record.components.habitShortLabel
+import com.lumina.app_daymood.ui.theme.BackgroundColor
 import com.lumina.app_daymood.ui.theme.DisabledButton
 import com.lumina.app_daymood.ui.theme.MainColor
 import com.lumina.app_daymood.ui.theme.borderLines
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
-// Categorías fijas con sus IDs de categoryId de la BD
-private data class HabitCategory(
-    val categoryId: Int,
-    val title: String
-)
-
-private val HABIT_CATEGORIES = listOf(
-    HabitCategory(categoryId = 3, title = "Salud"),
-    HabitCategory(categoryId = 4, title = "Bienestar mental"),
-    HabitCategory(categoryId = 5, title = "Social"),
-    HabitCategory(categoryId = 6, title = "Productividad")
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,24 +36,20 @@ fun RecordHabitView(
 ) {
     val uiState = recordViewModel.uiState
 
-    val formattedDate = date.format(
-        DateTimeFormatter.ofPattern("EEEE, d 'de' MMMM", Locale("es", "ES"))
-    )
-
     RecordHabitViewContent(
         uiState = uiState,
-        formattedDate = formattedDate,
         onBackClick = onBackClick,
         onSaveSuccess = onSaveSuccess,
         onClearSuccess = { recordViewModel.clearSuccess() },
-        onSaveClick = { note, selectedHabitIds ->
+        onSaveClick = { noteText, selectedHabitIds ->
             recordViewModel.saveEmotionSelection(
                 emotionId = uiState.selectedEmotionId ?: "",
-                note = note.ifBlank { null }
+                note = noteText.ifBlank { null }
             )
             recordViewModel.saveRecord(
                 date = recordViewModel.formatDate(date),
-                habitIds = selectedHabitIds.toList()
+                habitIds = selectedHabitIds.toList(),
+                noteToSave = noteText.ifBlank { "" }
             )
         }
     )
@@ -76,13 +59,11 @@ fun RecordHabitView(
 @Composable
 fun RecordHabitViewContent(
     uiState: RecordUiState,
-    formattedDate: String,
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit,
     onClearSuccess: () -> Unit,
     onSaveClick: (String, Set<String>) -> Unit
 ) {
-    // Hábitos seleccionados localmente (Set de IDs). Al final no se necesita category como un model XD
     var selectedHabitIds by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     // Nota vive aquí en RecordHabitView
@@ -107,7 +88,7 @@ fun RecordHabitViewContent(
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFF0F0)
+                    containerColor = BackgroundColor
                 ),
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -120,7 +101,7 @@ fun RecordHabitViewContent(
                 }
             )
         },
-        containerColor = Color(0xFFFFF0F0)
+        containerColor = BackgroundColor
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -138,23 +119,21 @@ fun RecordHabitViewContent(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 } else {
-                    // Renderizamos una sección por cada categoría fija mostrando los hábitos dinámicos que correspondan a ese categoryId
-                    HABIT_CATEGORIES.forEach { category ->
-                        val habitsForCategory = uiState.habits.filter {
-                            it.categoryId == category.categoryId
-                        }
-
-                        // Solo mostramos la categoría si tiene hábitos
-                        if (habitsForCategory.isNotEmpty()) {
+                    // Renderizamos las categorías dinámicas provenientes de la API
+                    uiState.habitCategories.forEach { category ->
+                        if (category.habits.isNotEmpty()) {
                             HabitCategorySection(
-                                title = category.title,
-                                habits = habitsForCategory,
+                                title = category.categoryName,
+                                habits = category.habits,
                                 selectedHabitIds = selectedHabitIds,
                                 onHabitToggle = { habitId ->
-                                    selectedHabitIds = if (habitId in selectedHabitIds) {
-                                        selectedHabitIds - habitId
+                                    val isSelected = habitId in selectedHabitIds
+                                    if (isSelected) {
+                                        // Deseleccionar si ya estaba
+                                        selectedHabitIds = selectedHabitIds - habitId
                                     } else {
-                                        selectedHabitIds + habitId
+                                        val otherHabitIdsInCategory = category.habits.map { it.id }.toSet()
+                                        selectedHabitIds = (selectedHabitIds - otherHabitIdsInCategory) + habitId
                                     }
                                 }
                             )
@@ -190,9 +169,9 @@ fun RecordHabitViewContent(
                         .height(100.dp)
                 )
 
-                // Contador de caracteres
+                // Contador de caracteres (Límite 200)
                 Text(
-                    text = "${note.length}/500",
+                    text = "${note.length}/200",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     modifier = Modifier
@@ -217,7 +196,7 @@ fun RecordHabitViewContent(
                     },
                     enabled = !uiState.isLoading,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF4C2C2),
+                        containerColor = MainColor,
                         disabledContainerColor = DisabledButton
                     ),
                     shape = RoundedCornerShape(16.dp),
@@ -247,18 +226,6 @@ fun RecordHabitViewContent(
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
-@Composable
-fun RecordHabitViewPreview() {
-    RecordHabitViewContent(
-        uiState = RecordUiState(),
-        formattedDate = "Lunes, 1 de Enero",
-        onBackClick = {},
-        onSaveSuccess = {},
-        onClearSuccess = {},
-        onSaveClick = { _, _ -> }
-    )
-}
 
 @Composable
 private fun HabitCategorySection(
@@ -283,10 +250,10 @@ private fun HabitCategorySection(
             ) {
                 rowHabits.forEach { habit ->
                     HabitChip(
-                        label = habit.name,
+                        label = habitShortLabel(habit.name),
                         isSelected = habit.id in selectedHabitIds,
                         onClick = { onHabitToggle(habit.id) },
-                        iconRes = habitIconRes(habit.name),   // ← nuevo
+                        iconRes = habitIconRes(habit.name),
                         modifier = Modifier.weight(1f)
                     )
                 }
