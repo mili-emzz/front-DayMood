@@ -265,9 +265,16 @@ fun InfoContent(imageResId: Int, onDiaryClick: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "Registra tus emociones y mantén un seguimiento de tu bienestar.",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.DarkGray
             )
+            Text(
+                text = "¡Si los datos de la app no se reflejan inmediatamente, intenta entrar y salir de la app!",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.DarkGray,
+                fontWeight = FontWeight.Bold,
+            )
+
             Spacer(Modifier.height(12.dp))
             Button(
                 onClick = onDiaryClick,

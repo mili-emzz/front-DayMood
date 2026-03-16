@@ -33,7 +33,6 @@ fun HomeView(
     val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
-    // 1. Refresco al volver a la pantalla (Lifecycle Observer)
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
