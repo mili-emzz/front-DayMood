@@ -61,6 +61,8 @@ object AppModule {
     }
 
     private val apiService: ApiService by lazy {
+        // Inicializar RetrofitClient con la misma instancia de AuthDataSource
+        RetrofitClient.init(firebaseAuthDataSource)
         RetrofitClient.instance
     }
     val authRepository: IAuthRepository by lazy {

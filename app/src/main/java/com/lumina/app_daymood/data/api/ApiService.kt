@@ -1,6 +1,5 @@
 package com.lumina.app_daymood.data.api
 
-import com.google.firebase.auth.FirebaseAuth
 import com.lumina.app_daymood.BuildConfig
 import com.lumina.app_daymood.data.api.dto.CommentDTO
 import com.lumina.app_daymood.data.api.dto.CommentRequest
@@ -129,11 +128,22 @@ interface ApiService {
 object RetrofitClient {
     private val BASE_URL = BuildConfig.API_BASE_URL
 
-    // Usamos la misma instancia de AuthDataSource para el Interceptor
-    private val authDataSource = FirebaseAuthDataSource(FirebaseAuth.getInstance())
+    // La instancia de AuthDataSource se inyecta desde AppModule para evitar duplicados
+    private lateinit var authDataSource: FirebaseAuthDataSource
 
-    private val client =
-        OkHttpClient.Builder().addInterceptor(AuthInterceptor(authDataSource)).build()
+    fun init(authDataSource: FirebaseAuthDataSource) {
+        this.authDataSource = authDataSource
+    }
+
+    private val client: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(authDataSource))
+            // Timeouts generosos para Render (cold start puede tardar 30-60s)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+    }
 
     val instance: ApiService by lazy {
         Retrofit.Builder().baseUrl(BASE_URL).client(client)
