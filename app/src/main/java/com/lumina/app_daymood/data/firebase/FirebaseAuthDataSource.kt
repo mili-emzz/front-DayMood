@@ -38,33 +38,33 @@ class FirebaseAuthDataSource(
                 this.displayName = username
             }
 
-            auth.currentUser?.updateProfile(profileUpdates)
-                ?.addOnSuccessListener {
+            auth.currentUser?.updateProfile(profileUpdates)?.addOnSuccessListener {
                     Log.e("FirebaseAuthDataSource", "Perfil Actualizado")
                     continuation.resume(auth.currentUser!!)
-                }
-                ?.addOnFailureListener {
+                }?.addOnFailureListener {
                     Log.e("FirebaseAuthDataSource", "Error al actualizar perfil: ${it.message}")
                     continuation.resumeWithException(it)
-                }
-                ?: continuation.resumeWithException(Exception("Usuario no autenticado"))
+                } ?: continuation.resumeWithException(Exception("Usuario no autenticado"))
         }
     }
 
-    suspend fun getIdToken(): String {
+    suspend fun getIdToken(forceRefresh: Boolean = false): String {
         return suspendCoroutine { continuation ->
-            auth.currentUser?.getIdToken(true)
-                ?.addOnSuccessListener { result ->
+            val currentUser = auth.currentUser
+            if (currentUser == null) {
+                continuation.resumeWithException(Exception("Usuario no autenticado"))
+                return@suspendCoroutine
+            }
+            currentUser.getIdToken(forceRefresh).addOnSuccessListener { result ->
                     result.token?.let { token ->
                         Log.d("FirebaseAuthDataSource", "Token obtenido")
                         continuation.resume(token)
-                    } ?: continuation.resumeWithException(Exception("Token null"))
+                    } ?: continuation.resumeWithException(Exception("Token nulo"))
                 }
-                ?.addOnFailureListener {
+                .addOnFailureListener {
                     Log.e("FirebaseAuthDataSource", "Error al obtener token: ${it.message}")
                     continuation.resumeWithException(it)
                 }
-                ?: continuation.resumeWithException(Exception("Usuario no autenticado"))
         }
     }
 

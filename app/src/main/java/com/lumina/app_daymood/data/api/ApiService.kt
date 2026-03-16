@@ -19,11 +19,14 @@ import com.lumina.app_daymood.data.api.dto.PostRequest
 import com.lumina.app_daymood.data.api.dto.PostDTO
 import com.lumina.app_daymood.data.api.dto.RecordMonthResponse
 import com.lumina.app_daymood.data.api.dto.RecordResponse
+import com.lumina.app_daymood.data.api.dto.UpdatePostRequest
 import com.lumina.app_daymood.data.api.dto.UserLoginRequest
 import com.lumina.app_daymood.data.api.dto.UserRequest
 import com.lumina.app_daymood.data.api.dto.UserResponse
 import com.lumina.app_daymood.data.api.dto.WeeklyStatsResponse
+import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -31,7 +34,6 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
-import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -39,147 +41,113 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
+    // le quitamos el header a todas las peticiones porque ya lo tenemos en el interceptor
     @POST("users/register")
-    suspend fun registerUser(
-        @Header("Authorization") token: String,
-        @Body request: UserRequest
-    ): UserResponse
+    suspend fun registerUser(@Body request: UserRequest): UserResponse
 
     @POST("users/login")
-    suspend fun loginUser(
-        @Header("Authorization") token: String,
-        @Body request: UserLoginRequest
-    ): UserResponse
+    suspend fun loginUser(@Body request: UserLoginRequest): UserResponse
 
     // ========== EMOTIONS / FAVORITES ====================
-    // -- EMOTIONS
     @GET("emotions")
-    suspend fun getEmotions(
-        @Header("Authorization") token: String
-    ): EmotionsResponse
+    suspend fun getEmotions(): EmotionsResponse
 
     @GET("emotions/explore")
-    suspend fun getUploadedEmotions(
-        @Header("Authorization") token: String
-    ): EmotionsResponse
+    suspend fun getUploadedEmotions(): EmotionsResponse
 
     @GET("records/habits")
-    suspend fun getHabits(
-        @Header("Authorization") token: String
-    ): HabitsResponse
+    suspend fun getHabits(): HabitsResponse
 
     @Multipart
     @POST("emotions")
     suspend fun createEmotion(
-        @Header("Authorization") token: String,
         @Part("name") name: RequestBody,
         @Part("id_category") categoryId: RequestBody,
         @Part("save_to_favorites") saveToFavorites: RequestBody,
         @Part image: MultipartBody.Part
     ): CreateEmotionResponse
 
-    // -- EMOTIONs FAVORITES
     @GET("emotions/favorites")
-    suspend fun getFavorites(
-        @Header("Authorization") token: String
-    ): FavoritesResponse
+    suspend fun getFavorites(): FavoritesResponse
 
     @POST("emotions/favorites/{id}")
     suspend fun addFavorite(
-        @Header("Authorization") token: String,
-        @Path("id") emotionId: String,
-        @Body request: FavoriteRequest
+        @Path("id") emotionId: String, @Body request: FavoriteRequest
     ): FavoriteActionResponse
 
     // ========== RECORD ====================
     @POST("records")
-    suspend fun createRecord(
-        @Header("Authorization") token: String,
-        @Body request: CreateRecordRequest
-    ): RecordResponse
+    suspend fun createRecord(@Body request: CreateRecordRequest): RecordResponse
 
-    // --RECORD BY MONTH
     @GET("records/month")
     suspend fun getRecordsByMonth(
-        @Header("Authorization") token: String,
-        @Query("year") year: String,
-        @Query("month") month: Int
+        @Query("year") year: String, @Query("month") month: Int
     ): RecordMonthResponse
 
     @GET("records/day")
-    suspend fun getRecordByDate(
-        @Header("Authorization") token: String,
-        @Query("date") date: String
-    ): RecordResponse
+    suspend fun getRecordByDate(@Query("date") date: String): RecordResponse
 
     // ========== STATS ====================
     @GET("stats/weekly")
-    suspend fun getWeeklyStats(
-        @Header("Authorization") token: String
-    ): WeeklyStatsResponse
+    suspend fun getWeeklyStats(): WeeklyStatsResponse
 
     // ========== FORMS ====================
     @POST("forms/submit")
-    suspend fun submitForm(
-        @Header("Authorization") token: String,
-        @Body request: FormRequest
-    ): FormResponse
+    suspend fun submitForm(@Body request: FormRequest): FormResponse
 
     // ========== FORUMS ===================
-    // Paso 1: Obtener el foro por categoría (retorna lista, el backend filtra por edad)
     @GET("forums/category/{categoryId}")
-    suspend fun getForumsByCategory(
-        @Header("Authorization") token: String,
-        @Path("categoryId") categoryId: Int
-    ): List<ForumCategoryDetailDTO>
+    suspend fun getForumsByCategory(@Path("categoryId") categoryId: Int): List<ForumCategoryDetailDTO>
 
-    // Paso 2: Obtener detalle del foro (posts + comentarios anidados)
     @GET("forums/detail/{forumId}")
     suspend fun getForumDetail(
-        @Header("Authorization") token: String,
-        @Path("forumId") forumId: String
+        @Path(
+            "forumId"
+        ) forumId: String
     ): ForumDTO
 
     // ========== POSTS ====================
     @POST("posts")
-    suspend fun createPost(
-        @Header("Authorization") token: String,
-        @Body request: PostRequest
-    ): PostDTO
+    suspend fun createPost(@Body request: PostRequest): PostDTO
 
     @PATCH("posts/{postId}")
     suspend fun updatePost(
-        @Header("Authorization") token: String,
-        @Path("postId") postId: String,
-        @Body request: com.lumina.app_daymood.data.api.dto.UpdatePostRequest
+        @Path("postId") postId: String, @Body request: UpdatePostRequest
     ): PostDTO
 
     @DELETE("posts/{postId}")
-    suspend fun deletePost(
-        @Header("Authorization") token: String,
-        @Path("postId") postId: String
-    ): MessageResponse // Assumes Response<Unit> or just doesn't crash on 204/200 OK
+    suspend fun deletePost(@Path("postId") postId: String): MessageResponse
 
     @POST("comments")
-    suspend fun addComment(
-        @Header("Authorization") token: String,
-        @Body request: CommentRequest
-    ): CommentDTO
+    suspend fun addComment(@Body request: CommentRequest): CommentDTO
 
     @DELETE("comments/{commentId}")
-    suspend fun deleteComment(
-        @Header("Authorization") token: String,
-        @Path("commentId") commentId: String
-    ): MessageResponse
+    suspend fun deleteComment(@Path("commentId") commentId: String): MessageResponse
 }
 
 object RetrofitClient {
     private val BASE_URL = BuildConfig.API_BASE_URL
 
-    val instance: ApiService by lazy {        Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(ApiService::class.java)
+    // La instancia de AuthDataSource se inyecta desde AppModule para evitar duplicados
+    private lateinit var authDataSource: FirebaseAuthDataSource
+
+    fun init(authDataSource: FirebaseAuthDataSource) {
+        this.authDataSource = authDataSource
+    }
+
+    private val client: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .addInterceptor(AuthInterceptor(authDataSource))
+            // Timeouts generosos para Render (cold start puede tardar 30-60s)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+    }
+
+    val instance: ApiService by lazy {
+        Retrofit.Builder().baseUrl(BASE_URL).client(client)
+            .addConverterFactory(GsonConverterFactory.create()).build()
+            .create(ApiService::class.java)
     }
 }

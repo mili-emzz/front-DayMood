@@ -11,6 +11,7 @@ import com.lumina.app_daymood.domain.models.RecordModel as Record
 import com.lumina.app_daymood.domain.repositories.IAuthRepository
 import com.lumina.app_daymood.domain.repositories.IFavoritesRepository
 import com.lumina.app_daymood.domain.repositories.IRecordRepository
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -52,17 +53,18 @@ class RecordViewModel(
             val token = authRepository.getIdToken() ?: ""
             uiState = uiState.copy(loadingCatalogs = true)
 
-            // Cargar emociones default
-            val emotionsResult = recordRepository.getEmotions()
+            // Las 3 llamadas se lanzan en paralelo para cargar más rápido
+            val emotionsDeferred = async { recordRepository.getEmotions() }
+            val favoritesDeferred = async { favoritesRepository.getFavorites() }
+            val habitsDeferred = async { recordRepository.getHabits() }
+
+            val emotionsResult = emotionsDeferred.await()
+            val favoritesResult = favoritesDeferred.await()
+            val habitsResult = habitsDeferred.await()
+
             val defaultEmotions = emotionsResult.getOrDefault(emptyList())
-
-            // Cargar emociones favoritas del usuario
-            val favoritesResult = favoritesRepository.getFavorites(token)
             val favoriteEmotions = favoritesResult.getOrDefault(emptyList())
-
             val combinedEmotions = (defaultEmotions + favoriteEmotions).distinctBy { it.id }
-
-            val habitsResult = recordRepository.getHabits()
 
             uiState = uiState.copy(
                 emotions = combinedEmotions,

@@ -41,7 +41,7 @@ class FormViewModel(
 
             Log.d("FormViewModel", "Enviando formulario: $apiAnswers")
 
-            formRepository.submitForm(token, apiAnswers)
+            formRepository.submitForm(apiAnswers)
                 .onSuccess {
                     Log.d("FormViewModel", "Formulario enviado exitosamente")
                     uiState = uiState.copy(isLoading = false, isSubmitted = true)

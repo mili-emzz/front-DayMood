@@ -12,12 +12,11 @@ class FormRepositoryImpl(
 ) : IFormRepository {
 
     override suspend fun submitForm(
-        token: String,
         answers: Map<String, Int>
     ): Result<List<FullAnswerDTO>> = withContext(Dispatchers.IO) {
         try {
             val request = FormRequest(answers = answers)
-            val response = apiService.submitForm("Bearer $token", request)
+            val response = apiService.submitForm(request)
             Result.success(response.fullAnswers)
         } catch (e: Exception) {
             Result.failure(e)

@@ -33,6 +33,7 @@ interface IForumRepository {
         postId: String,
         content: String
     ): Result<CommentModel>
+
     suspend fun deleteComment(
         token: String,
         commentId: String

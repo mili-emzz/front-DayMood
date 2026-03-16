@@ -60,13 +60,6 @@ class AddEmotionViewModel(
         uploadState = UploadState.ImageNotSelected
     }
 
-    // ── Submit ────────────────────────────────────────────────────────────────
-
-    /**
-     * Valida el formulario y envía la emoción a la API como multipart.
-     * La API recibe la imagen, la sube a Firebase Storage y devuelve la URL.
-     * Ya NO se sube la imagen desde el app directamente a Firebase.
-     */
     fun submitEmotion(onSuccess: () -> Unit) {
         val uri = imageUri ?: run {
             errorMessage = "Selecciona una imagen primero"
@@ -93,7 +86,6 @@ class AddEmotionViewModel(
 
             // Un solo paso: mandar imagen + datos a la API (multipart)
             val result = emotionRepository.createEmotion(
-                token           = token,
                 name            = emotionName.trim(),
                 categoryId      = selectedCategoryId,
                 imageUri        = uri,
@@ -101,7 +93,6 @@ class AddEmotionViewModel(
             )
 
             isSubmitting = false
-
             if (result.isFailure) {
                 errorMessage = "Error al subir emoción: ${result.exceptionOrNull()?.message}"
                 return@launch

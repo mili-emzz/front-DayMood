@@ -110,7 +110,6 @@ fun AppNavHost(
         composable(Destination.HOME.route) {
             if (authViewModel.isAuthenticated()) {
                 HomeView(
-                    recordViewModel = recordViewModel,
                     favoritesViewModel = favoritesViewModel
                 )
             } else {

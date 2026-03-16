@@ -12,39 +12,32 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 class EmotionRepositoryImpl(
     private val apiService: ApiService,
-    private val context: Context,          // necesario para abrir el InputStream del Uri
-    private val firebaseAuthDataSource: FirebaseAuthDataSource
+    private val context: Context,
 ) : IEmotionRepository {
 
     override suspend fun createEmotion(
-        token: String,
         name: String,
         categoryId: Int,
         imageUri: Uri,
         saveToFavorites: Boolean
     ): Result<EmotionModel> {
         return try {
-            // Leer bytes del Uri seleccionado por el usuario
             val inputStream = context.contentResolver.openInputStream(imageUri)
                 ?: return Result.failure(Exception("No se pudo leer la imagen seleccionada"))
             val imageBytes = inputStream.readBytes()
             inputStream.close()
 
-            // Detectar MIME type (image/jpeg, image/png, etc.)
             val mimeType = context.contentResolver.getType(imageUri) ?: "image/jpeg"
 
-            // Construir la parte "image" del multipart
             val imageBody = imageBytes.toRequestBody(mimeType.toMediaTypeOrNull())
             val imagePart = MultipartBody.Part.createFormData("image", "emotion.jpg", imageBody)
 
-            // Campos de texto como RequestBody
             val nameBody = name.toRequestBody("text/plain".toMediaTypeOrNull())
             val categoryBody = categoryId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val favoritesBody =
-                saveToFavorites.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val favoritesBody = saveToFavorites.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
+            // El token se inyecta automáticamente vía AuthInterceptor
             val response = apiService.createEmotion(
-                token = "Bearer $token",
                 name = nameBody,
                 categoryId = categoryBody,
                 saveToFavorites = favoritesBody,
@@ -61,8 +54,7 @@ class EmotionRepositoryImpl(
 
     override suspend fun getUploadedEmotions(): Result<List<EmotionModel>> {
         return try {
-            val token = firebaseAuthDataSource.getIdToken()
-            val response = apiService.getUploadedEmotions("Bearer $token")
+            val response = apiService.getUploadedEmotions()
             Result.success(response.data.map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)

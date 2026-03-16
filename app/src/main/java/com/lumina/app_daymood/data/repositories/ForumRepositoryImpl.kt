@@ -22,7 +22,7 @@ class ForumRepositoryImpl(
     override suspend fun getForumIdForCategory(token: String, categoryId: Int): Result<String> =
         withContext(Dispatchers.IO) {
             try {
-                val forums = apiService.getForumsByCategory("Bearer $token", categoryId)
+                val forums = apiService.getForumsByCategory(categoryId)
                 if (forums.isEmpty()) {
                     throw Exception("No se encontró un foro para la categoría $categoryId")
                 }
@@ -38,10 +38,9 @@ class ForumRepositoryImpl(
     override suspend fun getForumDetail(token: String, forumId: String): Result<List<PostModel>> =
         withContext(Dispatchers.IO) {
             try {
-                val forum = apiService.getForumDetail("Bearer $token", forumId)
-                // Usamos la lista segura mapeada para evitar el error de IterablesKt
+                val forum = apiService.getForumDetail(forumId)
                 val domainPosts = forum.posts?.map { it.toDomain() } ?: emptyList()
-                
+
                 Log.d(TAG, "Detalle de foro cargado: ${domainPosts.size} posts, rango de edad=${forum.min_age}-${forum.max_age}")
                 Result.success(domainPosts)
             } catch (e: Exception) {
@@ -60,7 +59,6 @@ class ForumRepositoryImpl(
         try {
             Log.d(TAG, "Creando post en forumId: $forumId, cat: $categoryId")
             val response = apiService.createPost(
-                token = "Bearer $token",
                 request = PostRequest(
                     forumId = forumId,
                     id_category = categoryId,
@@ -83,7 +81,6 @@ class ForumRepositoryImpl(
     ): Result<PostModel> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.updatePost(
-                token = "Bearer $token",
                 postId = postId,
                 request = UpdatePostRequest(
                     title = title,
@@ -101,7 +98,7 @@ class ForumRepositoryImpl(
         postId: String
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            apiService.deletePost("Bearer $token", postId)
+            apiService.deletePost(postId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -115,7 +112,6 @@ class ForumRepositoryImpl(
     ): Result<CommentModel> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.addComment(
-                token = "Bearer $token",
                 request = CommentRequest(
                     postId = postId,
                     content = content
@@ -132,7 +128,7 @@ class ForumRepositoryImpl(
         commentId: String
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            apiService.deleteComment("Bearer $token", commentId)
+            apiService.deleteComment(commentId)
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

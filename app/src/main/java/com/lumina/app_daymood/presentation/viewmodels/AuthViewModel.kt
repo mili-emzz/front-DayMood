@@ -67,7 +67,6 @@ class AuthViewModel(
             uiState = uiState.copy(error = "La contraseña debe tener al menos 8 caracteres, un número y una mayúscula.")
             return
         }
-
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, error = null)
 
