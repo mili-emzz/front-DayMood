@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -144,17 +145,17 @@ fun AddEmotionContent(
         ) {
             Text(
                 text = "Publica más emociones",
-                style = MaterialTheme.typography.headlineSmall,
-                fontSize = 26.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color.Black
+                color = Color.Black,
+                style = MaterialTheme.typography.headlineMedium
             )
             Text(
                 text = "Comparte imágenes para representar más emociones",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Gray,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
+                modifier = Modifier.padding(bottom = 32.dp),
+                textAlign = TextAlign.Center
+                )
 
             Box(
                 modifier = Modifier

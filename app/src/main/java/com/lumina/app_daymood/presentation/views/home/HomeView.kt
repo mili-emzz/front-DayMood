@@ -35,7 +35,6 @@ fun HomeView(
     val isLoading = favoritesViewModel.isLoading
     val favorites = favoritesViewModel.favorites
 
-    // Cargamos todo de una sola vez de forma optimizada
     LaunchedEffect(Unit) {
         favoritesViewModel.loadHomeData()
     }
@@ -56,16 +55,15 @@ fun HomeView(
         ) {
             Text(
                 text = "Descubre más",
-                fontSize = 26.sp,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
             Text(
-                text = "Navegue y agregue emociones publicadas por usuarios",
-                fontSize = 13.sp,
+                text = "Navegue y agregue emociones publicadas por otros usuarios",
+                style = MaterialTheme.typography.titleMedium,
                 color = Color.Gray,
                 modifier = Modifier.padding(top = 4.dp, bottom = 6.dp),
-                maxLines = 1
             )
         }
         when {
@@ -86,7 +84,7 @@ fun HomeView(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "Aún no hay emociones publicadas",
-                            fontSize = 15.sp,
+                            style = MaterialTheme.typography.headlineSmall,
                             color = Color(0xFFBBBBBB),
                             fontWeight = FontWeight.Medium
                         )

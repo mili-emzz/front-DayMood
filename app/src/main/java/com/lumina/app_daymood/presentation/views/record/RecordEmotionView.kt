@@ -74,7 +74,7 @@ fun RecordEmotionView(
 
                             Text(
                                 text = "¿Cómo te sientes hoy?",
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.headlineMedium,
                                 color = Color(0xFF2C2C2C),
                                 fontWeight = FontWeight.Bold
                             )

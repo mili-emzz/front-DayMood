@@ -41,7 +41,7 @@ fun ProfileView(
 
                 Text(
                     text = "Tus datos",
-                    fontSize = 26.sp,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )

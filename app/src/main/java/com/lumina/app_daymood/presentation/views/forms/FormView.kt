@@ -56,7 +56,8 @@ fun TmmsTestView(
     val sectionQuestions = if (currentSection == 0) QUESTIONS.take(5) else QUESTIONS.drop(5)
     val questionOffset = currentSection * 5  // 0 o 5
 
-    val allCurrentAnswered = sectionQuestions.indices.all { answers.containsKey(it + questionOffset) }
+    val allCurrentAnswered =
+        sectionQuestions.indices.all { answers.containsKey(it + questionOffset) }
 
     Scaffold(containerColor = BackgroundColor) { paddingValues ->
         Column(
@@ -70,27 +71,33 @@ fun TmmsTestView(
 
             Text(
                 text = "¡Déjanos conocerte!",
-                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2C2C2C),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.headlineMedium
             )
-            
+
             Text(
-                text = "Formulario opcional para fines de investigación.\nPuedes omitirlo usando el botón de atrás de tu dispositivo.",
-                fontSize = 13.sp,
+                text = "Formulario opcional para fines de investigación.",
                 color = Color.Black,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 2.dp),
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = "Puedes omitirlo usando el botón de atrás de tu dispositivo.",
+                color = Color.Gray,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge
             )
 
             Spacer(Modifier.height(6.dp))
 
             Text(
                 text = "Este test está basado en el TMMS-24",
-                fontSize = 13.sp,
                 color = Color(0xFF9E9E9E),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(Modifier.height(14.dp))

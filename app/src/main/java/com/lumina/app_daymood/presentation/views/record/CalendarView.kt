@@ -79,7 +79,7 @@ fun CalendarView(
         ) {
             Text(
                 text = "Buen día",
-                style = MaterialTheme.typography.headlineMedium, // Usamos estilos de Material
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
@@ -102,7 +102,6 @@ fun CalendarView(
 
         Spacer(Modifier.height(16.dp))
 
-        // Selector de meses (Botones más pequeños para que quepan en pantallas angostas)
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()

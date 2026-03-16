@@ -83,8 +83,9 @@ fun RecordHabitViewContent(
                 title = {
                     Text(
                         "¿Qué has estado haciendo hoy?",
-                        color = Color.Black,
-                        fontSize = 22.sp
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = Color(0xFF2C2C2C),
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -132,8 +133,10 @@ fun RecordHabitViewContent(
                                         // Deseleccionar si ya estaba
                                         selectedHabitIds = selectedHabitIds - habitId
                                     } else {
-                                        val otherHabitIdsInCategory = category.habits.map { it.id }.toSet()
-                                        selectedHabitIds = (selectedHabitIds - otherHabitIdsInCategory) + habitId
+                                        val otherHabitIdsInCategory =
+                                            category.habits.map { it.id }.toSet()
+                                        selectedHabitIds =
+                                            (selectedHabitIds - otherHabitIdsInCategory) + habitId
                                     }
                                 }
                             )
