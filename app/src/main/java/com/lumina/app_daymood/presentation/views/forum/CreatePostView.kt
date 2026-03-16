@@ -69,11 +69,11 @@ fun CreatePostView(
             }
             Text(
                 text = "Publicación",
-                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF3D3D3D),
                 modifier = Modifier.weight(1f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                style = MaterialTheme.typography.headlineMedium
             )
         }
 
@@ -89,8 +89,8 @@ fun CreatePostView(
             Text(
                 "Título",
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                color = Color(0xFF3D3D3D)
+                color = Color(0xFF3D3D3D),
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(6.dp))
             OutlinedTextField(
@@ -100,7 +100,7 @@ fun CreatePostView(
                     Text(
                         "Título (Obligatorio)",
                         color = Color(0xFFBBBBBB),
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -120,7 +120,7 @@ fun CreatePostView(
             Text(
                 "Contenido",
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color(0xFF3D3D3D)
             )
             Spacer(Modifier.height(6.dp))
@@ -131,7 +131,7 @@ fun CreatePostView(
                     Text(
                         "Escribe algo...",
                         color = Color(0xFFBBBBBB),
-                        fontSize = 14.sp
+                        style = MaterialTheme.typography.titleMedium
                     )
                 },
                 modifier = Modifier
@@ -153,7 +153,7 @@ fun CreatePostView(
             Text(
                 "Categoría",
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color(0xFF3D3D3D)
             )
             Spacer(Modifier.height(10.dp))
@@ -184,7 +184,7 @@ fun CreatePostView(
                         ) {
                             Text(
                                 text = catName,
-                                fontSize = 13.sp,
+                                style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                 color = if (isSelected) Color.White else Color(0xFF888888)
                             )
