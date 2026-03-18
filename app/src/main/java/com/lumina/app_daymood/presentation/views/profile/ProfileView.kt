@@ -1,6 +1,7 @@
 package com.lumina.app_daymood.presentation.views.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -8,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lumina.app_daymood.presentation.viewmodels.AuthViewModel
@@ -24,6 +27,7 @@ fun ProfileView(
     onLogout: () -> Unit
 ) {
     val user = authViewModel.uiState.user
+    val uriHandler = LocalUriHandler.current
 
     Box(
         modifier = Modifier
@@ -55,7 +59,6 @@ fun ProfileView(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Campo Usuario
                 ProfileDataCard(
                     label = "Usuario:",
                     value = user?.username ?: "—"
@@ -75,25 +78,38 @@ fun ProfileView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Links (placeholder para cuando se implemente navegación externa)
                 Text(
                     text = "Términos y condiciones DayMood",
                     fontSize = 13.sp,
                     color = MainColor,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            uriHandler.openUri("https://landing-day-mood.vercel.app/info/terms")
+                        }
+                        .padding(vertical = 4.dp)
                 )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Manual de Usuario",
                     fontSize = 13.sp,
                     color = MainColor,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            uriHandler.openUri("https://landing-day-mood.vercel.app/info/terms") // REEMPLAZAR CON TU LINK DE MANUAL
+                        }
+                        .padding(vertical = 4.dp)
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Botón Cerrar Sesión
                 Button(
                     onClick = {
                         authViewModel.logout()

@@ -271,9 +271,12 @@ fun AppNavHost(
             )
         }
 
-        // ===== FORM TEST (TMMS-24) =====
         composable(AuthRoutes.FORM_TEST) {
+            val formUiState = formViewModel.uiState
             TmmsTestView(
+                isLoading = formUiState.isLoading,
+                errorMessage = formUiState.error,
+                isSuccess = formUiState.isSubmitted,
                 onSubmit = { answers ->
                     formViewModel.submitForm(answers) {
                         navController.navigate(Destination.CALENDAR.route) {

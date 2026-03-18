@@ -46,6 +46,9 @@ private val QUESTIONS = listOf(
 
 @Composable
 fun TmmsTestView(
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    isSuccess: Boolean = false,
     onSubmit: (answers: Map<Int, Int>) -> Unit = {},
     onBack: () -> Unit = {}
 ) {
@@ -180,7 +183,7 @@ fun TmmsTestView(
                 // Sección 1: solo botón "Siguiente"
                 TmmsButton(
                     text = "Siguiente",
-                    enabled = allCurrentAnswered,
+                    enabled = allCurrentAnswered && !isLoading,
                     onClick = { currentSection = 1 }
                 )
             } else {
@@ -191,18 +194,49 @@ fun TmmsTestView(
                 ) {
                     TmmsButton(
                         text = "Regresar",
-                        enabled = true,
+                        enabled = !isLoading,
                         outlined = true,
                         modifier = Modifier.weight(1f),
                         onClick = { currentSection = 0 }
                     )
                     TmmsButton(
                         text = "Enviar",
-                        enabled = allCurrentAnswered,
+                        enabled = allCurrentAnswered && !isLoading,
                         modifier = Modifier.weight(1f),
                         onClick = { onSubmit(answers.toMap()) }
                     )
                 }
+            }
+
+            // Área de Feedback (Carga, Error o Confirmación)
+            if (isLoading) {
+                Spacer(Modifier.height(16.dp))
+                CircularProgressIndicator(
+                    color = MainColor,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            errorMessage?.let {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            if (isSuccess) {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = "¡Formulario enviado con éxito!",
+                    color = Color(0xFF4CAF50),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
             Spacer(Modifier.height(24.dp))
