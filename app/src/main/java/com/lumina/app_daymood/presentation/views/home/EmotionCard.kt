@@ -16,21 +16,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.lumina.app_daymood.domain.models.EmotionModel
 import com.lumina.app_daymood.ui.theme.MainColor
 
-/**
- * Tarjeta reutilizable para mostrar una emoción personalizada.
- *
- * @param emotion       El modelo de emoción a mostrar.
- * @param isFavorite    Si ya está guardada como favorita.
- * @param onFavorite    Acción al presionar el corazón.
- * @param categoryName  Nombre de categoría a mostrar. Si null, usa el categoryId.
- */
+private val categoryMap = mapOf(
+    8 to "Alegría",
+    9 to "Tristeza",
+    10 to "Enojo",
+    11 to "Miedo",
+    12 to "Sorpresa",
+    13 to "Disgusto",
+    14 to "Amor",
+    15 to "Vergüenza"
+)
 @Composable
 fun EmotionCard(
     emotion: EmotionModel,
@@ -39,7 +39,7 @@ fun EmotionCard(
     categoryName: String? = null,
     modifier: Modifier = Modifier
 ) {
-    val displayCategory = categoryName ?: "Cat. ${emotion.categoryId}"
+    val displayCategory = categoryName ?: categoryMap[emotion.categoryId] ?: "Sin categoría"
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -92,8 +92,8 @@ fun EmotionCard(
             ) {
                 Text(
                     text = displayCategory,
-                    fontSize = 12.sp,
-                    color = Color(0xFFBBBBBB),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)

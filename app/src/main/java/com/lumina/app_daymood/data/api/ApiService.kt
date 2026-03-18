@@ -39,6 +39,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 interface ApiService {
     // le quitamos el header a todas las peticiones porque ya lo tenemos en el interceptor
@@ -128,7 +129,6 @@ interface ApiService {
 object RetrofitClient {
     private val BASE_URL = BuildConfig.API_BASE_URL
 
-    // La instancia de AuthDataSource se inyecta desde AppModule para evitar duplicados
     private lateinit var authDataSource: FirebaseAuthDataSource
 
     fun init(authDataSource: FirebaseAuthDataSource) {
@@ -138,10 +138,9 @@ object RetrofitClient {
     private val client: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(authDataSource))
-            // Timeouts generosos para Render (cold start puede tardar 30-60s)
-            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
-            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(90, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 
