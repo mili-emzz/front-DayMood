@@ -45,15 +45,17 @@ class AuthViewModel(
     private fun getErrorMessage(error: Throwable): String {
         val message = error.message?.lowercase() ?: ""
         return when {
+            message.contains("servidor principal") || message.contains("respondió") ->
+                "El servidor de DayMood está despertando o fuera de línea. Por favor, intenta de nuevo en un momento."
             message.contains("already-in-use") || message.contains("existe") ->
                 "Este email ya está registrado. Intenta iniciar sesión."
             message.contains("password") -> "Contraseña muy débil o incorrecta."
             message.contains("email") -> "El formato del email no es válido."
-            message.contains("network") || message.contains("timeout") -> "Revisa tu conexión a internet."
+            message.contains("network") || message.contains("timeout") -> "Revisa tu conexión a internet o el servidor está tardando mucho."
             message.contains("unauthorized") || message.contains("invalid") || message.contains("credentials")
                     || message.contains("401") || message.contains("404") || message.contains("wrong") ->
                 "Correo o contraseña incorrectos."
-            else -> "Algo salió mal. Verifica tus datos e intenta de nuevo."
+            else -> error.message ?: "Algo salió mal. Verifica tus datos e intenta de nuevo."
         }
     }
 

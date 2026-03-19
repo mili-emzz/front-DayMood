@@ -22,25 +22,36 @@ class AuthRepositoryImpl(
         password: String,
     ): Result<UserModel> = withContext(Dispatchers.IO) {
         try {
+            if (birth_day.isBlank()) {
+                return@withContext Result.failure(Exception("La fecha de nacimiento es obligatoria"))
+            }
+
+            // 1. Crear usuario en Firebase Auth
             val firebaseUser = firebaseAuthDataSource.createUser(email, password)
             val uid = firebaseUser.uid
             val username = generateRandomUsername()
 
             firebaseAuthDataSource.updateProfile(username)
 
+            val token = firebaseAuthDataSource.getIdToken(false)
+                ?: throw Exception("No se pudo generar el token de seguridad")
+
+            // 3. Registrar en Railway/Render (API)
+            // AHORA ES OBLIGATORIO. Si esto falla, lanzamos excepción.
+            try {
+                sendToApi(token, uid, username, email, birth_day)
+            } catch (e: Exception) {
+                Log.e("AuthRepository", "Fallo crítico en Railway: ${e.message}")
+                throw Exception("El servidor principal no respondió. Reintenta en unos segundos.")
+            }
+
+            // 4. Guardar en Firestore (solo si la API fue exitosa)
             firestoreDataSource.saveUser(
                 firebase_uid = uid,
                 username = username,
                 email = email,
                 birth_day = birth_day
             )
-
-            try {
-                val token = firebaseAuthDataSource.getIdToken(false)
-                sendToApi(token, uid, username, email, birth_day)
-            } catch (e: Exception) {
-                Log.w("AuthRepository", "API no disponible o falló: ${e.message}")
-            }
 
             val user = UserModel(
                 id = uid,
@@ -51,11 +62,11 @@ class AuthRepositoryImpl(
                 start_date = System.currentTimeMillis()
             )
 
-            Log.d("AuthRepository", "Usuario registrado exitosamente: $username")
+            Log.d("AuthRepository", "Registro completo en todos los sistemas: $username")
             Result.success(user)
 
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Error en registro: ${e.message}")
+            Log.e("AuthRepository", "Error en proceso de registro: ${e.message}")
             Result.failure(e)
         }
     }
@@ -127,7 +138,6 @@ class AuthRepositoryImpl(
             email = email,
             birth_day = birthDay
         )
-        // aquí sí pasamos el Bearer manualmente porque es una llamada de "one-time" durante el registro
         apiService.registerUser(request) 
     }
 }

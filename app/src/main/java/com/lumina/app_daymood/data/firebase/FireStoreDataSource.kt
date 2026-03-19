@@ -14,17 +14,19 @@ class FireStoreDataSource(
 
     private fun stringToTimestamp(dateString: String): Timestamp {
         return try {
-            val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            // Actualizado a yyyy-MM-dd para coincidir con la UI y la API
+            val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
             val date = format.parse(dateString) ?: throw Exception("Fecha inválida")
             Timestamp(date)
         } catch (e: Exception) {
             Log.e("FirestoreDataSource", "Error al convertir fecha: ${e.message}")
-            throw Exception("Formato de fecha inválido. Use dd/MM/yyyy")
+            throw Exception("Formato de fecha inválido. Use yyyy-MM-dd")
         }
     }
 
     private fun timestampToString(timestamp: Timestamp): String {
-        val format = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        // Al recuperar de Firestore, mantenemos yyyy-MM-dd para consistencia interna
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         return format.format(timestamp.toDate())
     }
 
