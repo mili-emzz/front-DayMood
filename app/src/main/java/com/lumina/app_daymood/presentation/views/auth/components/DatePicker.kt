@@ -1,5 +1,6 @@
 package com.lumina.app_daymood.presentation.views.auth.components
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,8 +62,10 @@ fun DatePickerField(
                     onClick = {
                         datePickerState.selectedDateMillis?.let { millis ->
                             val date = Date(millis)
-                            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                            onValueChange(formatter.format(date))
+                            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                            val formattedDate = formatter.format(date)
+                            onValueChange(formattedDate)
+                            Log.d("DatePickerField", "Fecha formateada para API: $formattedDate")
                         }
                         showDialog = false
                     }

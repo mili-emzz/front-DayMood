@@ -3,7 +3,6 @@ package com.lumina.app_daymood.data.api
 import com.lumina.app_daymood.data.firebase.FirebaseAuthDataSource
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import okhttp3.Interceptor
 import okhttp3.Response
 
